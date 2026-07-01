@@ -11,9 +11,9 @@
 - [x] 1.3 REFACTOR: rerun suite → 0 failures
 
 ## 2. Auth register/login — commit: `feat(api): add auth register/login with jwt cookie + tests`
-- [ ] 2.1 RED: `auth.service.spec.ts` + `auth.controller.spec.ts` — Successful registration, Invalid email rejected, Password too short rejected, Duplicate email rejected, Duplicate username rejected, Successful login (cookie httpOnly/SameSite=Lax/secure-prod/7d), Wrong password rejected, Unknown email rejected. Run → expect all failing
-- [ ] 2.2 GREEN: `auth.{module,service,controller}.ts`, `dto/{register,login}.dto.ts`, `JwtModule`, `Set-Cookie` on login
-- [ ] 2.3 REFACTOR: verify 401s generic (no enumeration), rerun green
+- [x] 2.1 RED: `auth.service.spec.ts` + `auth.controller.spec.ts` — Successful registration, Invalid email rejected, Password too short rejected, Duplicate email rejected, Duplicate username rejected, Successful login (cookie httpOnly/SameSite=Lax/secure-prod/7d), Wrong password rejected, Unknown email rejected. Run → expect all failing
+- [x] 2.2 GREEN: `auth.{module,service,controller}.ts`, `dto/{register,login}.dto.ts`, `JwtModule`, `Set-Cookie` on login
+- [x] 2.3 REFACTOR: verify 401s generic (no enumeration), rerun green
 
 ## 3. Global JWT guard — commit: `feat(api): add global jwt guard and @Public + integration tests`
 - [ ] 3.1 RED: Supertest spec — no-cookie, tampered, expired token → 401; `@Public()` bypasses. Run → expect failing

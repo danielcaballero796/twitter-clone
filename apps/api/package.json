@@ -19,6 +19,8 @@
     "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^6.19.3",
     "@twitterclone/shared": "workspace:*",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "cookie-parser": "^1.4.7",
     "dotenv": "^16.5.0",
     "reflect-metadata": "^0.2.2",
@@ -27,6 +29,7 @@
   "devDependencies": {
     "@nestjs/testing": "^11.1.27",
     "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.0",
     "@types/supertest": "^6.0.3",
