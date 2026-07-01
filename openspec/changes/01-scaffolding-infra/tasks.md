@@ -18,7 +18,7 @@ _Commit: `chore: add docker-compose with postgres dev and test databases`_
 ## 3. Shared Types Package
 _Commit: `feat(shared): add shared types package`_
 
-- [ ] 3.1 Create `packages/shared/package.json` (`@twitterclone/shared`, `exports` → `./src`) and `src/index.ts` (e.g. `HealthStatus` type).
+- [x] 3.1 Create `packages/shared/package.json` (`@twitterclone/shared`, `exports` → `./src`) and `src/index.ts` (e.g. `HealthStatus` type).
 - [ ] 3.2 Add as workspace dependency in `apps/api` and `apps/web` package.json.
 - [ ] 3.3 Risk check: confirm Jest, Vitest, and `tsc --noEmit` all resolve `@twitterclone/shared` before relying on it downstream.
 
