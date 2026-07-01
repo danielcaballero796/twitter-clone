@@ -1,14 +1,14 @@
 # Tasks: 02-auth — Authentication & Session Foundation
 
 ## 0. Setup & Dependencies
-- [ ] 0.1 Install (api): `@node-rs/argon2`, `@nestjs/jwt`, `cookie-parser`, `@types/cookie-parser`; (web): `react-router-dom`, `msw`
-- [ ] 0.2 Add `JWT_SECRET`, `WEB_ORIGIN` to `.env.example`
-- [ ] 0.3 Add shared types to `packages/shared/src/index.ts`: `PublicUser`, `RegisterRequest`, `LoginRequest`
+- [x] 0.1 Install (api): `@node-rs/argon2`, `@nestjs/jwt`, `cookie-parser`, `@types/cookie-parser`; (web): `react-router-dom`, `msw`
+- [x] 0.2 Add `JWT_SECRET`, `WEB_ORIGIN` to `.env.example`
+- [x] 0.3 Add shared types to `packages/shared/src/index.ts`: `PublicUser`, `RegisterRequest`, `LoginRequest`
 
 ## 1. Users module — commit: `feat(api): add users module with argon2 hashing + tests`
-- [ ] 1.1 RED: `users.service.spec.ts` — create(), findByEmail/Username/Id, `toPublicUser` mapper + avatar derivation (Avatar generated on registration). Run → expect all failing
-- [ ] 1.2 GREEN: `apps/api/src/users/users.{module,service}.ts` — argon2id hash, uniqueness checks (P2002), DiceBear avatar URL, `toPublicUser` (no passwordHash)
-- [ ] 1.3 REFACTOR: rerun suite → 0 failures
+- [x] 1.1 RED: `users.service.spec.ts` — create(), findByEmail/Username/Id, `toPublicUser` mapper + avatar derivation (Avatar generated on registration). Run → expect all failing
+- [x] 1.2 GREEN: `apps/api/src/users/users.{module,service}.ts` — argon2id hash, uniqueness checks (P2002), DiceBear avatar URL, `toPublicUser` (no passwordHash)
+- [x] 1.3 REFACTOR: rerun suite → 0 failures
 
 ## 2. Auth register/login — commit: `feat(api): add auth register/login with jwt cookie + tests`
 - [ ] 2.1 RED: `auth.service.spec.ts` + `auth.controller.spec.ts` — Successful registration, Invalid email rejected, Password too short rejected, Duplicate email rejected, Duplicate username rejected, Successful login (cookie httpOnly/SameSite=Lax/secure-prod/7d), Wrong password rejected, Unknown email rejected. Run → expect all failing
