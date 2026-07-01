@@ -32,8 +32,8 @@
 - [x] 5.4 REFACTOR: `pnpm --filter web test` → green
 
 ## 6. Final verification
-- [ ] 6.1 `pnpm test` + `pnpm build` (all workspaces) — green, api coverage ≥85%
-- [ ] 6.2 Push; confirm CI green (`gh pr checks`)
+- [x] 6.1 `pnpm test` + `pnpm build` (all workspaces) — green, api coverage ≥85% (98.19% statements); lint/format/typecheck all clean
+- [ ] 6.2 Push; confirm CI green (`gh pr checks`) — left for orchestrator (apply phase does not push)
 
 ## Scenario Coverage Checklist (28/28)
 - **G1** (1): Avatar generated on registration
