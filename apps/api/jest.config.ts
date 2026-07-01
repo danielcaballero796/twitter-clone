@@ -6,6 +6,7 @@ const config: Config = {
   roots: ['<rootDir>/src', '<rootDir>/test'],
   testRegex: '.*\\.(spec|e2e-spec)\\.ts$',
   setupFiles: ['<rootDir>/test/setup-env.ts'],
+  globalSetup: '<rootDir>/test/global-setup.ts',
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.module.ts',
