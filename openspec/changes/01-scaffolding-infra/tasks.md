@@ -28,9 +28,9 @@ _Commit: `feat(api): scaffold nestjs app with health check endpoint` then `feat(
 - [x] 4.1 Scaffold NestJS 11 app: `apps/api/src/main.ts`, `app.module.ts`.
 - [x] 4.2 Add `health/health.controller.ts` — `GET /health` returns `{status:'ok'}`.
 - [x] 4.3 Verify: app boots locally, `curl /health` returns 200. _(Verified on port 3210 — host port 3000 was taken by an unrelated local process; `API_PORT` env controls it.)_
-- [ ] 4.4 Write `apps/api/prisma/schema.prisma`: `User`, `Tweet`, `Follow`, `Like` per design (self-relation replies, composite `@@id`s, `Tweet(authorId, createdAt)` index).
-- [ ] 4.5 Run `prisma migrate dev --name init` against `twitter_dev`; commit generated SQL.
-- [ ] 4.6 Verify: `prisma migrate deploy` applies cleanly against empty `twitter_test`.
+- [x] 4.4 Write `apps/api/prisma/schema.prisma`: `User`, `Tweet`, `Follow`, `Like` per design (self-relation replies, composite `@@id`s, `Tweet(authorId, createdAt)` index).
+- [x] 4.5 Run `prisma migrate dev --name init` against `twitter_dev`; commit generated SQL. _(Migration `20260701203825_init`; `Tweet_authorId_createdAt_idx` confirmed in SQL.)_
+- [x] 4.6 Verify: `prisma migrate deploy` applies cleanly against empty `twitter_test`. _(Verified: all migrations applied.)_
 
 ## 5. API Test Infra
 _Commit: `test(api): add jest+supertest health e2e and coverage gate`_

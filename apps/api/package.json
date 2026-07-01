@@ -13,6 +13,7 @@
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
     "@nestjs/platform-express": "^11.1.0",
+    "@prisma/client": "^6.19.3",
     "@twitterclone/shared": "workspace:*",
     "dotenv": "^16.5.0",
     "reflect-metadata": "^0.2.2",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
+    "prisma": "^6.19.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   }
