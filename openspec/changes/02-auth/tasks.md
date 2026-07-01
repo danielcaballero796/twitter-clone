@@ -35,6 +35,9 @@
 - [x] 6.1 `pnpm test` + `pnpm build` (all workspaces) — green, api coverage ≥85% (98.19% statements); lint/format/typecheck all clean
 - [ ] 6.2 Push; confirm CI green (`gh pr checks`) — left for orchestrator (apply phase does not push)
 
+## 7. Verify gap closure (post-verify, pre-archive)
+- [x] 7.1 Cover the 5 web-auth scenarios flagged UNTESTED by verify-report.md: RegisterPage success nav, RegisterPage duplicate inline error, useSession authenticated, ProtectedRoute authenticated-access-allowed with the REAL component, logout flow (endpoint called + cache cleared + redirect). `LoginPage.test.tsx` stub `<div>Home</div>` replaced with the real `ProtectedRoute`+`HomePage` tree via shared `src/test/render-auth-app.tsx`. Web suite 10/10 green, lint/format/typecheck clean. Scenario coverage now 28/28.
+
 ## Scenario Coverage Checklist (28/28)
 - **G1** (1): Avatar generated on registration
 - **G2** (8): Successful registration; Invalid email rejected; Password too short rejected; Duplicate email rejected; Duplicate username rejected; Successful login; Wrong password rejected; Unknown email rejected

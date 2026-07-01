@@ -1,62 +1,39 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { API_URL } from '../../test/msw/handlers';
 import { server } from '../../test/msw/server';
-import LoginPage from './LoginPage';
-
-function renderLoginPage() {
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={['/login']}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/" element={<div>Home</div>} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
-  );
-}
+import { mockUser, renderAuthApp } from '../../test/render-auth-app';
 
 describe('LoginPage', () => {
-  it('navigates to the app on successful login', async () => {
+  it('navigates to the authenticated app (real ProtectedRoute) on successful login', async () => {
     server.use(
-      http.post(`${API_URL}/auth/login`, () =>
-        HttpResponse.json({
-          id: '1',
-          email: 'alice@example.com',
-          username: 'alice',
-          displayName: 'Alice',
-          bio: null,
-          avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=alice',
-        }),
-      ),
+      http.post(`${API_URL}/auth/login`, () => HttpResponse.json(mockUser)),
+      // After a successful login the session cookie is valid, so /auth/me resolves.
+      http.get(`${API_URL}/auth/me`, () => HttpResponse.json(mockUser)),
     );
 
     const user = userEvent.setup();
-    renderLoginPage();
+    renderAuthApp('/login');
 
     await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
     await user.type(screen.getByLabelText(/password/i), 'correct-password');
     await user.click(screen.getByRole('button', { name: /log in/i }));
 
-    await waitFor(() => expect(screen.getByText('Home')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/welcome, alice/i)).toBeInTheDocument());
   });
 
   it('shows an inline error on wrong credentials without navigating', async () => {
     server.use(http.post(`${API_URL}/auth/login`, () => new HttpResponse(null, { status: 401 })));
 
     const user = userEvent.setup();
-    renderLoginPage();
+    renderAuthApp('/login');
 
     await user.type(screen.getByLabelText(/email/i), 'alice@example.com');
     await user.type(screen.getByLabelText(/password/i), 'wrong-password');
     await user.click(screen.getByRole('button', { name: /log in/i }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/invalid email or password/i);
-    expect(screen.queryByText('Home')).not.toBeInTheDocument();
+    expect(screen.queryByText(/welcome/i)).not.toBeInTheDocument();
   });
 });
