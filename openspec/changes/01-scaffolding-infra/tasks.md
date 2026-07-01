@@ -49,8 +49,8 @@ _Commit: `feat(web): scaffold vite react tailwind app shell`_ then _`test(web): 
 ## 7. CI Pipeline
 _Commit: `ci: add github actions lint, typecheck and test workflow`_
 
-- [ ] 7.1 Add `.github/workflows/ci.yml`: install (pnpm cache), `postgres:16` service, lint, `tsc --noEmit`, `migrate deploy`, test (both workspaces).
-- [ ] 7.2 Verify: push triggers CI green; a temporary local lint violation confirms the job fails, then revert.
+- [x] 7.1 Add `.github/workflows/ci.yml`: install (pnpm cache), `postgres:16` service, lint, `tsc --noEmit`, `migrate deploy`, test (both workspaces).
+- [x] 7.2 Verify: push triggers CI green; a temporary local lint violation confirms the job fails, then revert. _(Local half verified: deliberate violation → `pnpm lint` exit 1 with 2 errors → reverted → green. DEFERRED: push-triggered CI run — no remote exists yet; user/orchestrator will verify on first push.)_
 
 ## 8. Post-Scaffolding Follow-Up (orchestrator-owned)
 
