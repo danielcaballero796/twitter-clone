@@ -4,6 +4,7 @@
   "private": true,
   "description": "Twitter clone REST API (NestJS 11 + Prisma + PostgreSQL)",
   "scripts": {
+    "postinstall": "prisma generate",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/apps/api/src/main.js",
     "start:dev": "ts-node src/main.ts",
