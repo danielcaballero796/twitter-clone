@@ -21,9 +21,9 @@
 - [x] 3.3 REFACTOR: rerun green
 
 ## 4. Me, logout, E2E — commit: `feat(api): add /auth/me, logout + auth e2e flow`
-- [ ] 4.1 RED: extend spec — Me valid session, Me no session, Logout clears cookie, Access rejected after logout. Write `test/auth.e2e-spec.ts` — register→login→protected→logout→rejected. Run → expect all failing
-- [ ] 4.2 GREEN: add `GET /auth/me`, `POST /auth/logout` (clearCookie same attrs)
-- [ ] 4.3 REFACTOR: `pnpm --filter api test:e2e` + `--coverage` → green, ≥85%
+- [x] 4.1 RED: extend spec — Me valid session, Me no session, Logout clears cookie, Access rejected after logout. Write `test/auth.e2e-spec.ts` — register→login→protected→logout→rejected. Run → expect all failing
+- [x] 4.2 GREEN: add `GET /auth/me`, `POST /auth/logout` (clearCookie same attrs)
+- [x] 4.3 REFACTOR: `pnpm --filter api test:e2e` + `--coverage` → green, ≥85% (98.19% statements)
 
 ## 5. Web auth — commit: `feat(web): add session hook, auth pages, protected route + login integration test`
 - [ ] 5.1 RED: `LoginPage.test.tsx` (Vitest+TL+MSW) — success navigates, wrong creds inline error. Run → expect failing

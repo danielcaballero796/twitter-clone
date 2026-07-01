@@ -1,8 +1,11 @@
+import cookieParser from 'cookie-parser';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthModule } from './auth.module';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 describe('AuthController (integration)', () => {
   let app: INestApplication;
@@ -11,9 +14,11 @@ describe('AuthController (integration)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AuthModule],
+      providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
     }).compile();
 
     app = moduleRef.createNestApplication();
+    app.use(cookieParser());
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     await app.init();
     prisma = moduleRef.get(PrismaService);
@@ -133,6 +138,60 @@ describe('AuthController (integration)', () => {
         .post('/auth/login')
         .send({ email: 'unknown@example.com', password: 'whatever' })
         .expect(401);
+    });
+  });
+
+  describe('GET /auth/me', () => {
+    it('returns 200 with the public user shape for a valid session', async () => {
+      const agent = request.agent(app.getHttpServer());
+      await agent
+        .post('/auth/register')
+        .send({
+          email: 'nina@example.com',
+          username: 'nina',
+          password: 'correct-password',
+          displayName: 'Nina',
+        })
+        .expect(201);
+      await agent
+        .post('/auth/login')
+        .send({ email: 'nina@example.com', password: 'correct-password' })
+        .expect(200);
+
+      const response = await agent.get('/auth/me').expect(200);
+
+      expect(response.body).toMatchObject({ email: 'nina@example.com', username: 'nina' });
+      expect(response.body).not.toHaveProperty('passwordHash');
+    });
+
+    it('returns 401 without a session cookie', async () => {
+      await request(app.getHttpServer()).get('/auth/me').expect(401);
+    });
+  });
+
+  describe('POST /auth/logout', () => {
+    it('clears the cookie and rejects subsequent protected requests', async () => {
+      const agent = request.agent(app.getHttpServer());
+      await agent
+        .post('/auth/register')
+        .send({
+          email: 'oscar@example.com',
+          username: 'oscar',
+          password: 'correct-password',
+          displayName: 'Oscar',
+        })
+        .expect(201);
+      await agent
+        .post('/auth/login')
+        .send({ email: 'oscar@example.com', password: 'correct-password' })
+        .expect(200);
+      await agent.get('/auth/me').expect(200);
+
+      const logoutResponse = await agent.post('/auth/logout').expect(200);
+      const clearedCookie = logoutResponse.headers['set-cookie']?.[0] ?? '';
+      expect(clearedCookie).toContain('access_token=;');
+
+      await agent.get('/auth/me').expect(401);
     });
   });
 });
