@@ -1,5 +1,5 @@
 change: 02-auth
-phase: tasks
+phase: archive
 artifact_store: hybrid
 execution_mode: interactive
 strict_tdd: true
@@ -9,8 +9,9 @@ artifacts:
   specs: true          # auth (8 req/20 esc) + web-auth (6 req/12 esc)
   design: true
   tasks: true          # 21 tasks / 6 grupos TDD; 28/28 escenarios cubiertos (conteo real verificado)
-  apply: false
-  verify: false
+  apply: true          # 8 commits, TDD evidenciado, CI green 020f2d2
+  verify: true         # PASS WITH WARNINGS: backend 18/18 + security clean; gap web-auth 5/10 escenarios sin test
+  archive: true
 tasks_progress:
   completed: []
   pending: []
