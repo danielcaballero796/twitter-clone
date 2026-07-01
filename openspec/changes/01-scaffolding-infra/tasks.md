@@ -35,9 +35,9 @@ _Commit: `feat(api): scaffold nestjs app with health check endpoint` then `feat(
 ## 5. API Test Infra
 _Commit: `test(api): add jest+supertest health e2e and coverage gate`_
 
-- [ ] 5.1 Add `jest.config.ts` scoped coverage (`src/**/*.ts`, exclude `*.module.ts`, `main.ts`, `*.dto.ts`, `.spec.ts`, generated Prisma), threshold 85%.
-- [ ] 5.2 Write `test/health.e2e-spec.ts` — Supertest `GET /health` against full Nest app + `twitter_test`.
-- [ ] 5.3 Verify: `pnpm --filter api test` passes, coverage meets 85% on scaffolding code. Risk: recheck scope on first CI run once feature code lands.
+- [x] 5.1 Add `jest.config.ts` scoped coverage (`src/**/*.ts`, exclude `*.module.ts`, `main.ts`, `*.dto.ts`, `.spec.ts`, generated Prisma), threshold 85%.
+- [x] 5.2 Write `test/health.e2e-spec.ts` — Supertest `GET /health` against full Nest app + `twitter_test`.
+- [x] 5.3 Verify: `pnpm --filter api test` passes, coverage meets 85% on scaffolding code. _(Verified: 1/1 pass, coverage 100% stmts/branch/funcs/lines.)_ Risk: recheck scope on first CI run once feature code lands.
 
 ## 6. Web Scaffold + Test Infra
 _Commit: `feat(web): scaffold vite react tailwind app shell`_ then _`test(web): add vitest smoke test`_
