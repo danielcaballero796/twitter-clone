@@ -16,9 +16,9 @@
 - [x] 2.3 REFACTOR: verify 401s generic (no enumeration), rerun green
 
 ## 3. Global JWT guard — commit: `feat(api): add global jwt guard and @Public + integration tests`
-- [ ] 3.1 RED: Supertest spec — no-cookie, tampered, expired token → 401; `@Public()` bypasses. Run → expect failing
-- [ ] 3.2 GREEN: `jwt-auth.guard.ts`, `public.decorator.ts`, `APP_GUARD` in `app.module.ts`, `@Public()` on `health.controller.ts`, wire `cookie-parser`/`ValidationPipe`/`enableCors` in `main.ts`
-- [ ] 3.3 REFACTOR: rerun green
+- [x] 3.1 RED: Supertest spec — no-cookie, tampered, expired token → 401; `@Public()` bypasses. Run → expect failing
+- [x] 3.2 GREEN: `jwt-auth.guard.ts`, `public.decorator.ts`, `APP_GUARD` in `app.module.ts`, `@Public()` on `health.controller.ts`, wire `cookie-parser`/`ValidationPipe`/`enableCors` in `main.ts`
+- [x] 3.3 REFACTOR: rerun green
 
 ## 4. Me, logout, E2E — commit: `feat(api): add /auth/me, logout + auth e2e flow`
 - [ ] 4.1 RED: extend spec — Me valid session, Me no session, Logout clears cookie, Access rejected after logout. Write `test/auth.e2e-spec.ts` — register→login→protected→logout→rejected. Run → expect all failing
