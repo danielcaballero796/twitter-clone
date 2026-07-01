@@ -19,8 +19,8 @@ _Commit: `chore: add docker-compose with postgres dev and test databases`_
 _Commit: `feat(shared): add shared types package`_
 
 - [x] 3.1 Create `packages/shared/package.json` (`@twitterclone/shared`, `exports` → `./src`) and `src/index.ts` (e.g. `HealthStatus` type).
-- [ ] 3.2 Add as workspace dependency in `apps/api` and `apps/web` package.json.
-- [ ] 3.3 Risk check: confirm Jest, Vitest, and `tsc --noEmit` all resolve `@twitterclone/shared` before relying on it downstream.
+- [x] 3.2 Add as workspace dependency in `apps/api` and `apps/web` package.json. _(Completed within groups 4 and 6 when each app's package.json was created.)_
+- [x] 3.3 Risk check: confirm Jest, Vitest, and `tsc --noEmit` all resolve `@twitterclone/shared` before relying on it downstream. _(Verified: ts-jest e2e compile, Vitest runtime import of `APP_NAME` in App shell, and `tsc --noEmit` in both apps all resolve it.)_
 
 ## 4. API Scaffold + Prisma
 _Commit: `feat(api): scaffold nestjs app with health check endpoint` then `feat(api): add prisma schema and initial migration`_
@@ -43,8 +43,8 @@ _Commit: `test(api): add jest+supertest health e2e and coverage gate`_
 _Commit: `feat(web): scaffold vite react tailwind app shell`_ then _`test(web): add vitest smoke test`_
 
 - [x] 6.1 Scaffold Vite+React18+Tailwind in `apps/web` — `App.tsx` renders minimal shell. _(Verified: typecheck + vite build green, Tailwind CSS emitted.)_
-- [ ] 6.2 Add `vitest.config.ts` (jsdom) and `App.test.tsx` smoke test asserting shell renders without errors.
-- [ ] 6.3 Verify: `pnpm --filter web test` passes.
+- [x] 6.2 Add `vitest.config.ts` (jsdom) and `App.test.tsx` smoke test asserting shell renders without errors.
+- [x] 6.3 Verify: `pnpm --filter web test` passes. _(Verified: 1/1 pass. Includes `APP_NAME` runtime export in shared so Vitest genuinely resolves the workspace package.)_
 
 ## 7. CI Pipeline
 _Commit: `ci: add github actions lint, typecheck and test workflow`_
