@@ -25,9 +25,9 @@ _Commit: `feat(shared): add shared types package`_
 ## 4. API Scaffold + Prisma
 _Commit: `feat(api): scaffold nestjs app with health check endpoint` then `feat(api): add prisma schema and initial migration`_
 
-- [ ] 4.1 Scaffold NestJS 11 app: `apps/api/src/main.ts`, `app.module.ts`.
-- [ ] 4.2 Add `health/health.controller.ts` — `GET /health` returns `{status:'ok'}`.
-- [ ] 4.3 Verify: app boots locally, `curl /health` returns 200.
+- [x] 4.1 Scaffold NestJS 11 app: `apps/api/src/main.ts`, `app.module.ts`.
+- [x] 4.2 Add `health/health.controller.ts` — `GET /health` returns `{status:'ok'}`.
+- [x] 4.3 Verify: app boots locally, `curl /health` returns 200. _(Verified on port 3210 — host port 3000 was taken by an unrelated local process; `API_PORT` env controls it.)_
 - [ ] 4.4 Write `apps/api/prisma/schema.prisma`: `User`, `Tweet`, `Follow`, `Like` per design (self-relation replies, composite `@@id`s, `Tweet(authorId, createdAt)` index).
 - [ ] 4.5 Run `prisma migrate dev --name init` against `twitter_dev`; commit generated SQL.
 - [ ] 4.6 Verify: `prisma migrate deploy` applies cleanly against empty `twitter_test`.
