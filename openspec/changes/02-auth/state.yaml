@@ -1,0 +1,17 @@
+change: 02-auth
+phase: tasks
+artifact_store: hybrid
+execution_mode: interactive
+strict_tdd: true
+artifacts:
+  exploration: false   # proposal exploró el código existente directamente
+  proposal: true
+  specs: true          # auth (8 req/20 esc) + web-auth (6 req/12 esc)
+  design: true
+  tasks: true          # 21 tasks / 6 grupos TDD; 28/28 escenarios cubiertos (conteo real verificado)
+  apply: false
+  verify: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-01
