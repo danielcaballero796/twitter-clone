@@ -42,7 +42,7 @@ _Commit: `test(api): add jest+supertest health e2e and coverage gate`_
 ## 6. Web Scaffold + Test Infra
 _Commit: `feat(web): scaffold vite react tailwind app shell`_ then _`test(web): add vitest smoke test`_
 
-- [ ] 6.1 Scaffold Vite+React18+Tailwind in `apps/web` — `App.tsx` renders minimal shell.
+- [x] 6.1 Scaffold Vite+React18+Tailwind in `apps/web` — `App.tsx` renders minimal shell. _(Verified: typecheck + vite build green, Tailwind CSS emitted.)_
 - [ ] 6.2 Add `vitest.config.ts` (jsdom) and `App.test.tsx` smoke test asserting shell renders without errors.
 - [ ] 6.3 Verify: `pnpm --filter web test` passes.
 
