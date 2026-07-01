@@ -54,5 +54,5 @@ _Commit: `ci: add github actions lint, typecheck and test workflow`_
 
 ## 8. Post-Scaffolding Follow-Up (orchestrator-owned)
 
-- [ ] 8.1 Re-detect testing capabilities and update engram `sdd-init/twitterclone` (test_runner, layers, coverage → installed/found).
-- [ ] 8.2 Flip `strict_tdd: true`/`apply.tdd: true` in `openspec/config.yaml`; update `testing` block to installed state.
+- [x] 8.1 Re-detect testing capabilities and update engram `sdd-init/twitterclone` (test_runner, layers, coverage → installed/found). <!-- done by orchestrator 2026-07-01: engram topic sdd/twitterclone/testing-capabilities upserted -->
+- [x] 8.2 Flip `strict_tdd: true`/`apply.tdd: true` in `openspec/config.yaml`; update `testing` block to installed state. <!-- done by orchestrator 2026-07-01 -->

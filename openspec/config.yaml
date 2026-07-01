@@ -7,10 +7,9 @@ context: |
   Testing: PLANEADO — Jest + Supertest (api, coverage >=85%), Vitest + Testing Library + MSW (web). Greenfield: aun sin instalar
   Style: ESLint + Prettier, conventional commits en ingles, historial sin squash (requisito del challenge)
 
-# Marker global 'strict-tdd-mode: enabled' detectado en ~/.claude/CLAUDE.md,
-# pero el proyecto es greenfield sin test runner. Re-detectar tras el change
-# de scaffolding (Jest/Vitest instalados) y activar.
-strict_tdd: false
+# Activado post-scaffolding (2026-07-01): Jest+Supertest (api) y Vitest (web)
+# instalados y PROBADOS con smoke tests + gate de coverage 85% verificado.
+strict_tdd: true
 
 rules:
   proposal:
@@ -31,7 +30,7 @@ rules:
   apply:
     - Follow existing code patterns and conventions
     - Conventional commits en ingles, granulares, nunca squash
-    tdd: false           # activar tras scaffolding
+    tdd: true            # RED-GREEN-REFACTOR desde change 02
     test_command: "pnpm test"
   verify:
     test_command: "pnpm test"
@@ -41,15 +40,15 @@ rules:
     - Warn before merging destructive deltas (large removals)
 
 testing:
-  strict_tdd: false
-  detected: 2026-07-01
-  test_runner: not_found        # greenfield — planeado: Jest (api) + Vitest (web)
+  strict_tdd: true
+  detected: 2026-07-01          # re-detección post-scaffolding (apply 01 completo)
+  test_runner: "pnpm test"      # Jest 29 (apps/api) + Vitest (apps/web)
   layers:
-    unit: not_installed
-    integration: not_installed  # planeado: Supertest (api) + Testing Library/MSW (web)
-    e2e: not_installed          # planeado: E2E flujo auth con Supertest sobre app completa
-  coverage: not_available       # planeado: jest --coverage / vitest --coverage, gate 85%
+    unit: available             # Jest (api) / Vitest (web)
+    integration: available      # Supertest contra twitter_test en Postgres real (docker, puerto 5433 local)
+    e2e: available              # probado: health e2e contra app NestJS completa; auth e2e llega en change 02
+  coverage: available           # jest --coverage, gate 85% ACTIVO y verificado (scope src/** excl. módulos/DTOs/generated)
   quality:
-    linter: not_installed       # planeado: ESLint
-    type_checker: not_installed # planeado: tsc --noEmit
-    formatter: not_installed    # planeado: Prettier
+    linter: "pnpm lint"         # ESLint flat config compartida en root (negative check probado: exit 1)
+    type_checker: "pnpm -r typecheck"  # tsc --noEmit, 3 workspaces
+    formatter: "pnpm format"    # Prettier

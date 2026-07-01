@@ -1,5 +1,5 @@
 change: 01-scaffolding-infra
-phase: tasks
+phase: apply
 artifact_store: hybrid
 execution_mode: interactive
 artifacts:
@@ -8,7 +8,7 @@ artifacts:
   specs: true          # infra, data-model, quality-gates
   design: true
   tasks: true         # 26 tasks / 8 grupos, mapeados a la secuencia de 9 commits
-  apply: false
+  apply: true          # 26/26 tasks + grupo 8 orquestador; 10 commits en main; strict_tdd activado
   verify: false
 tasks_progress:
   completed: []
