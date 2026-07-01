@@ -11,9 +11,9 @@ _Commit: `chore: init pnpm monorepo workspace and root tooling`_
 ## 2. Docker & Database
 _Commit: `chore: add docker-compose with postgres dev and test databases`_
 
-- [ ] 2.1 Create `docker-compose.yml` (postgres:16, healthcheck) and `docker/init-db.sql` creating `twitter_dev` + `twitter_test`.
-- [ ] 2.2 Verify: `docker compose up -d` then confirm both DBs reachable on configured ports.
-- [ ] 2.3 Document `docker compose down -v` in README as the fix for stale volumes on re-init.
+- [x] 2.1 Create `docker-compose.yml` (postgres:16, healthcheck) and `docker/init-db.sql` creating `twitter_dev` + `twitter_test`.
+- [x] 2.2 Verify: `docker compose up -d` then confirm both DBs reachable on configured ports. _(Verified: pg_isready OK, both DBs listed, TCP reachable on host port — local uses `POSTGRES_PORT=5433` because 5432 is taken by WSL relay.)_
+- [x] 2.3 Document `docker compose down -v` in README as the fix for stale volumes on re-init.
 
 ## 3. Shared Types Package
 _Commit: `feat(shared): add shared types package`_

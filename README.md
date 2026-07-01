@@ -42,6 +42,10 @@ pnpm --filter web dev
 > If port 5432 is already taken on your machine, set `POSTGRES_PORT` in the root
 > `.env` (used by docker-compose) and update the URLs in `apps/api/.env`.
 
+> **Stale volume after re-init?** The `docker/init-db.sql` script only runs on an
+> empty volume. If the databases are missing or in a bad state, reset with
+> `docker compose down -v` and start again with `docker compose up -d`.
+
 ## Scripts (root)
 
 | Script           | What it does                                       |
