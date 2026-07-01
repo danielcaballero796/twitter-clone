@@ -1,0 +1,55 @@
+# openspec/config.yaml
+schema: spec-driven
+
+context: |
+  Tech stack: pnpm monorepo TypeScript — apps/api (NestJS 11 + Prisma + PostgreSQL 16), apps/web (React 18 + Vite + TanStack Query + Tailwind), packages/shared (tipos compartidos)
+  Architecture: NestJS modulos por dominio (auth, users, tweets, follows, likes); frontend feature-based, mobile-first (breakpoints 640/1024)
+  Testing: PLANEADO — Jest + Supertest (api, coverage >=85%), Vitest + Testing Library + MSW (web). Greenfield: aun sin instalar
+  Style: ESLint + Prettier, conventional commits en ingles, historial sin squash (requisito del challenge)
+
+# Marker global 'strict-tdd-mode: enabled' detectado en ~/.claude/CLAUDE.md,
+# pero el proyecto es greenfield sin test runner. Re-detectar tras el change
+# de scaffolding (Jest/Vitest instalados) y activar.
+strict_tdd: false
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules/packages
+    - Mapear cada change al criterio de la rubrica del challenge que impacta (Funcionalidad 25 / Testing 25 / Calidad 20 / Proceso 15 / Docs 10 / Bonus 5)
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group tasks by phase (infrastructure, implementation, testing)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+    - Cada task de feature incluye sus tests en el mismo commit (requisito explicito del challenge)
+  apply:
+    - Follow existing code patterns and conventions
+    - Conventional commits en ingles, granulares, nunca squash
+    tdd: false           # activar tras scaffolding
+    test_command: "pnpm test"
+  verify:
+    test_command: "pnpm test"
+    build_command: "pnpm build"
+    coverage_threshold: 85
+  archive:
+    - Warn before merging destructive deltas (large removals)
+
+testing:
+  strict_tdd: false
+  detected: 2026-07-01
+  test_runner: not_found        # greenfield — planeado: Jest (api) + Vitest (web)
+  layers:
+    unit: not_installed
+    integration: not_installed  # planeado: Supertest (api) + Testing Library/MSW (web)
+    e2e: not_installed          # planeado: E2E flujo auth con Supertest sobre app completa
+  coverage: not_available       # planeado: jest --coverage / vitest --coverage, gate 85%
+  quality:
+    linter: not_installed       # planeado: ESLint
+    type_checker: not_installed # planeado: tsc --noEmit
+    formatter: not_installed    # planeado: Prettier

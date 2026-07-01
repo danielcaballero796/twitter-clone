@@ -1,0 +1,16 @@
+change: 01-scaffolding-infra
+phase: tasks
+artifact_store: hybrid
+execution_mode: interactive
+artifacts:
+  exploration: false   # skipped — greenfield, PLAN.md sirve de exploración
+  proposal: true
+  specs: true          # infra, data-model, quality-gates
+  design: true
+  tasks: true         # 26 tasks / 8 grupos, mapeados a la secuencia de 9 commits
+  apply: false
+  verify: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-01

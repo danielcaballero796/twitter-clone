@@ -1,0 +1,58 @@
+# Tasks: 01 — Scaffolding & Infra
+
+## 1. Workspace Bootstrap
+_Commit: `chore: init pnpm monorepo workspace and root tooling`_
+
+- [x] 1.1 Create `pnpm-workspace.yaml` (apps/*, packages/*) and root `package.json` (engines node 22.x/pnpm 9.x, `packageManager`, root scripts). _(Deviation: engines `>=22`/`>=9` + exact `packageManager: pnpm@10.13.1` — host runs node 24/pnpm 10.)_
+- [x] 1.2 Add `.nvmrc` (`22`), `.gitignore`, `.env.example` (DB URLs, ports, secrets), `README.md` (setup steps). _(Deviation: template shipped as `env.example` — tooling policy blocks writing `.env*` paths; README documents the copy step.)_
+- [x] 1.3 Add root `tsconfig.base.json`, `eslint.config.mjs` (flat config), `.prettierrc` (+ `.prettierignore`).
+- [x] 1.4 Verify: `pnpm install` succeeds from clean clone with no shell-specific errors. _(Verified: install, `pnpm lint`, `pnpm format` all green.)_
+
+## 2. Docker & Database
+_Commit: `chore: add docker-compose with postgres dev and test databases`_
+
+- [ ] 2.1 Create `docker-compose.yml` (postgres:16, healthcheck) and `docker/init-db.sql` creating `twitter_dev` + `twitter_test`.
+- [ ] 2.2 Verify: `docker compose up -d` then confirm both DBs reachable on configured ports.
+- [ ] 2.3 Document `docker compose down -v` in README as the fix for stale volumes on re-init.
+
+## 3. Shared Types Package
+_Commit: `feat(shared): add shared types package`_
+
+- [ ] 3.1 Create `packages/shared/package.json` (`@twitterclone/shared`, `exports` → `./src`) and `src/index.ts` (e.g. `HealthStatus` type).
+- [ ] 3.2 Add as workspace dependency in `apps/api` and `apps/web` package.json.
+- [ ] 3.3 Risk check: confirm Jest, Vitest, and `tsc --noEmit` all resolve `@twitterclone/shared` before relying on it downstream.
+
+## 4. API Scaffold + Prisma
+_Commit: `feat(api): scaffold nestjs app with health check endpoint` then `feat(api): add prisma schema and initial migration`_
+
+- [ ] 4.1 Scaffold NestJS 11 app: `apps/api/src/main.ts`, `app.module.ts`.
+- [ ] 4.2 Add `health/health.controller.ts` — `GET /health` returns `{status:'ok'}`.
+- [ ] 4.3 Verify: app boots locally, `curl /health` returns 200.
+- [ ] 4.4 Write `apps/api/prisma/schema.prisma`: `User`, `Tweet`, `Follow`, `Like` per design (self-relation replies, composite `@@id`s, `Tweet(authorId, createdAt)` index).
+- [ ] 4.5 Run `prisma migrate dev --name init` against `twitter_dev`; commit generated SQL.
+- [ ] 4.6 Verify: `prisma migrate deploy` applies cleanly against empty `twitter_test`.
+
+## 5. API Test Infra
+_Commit: `test(api): add jest+supertest health e2e and coverage gate`_
+
+- [ ] 5.1 Add `jest.config.ts` scoped coverage (`src/**/*.ts`, exclude `*.module.ts`, `main.ts`, `*.dto.ts`, `.spec.ts`, generated Prisma), threshold 85%.
+- [ ] 5.2 Write `test/health.e2e-spec.ts` — Supertest `GET /health` against full Nest app + `twitter_test`.
+- [ ] 5.3 Verify: `pnpm --filter api test` passes, coverage meets 85% on scaffolding code. Risk: recheck scope on first CI run once feature code lands.
+
+## 6. Web Scaffold + Test Infra
+_Commit: `feat(web): scaffold vite react tailwind app shell`_ then _`test(web): add vitest smoke test`_
+
+- [ ] 6.1 Scaffold Vite+React18+Tailwind in `apps/web` — `App.tsx` renders minimal shell.
+- [ ] 6.2 Add `vitest.config.ts` (jsdom) and `App.test.tsx` smoke test asserting shell renders without errors.
+- [ ] 6.3 Verify: `pnpm --filter web test` passes.
+
+## 7. CI Pipeline
+_Commit: `ci: add github actions lint, typecheck and test workflow`_
+
+- [ ] 7.1 Add `.github/workflows/ci.yml`: install (pnpm cache), `postgres:16` service, lint, `tsc --noEmit`, `migrate deploy`, test (both workspaces).
+- [ ] 7.2 Verify: push triggers CI green; a temporary local lint violation confirms the job fails, then revert.
+
+## 8. Post-Scaffolding Follow-Up (orchestrator-owned)
+
+- [ ] 8.1 Re-detect testing capabilities and update engram `sdd-init/twitterclone` (test_runner, layers, coverage → installed/found).
+- [ ] 8.2 Flip `strict_tdd: true`/`apply.tdd: true` in `openspec/config.yaml`; update `testing` block to installed state.
