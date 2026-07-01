@@ -50,7 +50,7 @@ _Commit: `feat(web): scaffold vite react tailwind app shell`_ then _`test(web): 
 _Commit: `ci: add github actions lint, typecheck and test workflow`_
 
 - [x] 7.1 Add `.github/workflows/ci.yml`: install (pnpm cache), `postgres:16` service, lint, `tsc --noEmit`, `migrate deploy`, test (both workspaces).
-- [x] 7.2 Verify: push triggers CI green; a temporary local lint violation confirms the job fails, then revert. _(Local half verified: deliberate violation → `pnpm lint` exit 1 with 2 errors → reverted → green. DEFERRED: push-triggered CI run — no remote exists yet; user/orchestrator will verify on first push.)_
+- [x] 7.2 Verify: push triggers CI green; a temporary local lint violation confirms the job fails, then revert. _(Local half verified: deliberate violation → `pnpm lint` exit 1 with 2 errors → reverted → green. RESOLVED 2026-07-01: remote github.com/danielcaballero796/twitter-clone creado; primer run falló — Prisma Client no generado en install fresco (pnpm 10 bloquea build scripts de deps) — fix `postinstall: prisma generate` en @twitterclone/api; CI GREEN en f4061ca.)_
 
 ## 8. Post-Scaffolding Follow-Up (orchestrator-owned)
 
