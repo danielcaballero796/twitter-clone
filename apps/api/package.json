@@ -14,15 +14,19 @@
   "dependencies": {
     "@nestjs/common": "^11.1.0",
     "@nestjs/core": "^11.1.0",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.1.0",
+    "@node-rs/argon2": "^2.0.2",
     "@prisma/client": "^6.19.3",
     "@twitterclone/shared": "workspace:*",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^16.5.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {
     "@nestjs/testing": "^11.1.27",
+    "@types/cookie-parser": "^1.4.10",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.15.0",
     "@types/supertest": "^6.0.3",

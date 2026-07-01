@@ -10,3 +10,27 @@ export const APP_NAME = 'Twitter Clone';
 export interface HealthStatus {
   status: 'ok';
 }
+
+/** Authenticated user shape returned by the API — never includes the password hash. */
+export interface PublicUser {
+  id: string;
+  email: string;
+  username: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string;
+}
+
+/** Body accepted by `POST /auth/register`. */
+export interface RegisterRequest {
+  email: string;
+  username: string;
+  password: string;
+  displayName: string;
+}
+
+/** Body accepted by `POST /auth/login`. */
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
