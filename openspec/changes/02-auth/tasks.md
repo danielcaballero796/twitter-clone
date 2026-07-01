@@ -26,10 +26,10 @@
 - [x] 4.3 REFACTOR: `pnpm --filter api test:e2e` + `--coverage` → green, ≥85% (98.19% statements)
 
 ## 5. Web auth — commit: `feat(web): add session hook, auth pages, protected route + login integration test`
-- [ ] 5.1 RED: `LoginPage.test.tsx` (Vitest+TL+MSW) — success navigates, wrong creds inline error. Run → expect failing
-- [ ] 5.2 GREEN: `features/auth/{api.ts,useSession.ts,RegisterPage.tsx,LoginPage.tsx,ProtectedRoute.tsx}` + logout — register (nav/inline 409), login (nav/generic error), `useSession` on `/auth/me`, `<ProtectedRoute>` redirect `/login`, logout clears cache+redirects
-- [ ] 5.3 Wire `App.tsx`/`main.tsx`: router, `QueryClientProvider`, route tree
-- [ ] 5.4 REFACTOR: `pnpm --filter web test` → green
+- [x] 5.1 RED: `LoginPage.test.tsx` (Vitest+TL+MSW) — success navigates, wrong creds inline error. Run → expect failing
+- [x] 5.2 GREEN: `features/auth/{api.ts,useSession.ts,RegisterPage.tsx,LoginPage.tsx,ProtectedRoute.tsx}` + logout — register (nav/inline 409), login (nav/generic error), `useSession` on `/auth/me`, `<ProtectedRoute>` redirect `/login`, logout clears cache+redirects
+- [x] 5.3 Wire `App.tsx`/`main.tsx`: router, `QueryClientProvider`, route tree (also added `HomePage.tsx` as the minimal protected landing page)
+- [x] 5.4 REFACTOR: `pnpm --filter web test` → green
 
 ## 6. Final verification
 - [ ] 6.1 `pnpm test` + `pnpm build` (all workspaces) — green, api coverage ≥85%

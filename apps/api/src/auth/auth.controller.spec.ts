@@ -63,7 +63,12 @@ describe('AuthController (integration)', () => {
     it('rejects a password shorter than 8 characters with 400', async () => {
       await request(app.getHttpServer())
         .post('/auth/register')
-        .send({ email: 'jack@example.com', username: 'jack', password: 'short', displayName: 'Jack' })
+        .send({
+          email: 'jack@example.com',
+          username: 'jack',
+          password: 'short',
+          displayName: 'Jack',
+        })
         .expect(400);
     });
 
