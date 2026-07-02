@@ -1,5 +1,5 @@
 change: 09-profile-edit
-phase: apply
+phase: archive
 artifact_store: hybrid
 execution_mode: interactive
 strict_tdd: true
@@ -9,17 +9,17 @@ artifacts:
   specs: true          # 18 scenarios (10 users-profile-edit, 8 web-profile-edit)
   design: true         # D1-D7 binding
   tasks: true          # 4 blocks
-  apply: false
-  verify: false
-  archive: false
+  apply: true
+  verify: true
+  archive: true
 approvals:
   proposal: true       # scope chosen by user: name + bio + avatar style from whitelist (2026-07-02)
   specs: true
   design: true
   tasks: true
-  apply: false
-  verify: false
-  archive: false
+  apply: true
+  verify: true
+  archive: true
 tasks_progress:
   completed: []
   pending: []

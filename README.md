@@ -124,6 +124,10 @@ Domain modules (`auth`, `users`, `tweets`, `follows`, `likes`, `health`), each w
 
 `Tweet.parentId` (nullable self-reference) shipped in the initial schema so a future replies/threads feature needs no disruptive migration. `Follow` and `Like` use composite primary keys with supporting indexes for the reverse lookups.
 
+### Avatars
+
+Deterministic DiceBear SVGs — the username is the seed, and a per-user `avatarStyle` column (whitelisted in `packages/shared`, picker on the own profile page) selects the collection. No upload flow or binary storage by design; profile name and bio are editable via `PATCH /users/me`.
+
 ### Theme system
 
 Class-based dark mode (Tailwind v4 `@custom-variant`), toggled by a `useTheme` hook: defaults to `prefers-color-scheme`, persists explicit choices to localStorage, reacts to OS changes while in system mode, and an inline pre-hydration script in `index.html` prevents any flash of the wrong theme.
