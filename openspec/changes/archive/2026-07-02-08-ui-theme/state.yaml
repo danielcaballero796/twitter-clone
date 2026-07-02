@@ -1,5 +1,5 @@
 change: 08-ui-theme
-phase: tasks
+phase: archive
 artifact_store: hybrid
 execution_mode: auto
 strict_tdd: true          # scoped: TDD for theme behavior; class-level polish gated by existing suites staying green
@@ -9,17 +9,17 @@ artifacts:
   specs: true
   design: true
   tasks: true
-  apply: false
-  verify: false
-  archive: false
+  apply: true
+  verify: true
+  archive: true
 approvals:
   proposal: true          # user requested UI/UX polish + light/dark mode explicitly
   specs: true
   design: true            # authored by orchestrator (D1-D5 binding, ui-ux-pro-max informed)
   tasks: true
-  apply: false
-  verify: false
-  archive: false
+  apply: true             # blocks 0-4, commits 8a00ce0..e6bf10e, CI green
+  verify: true            # PASS 16/16; judgment-day APPROVED after 2 fix rounds (871e8bc..cd20056), web 61/61 api 124/124
+  archive: true
 tasks_progress:
   completed: []
   pending: []
