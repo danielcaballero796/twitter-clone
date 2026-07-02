@@ -1,6 +1,7 @@
 import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
+import type { RegisterRequest } from '@twitterclone/shared';
 
-export class RegisterDto {
+export class RegisterDto implements RegisterRequest {
   @IsEmail()
   @MaxLength(254)
   email!: string;
