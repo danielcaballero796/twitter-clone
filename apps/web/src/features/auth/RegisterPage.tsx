@@ -38,69 +38,91 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-sm flex-col gap-4 px-4 py-8 sm:max-w-md">
-      <h2 className="text-lg font-semibold">Register</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
-        <label htmlFor="register-email" className="flex flex-col gap-1 text-sm">
-          Email
-          <input
-            id="register-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-2"
-            required
-          />
-        </label>
-        <label htmlFor="register-username" className="flex flex-col gap-1 text-sm">
-          Username
-          <input
-            id="register-username"
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-2"
-            required
-          />
-        </label>
-        <label htmlFor="register-display-name" className="flex flex-col gap-1 text-sm">
-          Display name
-          <input
-            id="register-display-name"
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-2"
-            required
-          />
-        </label>
-        <label htmlFor="register-password" className="flex flex-col gap-1 text-sm">
-          Password
-          <input
-            id="register-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-2"
-            required
-            minLength={8}
-          />
-        </label>
-        {error && (
-          <p role="alert" className="text-sm text-red-600">
-            {error}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded bg-slate-900 px-4 py-2 text-white disabled:opacity-50"
+    <div className="mx-auto flex max-w-sm flex-col gap-4 px-4 py-8">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">
+          Register
+        </h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
+          <label
+            htmlFor="register-email"
+            className="flex flex-col gap-1 text-sm text-slate-700 dark:text-slate-300"
+          >
+            Email
+            <input
+              id="register-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
+              required
+            />
+          </label>
+          <label
+            htmlFor="register-username"
+            className="flex flex-col gap-1 text-sm text-slate-700 dark:text-slate-300"
+          >
+            Username
+            <input
+              id="register-username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
+              required
+            />
+          </label>
+          <label
+            htmlFor="register-display-name"
+            className="flex flex-col gap-1 text-sm text-slate-700 dark:text-slate-300"
+          >
+            Display name
+            <input
+              id="register-display-name"
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
+              required
+            />
+          </label>
+          <label
+            htmlFor="register-password"
+            className="flex flex-col gap-1 text-sm text-slate-700 dark:text-slate-300"
+          >
+            Password
+            <input
+              id="register-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
+              required
+              minLength={8}
+            />
+          </label>
+          {error && (
+            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="h-10 cursor-pointer rounded bg-indigo-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:ring-offset-slate-950"
+          >
+            Create account
+          </button>
+        </form>
+      </div>
+      <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+        Already have an account?{' '}
+        <Link
+          to="/login"
+          className="cursor-pointer font-medium text-indigo-600 transition-colors duration-200 hover:underline dark:text-indigo-400"
         >
-          Create account
-        </button>
-      </form>
-      <p className="text-sm text-slate-600">
-        Already have an account? <Link to="/login">Log in</Link>
+          Log in
+        </Link>
       </p>
     </div>
   );

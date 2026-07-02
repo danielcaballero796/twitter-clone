@@ -29,46 +29,60 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-sm flex-col gap-4 px-4 py-8 sm:max-w-md">
-      <h2 className="text-lg font-semibold">Log in</h2>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
-        <label htmlFor="login-email" className="flex flex-col gap-1 text-sm">
-          Email
-          <input
-            id="login-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-2"
-            required
-          />
-        </label>
-        <label htmlFor="login-password" className="flex flex-col gap-1 text-sm">
-          Password
-          <input
-            id="login-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="rounded border border-slate-300 px-3 py-2"
-            required
-          />
-        </label>
-        {error && (
-          <p role="alert" className="text-sm text-red-600">
-            {error}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded bg-slate-900 px-4 py-2 text-white disabled:opacity-50"
+    <div className="mx-auto flex max-w-sm flex-col gap-4 px-4 py-8">
+      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">Log in</h2>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3" noValidate>
+          <label
+            htmlFor="login-email"
+            className="flex flex-col gap-1 text-sm text-slate-700 dark:text-slate-300"
+          >
+            Email
+            <input
+              id="login-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
+              required
+            />
+          </label>
+          <label
+            htmlFor="login-password"
+            className="flex flex-col gap-1 text-sm text-slate-700 dark:text-slate-300"
+          >
+            Password
+            <input
+              id="login-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
+              required
+            />
+          </label>
+          {error && (
+            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            disabled={submitting}
+            className="h-10 cursor-pointer rounded bg-indigo-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:ring-offset-slate-950"
+          >
+            Log in
+          </button>
+        </form>
+      </div>
+      <p className="text-center text-sm text-slate-600 dark:text-slate-400">
+        No account?{' '}
+        <Link
+          to="/register"
+          className="cursor-pointer font-medium text-indigo-600 transition-colors duration-200 hover:underline dark:text-indigo-400"
         >
-          Log in
-        </button>
-      </form>
-      <p className="text-sm text-slate-600">
-        No account? <Link to="/register">Register</Link>
+          Register
+        </Link>
       </p>
     </div>
   );

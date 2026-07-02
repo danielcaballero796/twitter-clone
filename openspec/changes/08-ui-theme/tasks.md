@@ -24,11 +24,11 @@
 - [x] 2.5 Verify: `TweetCard.test.tsx`, `TimelineFeed.test.tsx`, `Composer.test.tsx` green unmodified (except documented glyph edits)
 
 ## 3. Users + auth polish (D4) — commit: `feat(web): polish auth and user discovery pages with card layouts`
-- [ ] 3.1 `LoginPage.tsx`, `RegisterPage.tsx` — centered surface card (`max-w-sm mx-auto bg-white dark:bg-slate-900 border rounded-xl p-6 shadow-sm`), labeled inputs, focus rings; `role="alert"` error preserved
-- [ ] 3.2 `ExplorePage.tsx`, `SearchBox.tsx` — MagnifyingGlass icon input, skeleton loading (`explore-loading` preserved), empty state (`explore-empty` preserved) with copy
-- [ ] 3.3 `UserCard.tsx` — surface card, follow/following button variants, `role="alert"` preserved
-- [ ] 3.4 `ProfilePage.tsx` — profile header block (avatar ring, counts row), skeleton (`profile-loading` preserved), all `profile-*` testids unchanged
-- [ ] 3.5 Verify: `LoginPage`, `RegisterPage`, `ExplorePage`, `SearchBox`, `UserCard`, `ProfilePage` tests green unmodified
+- [x] 3.1 `LoginPage.tsx`, `RegisterPage.tsx` — centered surface card (`max-w-sm mx-auto bg-white dark:bg-slate-900 border rounded-xl p-6 shadow-sm`), labeled inputs, focus rings; `role="alert"` error preserved
+- [x] 3.2 `ExplorePage.tsx`, `SearchBox.tsx` — MagnifyingGlass icon input, skeleton loading (`explore-loading` preserved), empty state (`explore-empty` preserved) with copy
+- [x] 3.3 `UserCard.tsx` — surface card, follow/following button variants, `role="alert"` preserved
+- [x] 3.4 `ProfilePage.tsx` — profile header block (avatar ring, counts row), skeleton (`profile-loading` preserved), all `profile-*` testids unchanged
+- [x] 3.5 Verify: `LoginPage`, `RegisterPage`, `ExplorePage`, `SearchBox`, `UserCard`, `ProfilePage` tests green unmodified
 
 ## 4. Final verification — commit: `chore(web): verify theme and polish against ui-ux-pro-max checklist`
 - [ ] 4.1 Full `pnpm --filter @twitterclone/web test` green (50 pre-existing + theme tests)
