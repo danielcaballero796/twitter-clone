@@ -181,3 +181,20 @@ Class-based dark mode (Tailwind v4 `@custom-variant`), toggled by a `useTheme` h
 ## AI tooling
 
 Built with **Claude Code** using a spec-driven workflow: each change was planned (proposal → specs → design → task breakdown, archived under `openspec/`), implemented with strict TDD by sub-agents, independently verified against its specs, and the final delivery passed a two-round adversarial review (two blind reviewers in parallel, confirmed findings fixed and re-judged). The human drove every scope, architecture and trade-off decision; the commit history reflects the feature-by-feature progression.
+
+### Custom review agents
+
+The repo ships eight specialized review agents (`.claude/agents/`), each auditing the app through a different lens so review quality doesn't depend on one generalist pass:
+
+| Agent                    | Lens                                                                                                     |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `staff-quality-reviewer` | Correctness: real bugs, race conditions (double-like, concurrent register), HTTP semantics, edge cases   |
+| `api-contract-reviewer`  | Coherence across the four sources of truth: Prisma schema, NestJS DTOs, `packages/shared`, web API layer |
+| `architecture-reviewer`  | Monorepo boundaries, module cohesion, query-key hygiene, change-cost hotspots                            |
+| `security-reviewer`      | OWASP pass: auth/cookies/JWT, ownership checks, injection, XSS/CSRF, secrets in nginx/Docker             |
+| `testing-reviewer`       | Untested behavior, can't-fail tests, shared-DB isolation risks, MSW-mock drift vs the real contract      |
+| `performance-reviewer`   | Prisma N+1s, missing indexes, re-renders, TanStack Query cache behavior, nginx compression/caching       |
+| `a11y-reviewer`          | WCAG 2.2 AA: semantics/keyboard, aria-live, contrast in both themes, empty/error/loading triads          |
+| `infra-devex-reviewer`   | Dockerfiles, compose, CI reproducibility, clone-to-running experience                                    |
+
+They run proactively after features land (e.g. the staff-quality + testing pair is part of every feature-done review) and are plain Markdown definitions — reviewable and versioned like any other code in the repo.
