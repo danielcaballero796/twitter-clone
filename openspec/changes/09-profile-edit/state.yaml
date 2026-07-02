@@ -1,0 +1,26 @@
+change: 09-profile-edit
+phase: apply
+artifact_store: hybrid
+execution_mode: interactive
+strict_tdd: true
+artifacts:
+  exploration: false   # avatar model + endpoint surface verified inline (avatar.ts, users controller, shared types)
+  proposal: true
+  specs: true          # 18 scenarios (10 users-profile-edit, 8 web-profile-edit)
+  design: true         # D1-D7 binding
+  tasks: true          # 4 blocks
+  apply: false
+  verify: false
+  archive: false
+approvals:
+  proposal: true       # scope chosen by user: name + bio + avatar style from whitelist (2026-07-02)
+  specs: true
+  design: true
+  tasks: true
+  apply: false
+  verify: false
+  archive: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-02
