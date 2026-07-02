@@ -1,5 +1,5 @@
 change: 07-seed
-phase: tasks
+phase: apply
 artifact_store: hybrid
 execution_mode: auto
 strict_tdd: true
@@ -9,7 +9,7 @@ artifacts:
   specs: true
   design: true
   tasks: true
-  apply: false
+  apply: true
   verify: false
   archive: false
 approvals:
@@ -17,10 +17,14 @@ approvals:
   specs: true
   design: true         # authored by orchestrator (D1-D5 binding)
   tasks: true
-  apply: false
+  apply: true
   verify: false
   archive: false
 tasks_progress:
-  completed: []
-  pending: []
+  completed:
+    - "0. Setup — db:seed script + prisma.seed config wired in apps/api/package.json"
+    - "1. Seed script — apps/api/prisma/seed.ts + apps/api/test/seed.e2e-spec.ts (RED->GREEN->REFACTOR, full api suite green, coverage 99.28%)"
+    - "2. Docs — README Demo data section with seed command, usernames, password, production guard note"
+  pending:
+    - "3. Final verification — push + confirm CI green (in progress by orchestrator)"
 last_updated: 2026-07-02

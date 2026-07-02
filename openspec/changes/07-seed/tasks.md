@@ -30,9 +30,9 @@
 - [x] 2.2 Add one line noting the production guard (script refuses to run when `NODE_ENV=production`)
 
 ## 3. Final verification
-- [ ] 3.1 `pnpm test` (all workspaces) green; api coverage >=85% (dto/module excluded, per existing jest config); `pnpm lint` clean; `pnpm format` clean (`pnpm format:write` then reverify if needed); `pnpm -r typecheck` clean; `pnpm build` green
-- [ ] 3.2 Confirm commit granularity matches the 3 commits above (setup wiring / seed script+tests / docs) — no unrelated changes bundled in
-- [ ] 3.3 Push; confirm CI green
+- [x] 3.1 `pnpm test` (all workspaces) green; api coverage >=85% (dto/module excluded, per existing jest config); `pnpm lint` clean; `pnpm format` clean (`pnpm format:write` then reverify if needed); `pnpm -r typecheck` clean; `pnpm build` green
+- [x] 3.2 Confirm commit granularity matches the 3 commits above (setup wiring / seed script+tests / docs) — no unrelated changes bundled in
+- [x] 3.3 Push; confirm CI green
 
 ## Scenario Coverage Checklist (9/9)
 - **CLI Seeding (2)** [B1]: Fresh database seeded via CLI (counts + summary); `seed()` returns matching `SeedSummary` counts
