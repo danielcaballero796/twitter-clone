@@ -6,10 +6,10 @@ Blocks (5 commits). Dockerfiles/compose are verified by actually building and bo
 
 Commit: `fix(api): make the compiled build bootable with plain node`
 
-- [ ] 0.1 `apps/api/package.json`: `start` → `node dist/main.js`
-- [ ] 0.2 `packages/shared/package.json`: drop `exports`, `main: "src/index"` (extensionless), keep `types`
-- [ ] 0.3 Gate: `pnpm lint && pnpm typecheck && pnpm test` all green (proves every dev resolver still finds the .ts source)
-- [ ] 0.4 Smoke: build api, emit shared CJS next to source, `node dist/main.js` answers `/health`, then clean the emitted files
+- [x] 0.1 `apps/api/package.json`: `start` → `node dist/main.js`
+- [x] 0.2 `packages/shared/package.json`: drop `exports`, `main: "src/index"` (extensionless), keep `types`
+- [x] 0.3 Gate: `pnpm lint && pnpm typecheck && pnpm test` all green (proves every dev resolver still finds the .ts source)
+- [x] 0.4 Smoke: build api, emit shared CJS next to source, `node dist/main.js` answers `/health`, then clean the emitted files
 
 ## Block 1 — API image
 
