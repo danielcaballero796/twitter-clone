@@ -1,5 +1,5 @@
 change: 03-tweets-timeline
-phase: apply
+phase: verify
 artifact_store: hybrid
 execution_mode: interactive
 strict_tdd: true
@@ -10,7 +10,7 @@ artifacts:
   design: true
   tasks: true
   apply: true
-  verify: false
+  verify: true
   archive: false
 approvals:
   proposal: false
