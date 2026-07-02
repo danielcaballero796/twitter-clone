@@ -1,5 +1,5 @@
 change: 06-likes
-phase: apply
+phase: archive
 artifact_store: hybrid
 execution_mode: interactive
 strict_tdd: true
@@ -9,17 +9,17 @@ artifacts:
   specs: true          # 20 scenarios (8 likes, 6 tweets-likes, 6 web-likes)
   design: true
   tasks: true          # 7 blocks, checklist 20/20
-  apply: false
-  verify: false
-  archive: false
+  apply: true          # All 7 blocks complete; CI green (API 115/115 tests, web 50/50)
+  verify: true         # PASS after warning fixed in e746536
+  archive: true
 approvals:
   proposal: true       # authored by orchestrator per user "likes + seed juntos"
   specs: true          # orchestrator review PASS — no patches needed
   design: true         # authored by orchestrator (D1-D5 binding)
   tasks: true          # orchestrator review PASS — agent fixed e2e count arithmetic from design draft
-  apply: false
-  verify: false
-  archive: false
+  apply: true          # All 7 blocks done; CI green
+  verify: true         # PASS after warning fixed in e746536
+  archive: true
 tasks_progress:
   completed: []
   pending: []
