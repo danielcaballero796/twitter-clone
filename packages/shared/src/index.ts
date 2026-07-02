@@ -76,3 +76,16 @@ export interface UserSummary {
 export interface UserListResponse {
   items: UserSummary[];
 }
+
+/** Profile payload returned by `GET /users/:username`, with session-relative follow state. */
+export interface UserProfile {
+  id: string;
+  username: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string;
+  followersCount: number;
+  followingCount: number;
+  tweetsCount: number;
+  isFollowing: boolean;
+}

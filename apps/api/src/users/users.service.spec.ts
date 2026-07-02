@@ -1,4 +1,4 @@
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { verify } from '@node-rs/argon2';
 import { PrismaService } from '../prisma/prisma.service';
@@ -187,6 +187,92 @@ describe('UsersService', () => {
       const result = await service.search(self.id, 'followed1');
 
       expect(result.items).toEqual([expect.objectContaining({ id: target.id, isFollowing: true })]);
+    });
+  });
+
+  describe('profile', () => {
+    const createUser = (username: string, displayName: string) =>
+      service.create({
+        email: `${username}@example.com`,
+        username,
+        password: 'supersecret',
+        displayName,
+      });
+
+    it('returns all UserProfile fields', async () => {
+      const self = await createUser('profileself', 'Profile Self');
+      const target = await createUser('profiletarget', 'Profile Target');
+
+      const profile = await service.profile(self.id, target.username);
+
+      expect(profile).toEqual({
+        id: target.id,
+        username: 'profiletarget',
+        displayName: 'Profile Target',
+        bio: null,
+        avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=profiletarget',
+        followersCount: 0,
+        followingCount: 0,
+        tweetsCount: 0,
+        isFollowing: false,
+      });
+    });
+
+    it('computes followersCount, followingCount, and tweetsCount from _count exactly', async () => {
+      const self = await createUser('countsself', 'Counts Self');
+      const target = await createUser('countstarget', 'Counts Target');
+      const follower2 = await createUser('countsfollower2', 'Counts Follower Two');
+      const followed1 = await createUser('countsfollowed1', 'Counts Followed One');
+      const followed2 = await createUser('countsfollowed2', 'Counts Followed Two');
+
+      await prisma.follow.create({ data: { followerId: self.id, followingId: target.id } });
+      await prisma.follow.create({ data: { followerId: follower2.id, followingId: target.id } });
+      await prisma.follow.create({ data: { followerId: target.id, followingId: followed1.id } });
+      await prisma.follow.create({ data: { followerId: target.id, followingId: followed2.id } });
+      await prisma.tweet.create({ data: { authorId: target.id, content: 'one' } });
+      await prisma.tweet.create({ data: { authorId: target.id, content: 'two' } });
+      await prisma.tweet.create({ data: { authorId: target.id, content: 'three' } });
+
+      const profile = await service.profile(self.id, target.username);
+
+      expect(profile.followersCount).toBe(2);
+      expect(profile.followingCount).toBe(2);
+      expect(profile.tweetsCount).toBe(3);
+    });
+
+    it('isFollowing is true when the session user follows the target', async () => {
+      const self = await createUser('followsself', 'Follows Self');
+      const target = await createUser('followstarget', 'Follows Target');
+      await prisma.follow.create({ data: { followerId: self.id, followingId: target.id } });
+
+      const profile = await service.profile(self.id, target.username);
+
+      expect(profile.isFollowing).toBe(true);
+    });
+
+    it('isFollowing is false when the session user does not follow the target', async () => {
+      const self = await createUser('notfollowself', 'Not Follow Self');
+      const target = await createUser('notfollowtarget', 'Not Follow Target');
+
+      const profile = await service.profile(self.id, target.username);
+
+      expect(profile.isFollowing).toBe(false);
+    });
+
+    it('isFollowing is false on own profile', async () => {
+      const self = await createUser('ownprofile', 'Own Profile');
+
+      const profile = await service.profile(self.id, self.username);
+
+      expect(profile.isFollowing).toBe(false);
+    });
+
+    it('rejects an unknown username with NotFoundException', async () => {
+      const self = await createUser('unknownlookup', 'Unknown Lookup');
+
+      await expect(service.profile(self.id, 'ghost-user')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 });

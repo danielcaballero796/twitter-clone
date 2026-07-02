@@ -1,7 +1,7 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
-import type { PublicUser, UserListResponse } from '@twitterclone/shared';
+import type { PublicUser, UserListResponse, UserProfile } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from './avatar';
 
@@ -97,6 +97,37 @@ export class UsersService {
         avatarUrl: avatarUrlFor(user.username),
         isFollowing: followingSet.has(user.id),
       })),
+    };
+  }
+
+  async profile(sessionUserId: string, username: string): Promise<UserProfile> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
+      include: { _count: { select: { followers: true, following: true, tweets: true } } },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const isFollowing =
+      sessionUserId === user.id
+        ? false
+        : (await this.prisma.follow.findUnique({
+            where: {
+              followerId_followingId: { followerId: sessionUserId, followingId: user.id },
+            },
+          })) !== null;
+
+    return {
+      id: user.id,
+      username: user.username,
+      displayName: user.displayName,
+      bio: user.bio,
+      avatarUrl: avatarUrlFor(user.username),
+      followersCount: user._count.followers,
+      followingCount: user._count.following,
+      tweetsCount: user._count.tweets,
+      isFollowing,
     };
   }
 }
