@@ -1,0 +1,26 @@
+change: 07-seed
+phase: tasks
+artifact_store: hybrid
+execution_mode: auto
+strict_tdd: true
+artifacts:
+  exploration: false   # scope fixed by user decision "likes + seed juntos" (engram); schema/hashing verified inline by orchestrator
+  proposal: true
+  specs: true
+  design: true
+  tasks: true
+  apply: false
+  verify: false
+  archive: false
+approvals:
+  proposal: true       # authored by orchestrator per standing user decision
+  specs: true
+  design: true         # authored by orchestrator (D1-D5 binding)
+  tasks: true
+  apply: false
+  verify: false
+  archive: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-02
