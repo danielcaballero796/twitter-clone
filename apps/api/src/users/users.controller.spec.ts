@@ -88,4 +88,19 @@ describe('UsersController (integration)', () => {
       await request(app.getHttpServer()).get('/users?q=anything').expect(401);
     });
   });
+
+  describe('GET /users/:username/tweets', () => {
+    it('defaults limit to 20 and accepts limit=50', async () => {
+      const agent = await loggedInAgent('tweetslimitdefault');
+
+      await agent.get('/users/tweetslimitdefault/tweets').expect(200);
+      await agent.get('/users/tweetslimitdefault/tweets?limit=50').expect(200);
+    });
+
+    it('rejects limit=51 with 400', async () => {
+      const agent = await loggedInAgent('tweetslimitreject');
+
+      await agent.get('/users/tweetslimitreject/tweets?limit=51').expect(400);
+    });
+  });
 });

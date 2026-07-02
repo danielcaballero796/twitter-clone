@@ -1,7 +1,9 @@
 import { Controller, Get, Param, Query, Req } from '@nestjs/common';
 import type { Request } from 'express';
-import type { UserListResponse, UserProfile } from '@twitterclone/shared';
+import type { CursorPage, PublicTweet, UserListResponse, UserProfile } from '@twitterclone/shared';
 import type { JwtPayload } from '../auth/types';
+import { TimelineQueryDto } from '../tweets/dto/timeline-query.dto';
+import { TweetsService } from '../tweets/tweets.service';
 import { SearchUsersDto } from './dto/search-users.dto';
 import { UsersService } from './users.service';
 
@@ -12,7 +14,10 @@ interface AuthenticatedRequest extends Request {
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly tweetsService: TweetsService,
+  ) {}
 
   @Get()
   search(
@@ -20,6 +25,14 @@ export class UsersController {
     @Query() query: SearchUsersDto,
   ): Promise<UserListResponse> {
     return this.usersService.search(req.user.sub, query.q);
+  }
+
+  @Get(':username/tweets')
+  tweets(
+    @Param('username') username: string,
+    @Query() query: TimelineQueryDto,
+  ): Promise<CursorPage<PublicTweet>> {
+    return this.tweetsService.listByUsername(username, query);
   }
 
   @Get(':username')

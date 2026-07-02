@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import type { CursorPage, PublicTweet } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from '../users/avatar';
@@ -42,6 +43,31 @@ export class TweetsService {
 
   async timeline(
     userId: string,
+    opts: { cursor?: string; limit?: number },
+  ): Promise<CursorPage<PublicTweet>> {
+    const follows = await this.prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
+    });
+    const authorIds = [...follows.map((f) => f.followingId), userId];
+
+    return this.paginateTweets({ authorId: { in: authorIds } }, opts);
+  }
+
+  async listByUsername(
+    username: string,
+    opts: { cursor?: string; limit?: number },
+  ): Promise<CursorPage<PublicTweet>> {
+    const user = await this.prisma.user.findUnique({ where: { username }, select: { id: true } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return this.paginateTweets({ authorId: user.id }, opts);
+  }
+
+  private async paginateTweets(
+    where: Prisma.TweetWhereInput,
     { cursor, limit = 20 }: { cursor?: string; limit?: number },
   ): Promise<CursorPage<PublicTweet>> {
     // Prisma silently misbehaves on a cursor id that matches no row, so validate it up front.
@@ -55,14 +81,8 @@ export class TweetsService {
       }
     }
 
-    const follows = await this.prisma.follow.findMany({
-      where: { followerId: userId },
-      select: { followingId: true },
-    });
-    const authorIds = [...follows.map((f) => f.followingId), userId];
-
     const rows = await this.prisma.tweet.findMany({
-      where: { authorId: { in: authorIds } },
+      where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       include: { author: AUTHOR_SELECT },
       take: limit + 1,
