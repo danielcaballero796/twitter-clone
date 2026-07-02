@@ -41,4 +41,4 @@ Commit: `feat(docker): run the full stack with docker compose`
 Commits: `ci: prove docker compose runbook with a smoke job`, `chore(openspec): archive 10-docker-fullstack`
 
 - [x] 4.1 `docker-smoke` job in ci.yml per D8
-- [ ] 4.2 Sync spec to `openspec/specs/infra-docker/`, archive change, update state.yaml
+- [x] 4.2 Sync spec to `openspec/specs/infra-docker/`, archive change, update state.yaml
