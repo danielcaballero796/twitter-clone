@@ -6,7 +6,7 @@
 - [x] 0.3 Verify with `pnpm --filter @twitterclone/api run` that `db:seed` is listed (script not yet runnable — file doesn't exist until block 1)
 
 ## 1. Seed script (D1-D4) — commit: `feat(api): add deterministic demo seed script + tests`
-- [ ] 1.1 RED: `apps/api/test/seed.e2e-spec.ts` — import `seed` from `../prisma/seed`, run against the real test Postgres (reset tables in `afterEach` following the established `likes.e2e-spec.ts` pattern: `like.deleteMany()` → `follow.deleteMany()` → `tweet.deleteMany()` → `user.deleteMany()`). Assert:
+- [x] 1.1 RED: `apps/api/test/seed.e2e-spec.ts` — import `seed` from `../prisma/seed`, run against the real test Postgres (reset tables in `afterEach` following the established `likes.e2e-spec.ts` pattern: `like.deleteMany()` → `follow.deleteMany()` → `tweet.deleteMany()` → `user.deleteMany()`). Assert:
   - `seed(prisma)` resolves `{ users: 8, follows: 20, tweets: 45, likes: 60 }`
   - DB row counts after seeding match those numbers exactly
   - fetch `ada`, `verify(ada.passwordHash, 'Flock123!')` (from `@node-rs/argon2`) resolves `true`
@@ -15,7 +15,7 @@
   - ada's first timeline page (limit 20) contains at least one tweet with `likedByMe: true` and one with `likedByMe: false`
   - running `seed(prisma)` a second time returns the same counts with no thrown constraint errors, and DB row counts stay at 8/20/45/60
   Run → failing (module doesn't exist)
-- [ ] 1.2 GREEN: `apps/api/prisma/seed.ts`:
+- [x] 1.2 GREEN: `apps/api/prisma/seed.ts`:
   - Literal fixture arrays per pinned dataset: 8 users (`ada, linus, grace, margaret, alan, barbara, dennis, katherine`; emails `<username>@theflock.dev`; displayName + short bio), hash `'Flock123!'` ONCE via `@node-rs/argon2` `hash()`, reuse for all 8
   - 20 follow edges; ada → `[linus, grace, margaret, alan, barbara]` (5); every user has >=1 follower and >=1 following; no user follows everyone
   - 45 tweets: ada=7, linus=6, grace=6, margaret=6, alan=6, barbara=5, dennis=5, katherine=4; `createdAt` staggered deterministically (`BASE = now - 7d`, each tweet `BASE + i * 90min`), no `parentId`
@@ -23,7 +23,7 @@
   - `async function seed(prisma: PrismaClient): Promise<SeedSummary>` — wipes in FK-safe order (`like` → `follow` → `tweet` → `user`), inserts fresh, returns `{ users, follows, tweets, likes }` counts from the insert results
   - CLI entry (`require.main === module`): guard `if (process.env.NODE_ENV === 'production')` → print refusal, `process.exit(1)`, no `PrismaClient` instantiation before the check; otherwise instantiate `PrismaClient`, call `seed()`, log summary, `$disconnect()`, non-zero exit on thrown error
   Run → green
-- [ ] 1.3 REFACTOR: rerun `apps/api` full suite green; confirm no duplicated wipe logic between the seed script and e2e reset hooks (comment cross-reference is enough, no shared import required)
+- [x] 1.3 REFACTOR: rerun `apps/api` full suite green; confirm no duplicated wipe logic between the seed script and e2e reset hooks (comment cross-reference is enough, no shared import required)
 
 ## 2. Docs (D-none, README only) — commit: `docs: add demo seed instructions to README`
 - [ ] 2.1 Add a "Demo data" section to root `README.md` (after "Testing", following existing table/code-block style) documenting: `pnpm --filter @twitterclone/api db:seed` command, the 8 seeded usernames, and the shared password `Flock123!`
