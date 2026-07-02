@@ -1,12 +1,12 @@
 # Tasks: 04-follows — Follow/Unfollow + User Search
 
 ## 0. Setup
-- [ ] 0.1 Add shared types to `packages/shared/src/index.ts`: `UserSummary { id, username, displayName, avatarUrl, isFollowing }`, `UserListResponse { items: UserSummary[] }`
+- [x] 0.1 Add shared types to `packages/shared/src/index.ts`: `UserSummary { id, username, displayName, avatarUrl, isFollowing }`, `UserListResponse { items: UserSummary[] }`
 
 ## 1. Follow / Unfollow (idempotent) — commit: `feat(api): add follow/unfollow with idempotency + tests`
-- [ ] 1.1 RED: `follows.service.spec.ts` — follow creates edge (author=sub); idempotent re-follow (no duplicate, no error); self-follow 400; unknown username 404; unfollow removes edge; idempotent unfollow-when-not-following (200, no error); unfollow unknown username 404. Run → failing
-- [ ] 1.2 GREEN: `apps/api/src/follows/{follows.module,follows.service,follows.controller}.ts` — `follow()`/`unfollow()` via `createMany({skipDuplicates:true})`/`deleteMany`, resolve username→id first (404), self-check (400); `POST`/`DELETE /users/:username/follow`
-- [ ] 1.3 REFACTOR: rerun green
+- [x] 1.1 RED: `follows.service.spec.ts` — follow creates edge (author=sub); idempotent re-follow (no duplicate, no error); self-follow 400; unknown username 404; unfollow removes edge; idempotent unfollow-when-not-following (200, no error); unfollow unknown username 404. Run → failing
+- [x] 1.2 GREEN: `apps/api/src/follows/{follows.module,follows.service,follows.controller}.ts` — `follow()`/`unfollow()` via `createMany({skipDuplicates:true})`/`deleteMany`, resolve username→id first (404), self-check (400); `POST`/`DELETE /users/:username/follow`
+- [x] 1.3 REFACTOR: rerun green
 
 ## 2. Followers/Following lists + isFollowing — commit: `feat(api): add followers/following lists with limit cap + tests`
 - [ ] 2.1 RED: extend `follows.service.spec.ts` — followers list returns `UserSummary[]`; following list returns `UserSummary[]`; default limit 50, `limit>100` rejected 400; `isFollowing` per item reflects session user S's graph (not target's); unknown username 404. Run → failing

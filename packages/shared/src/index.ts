@@ -62,3 +62,17 @@ export interface CursorPage<T> {
   nextCursor: string | null;
   hasMore: boolean;
 }
+
+/** User shape returned by follow/search/list endpoints, with session-relative follow state. */
+export interface UserSummary {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string;
+  isFollowing: boolean;
+}
+
+/** Response shape for capped, non-paginated user list endpoints. */
+export interface UserListResponse {
+  items: UserSummary[];
+}
