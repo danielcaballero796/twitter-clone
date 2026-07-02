@@ -38,7 +38,7 @@
 
 ## 7. Final verification
 - [x] 7.1 `pnpm test` (all workspaces) green; `pnpm build` green; api coverage ≥85% (dto/module excluded); `pnpm lint` clean; `pnpm format --check` clean (Prettier miss = red CI in this repo — mandatory); `pnpm -r typecheck` clean
-- [ ] 7.2 Push; confirm CI green
+- [x] 7.2 Push; confirm CI green (run 28566514116)
 
 ## Scenario Coverage Checklist (27/27)
 - **Users Profile API — Payload (6)** [G1]: All `UserProfile` fields returned; counts correct via `_count`; `isFollowing` true when following; `isFollowing` false when not following; `isFollowing` false on own profile; unknown username rejected (404)
