@@ -76,11 +76,17 @@ export interface PublicTweet {
   likesCount: number;
   /** Session-relative: true only if the requesting session user has liked this tweet. */
   likedByMe: boolean;
+  /** Total direct replies to this tweet. */
+  replyCount: number;
+  /** Non-null when this tweet is a reply; identifies the parent tweet and its author. */
+  inReplyTo: { id: string; username: string } | null;
 }
 
 /** Body accepted by `POST /tweets`. */
 export interface CreateTweetRequest {
   content: string;
+  /** When present, creates this tweet as a reply to the referenced tweet. */
+  parentId?: string;
 }
 
 /** Cursor-paginated page returned by list endpoints (e.g. `GET /tweets/timeline`). */
