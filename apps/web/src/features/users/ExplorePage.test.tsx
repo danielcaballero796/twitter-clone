@@ -3,13 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse, delay } from 'msw';
 import type { ReactElement } from 'react';
-import {
-  API_URL,
-  makeTweet,
-  makeUserSummary,
-  mockAuthor,
-  otherUser,
-} from '../../test/msw/handlers';
+import { API_URL, makeUserSummary, otherUser } from '../../test/msw/handlers';
 import { server } from '../../test/msw/server';
 import TimelineFeed from '../tweets/TimelineFeed';
 import ExplorePage from './ExplorePage';
@@ -21,15 +15,6 @@ function renderWithClient(ui: ReactElement) {
   render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
   return queryClient;
 }
-
-const sessionUser = {
-  id: mockAuthor.id,
-  email: 'alice@example.com',
-  username: mockAuthor.username,
-  displayName: mockAuthor.displayName,
-  bio: null,
-  avatarUrl: mockAuthor.avatarUrl,
-};
 
 // SearchBox debounces for 300ms with real timers — callers must `waitFor` the resulting UI.
 function search(query: string) {
@@ -142,31 +127,8 @@ describe('ExplorePage', () => {
   });
 
   it('mandatory: search, follow, and the timeline reflects the newly followed user', async () => {
-    let isFollowing = false;
-    server.use(
-      http.get(`${API_URL}/auth/me`, () => HttpResponse.json(sessionUser)),
-      http.get(`${API_URL}/users`, ({ request }) => {
-        const q = new URL(request.url).searchParams.get('q');
-        if (q !== 'bob') {
-          return HttpResponse.json({ items: [] });
-        }
-        return HttpResponse.json({ items: [makeUserSummary({ isFollowing })] });
-      }),
-      http.post(`${API_URL}/users/${otherUser.username}/follow`, () => {
-        isFollowing = true;
-        return HttpResponse.json({ success: true });
-      }),
-      http.get(`${API_URL}/tweets/timeline`, () =>
-        HttpResponse.json({
-          items: isFollowing
-            ? [makeTweet({ id: 'bob-1', content: "bob's exclusive scoop", author: otherUser })]
-            : [],
-          nextCursor: null,
-          hasMore: false,
-        }),
-      ),
-    );
-
+    // No per-test overrides — the default MSW handlers are stateful (see test/msw/handlers.ts),
+    // so following bob here is reflected on the next timeline refetch via the shared fixture store.
     const user = userEvent.setup();
     renderWithClient(
       <>
@@ -185,6 +147,6 @@ describe('ExplorePage', () => {
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /^following$/i })).toBeInTheDocument(),
     );
-    await waitFor(() => expect(screen.getByText("bob's exclusive scoop")).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText("bob's default tweet")).toBeInTheDocument());
   });
 });
