@@ -123,4 +123,77 @@ describe('Tweets flow (e2e)', () => {
     await request(server).delete('/tweets/some-id').expect(401);
     await request(server).get('/tweets/timeline').expect(401);
   });
+
+  it('creates a reply via POST /tweets and retrieves it as part of the thread', async () => {
+    const author = await signUpAndLogin('julia2');
+    const root = await author.post('/tweets').send({ content: 'root of thread' }).expect(201);
+
+    const reply = await author
+      .post('/tweets')
+      .send({ content: 'first reply', parentId: root.body.id })
+      .expect(201);
+    expect(reply.body).toMatchObject({
+      content: 'first reply',
+      inReplyTo: { id: root.body.id, username: 'julia2' },
+    });
+
+    const thread = await author.get(`/tweets/${root.body.id}`).expect(200);
+    expect(thread.body).toMatchObject({ id: root.body.id, replyCount: 1 });
+
+    const replies = await author.get(`/tweets/${root.body.id}/replies`).expect(200);
+    expect(replies.body.items).toHaveLength(1);
+    expect(replies.body.items[0]).toMatchObject({ id: reply.body.id });
+  });
+
+  it('rejects a reply to an unknown parentId with 404', async () => {
+    const author = await signUpAndLogin('kurt2');
+
+    await author
+      .post('/tweets')
+      .send({ content: 'orphan reply', parentId: 'missing-parent-id' })
+      .expect(404);
+  });
+
+  it("includes a followed author's reply in the timeline unfiltered, carrying inReplyTo", async () => {
+    const reader = await signUpAndLogin('laura2');
+    const writer = await signUpAndLogin('mark2');
+    const root = await writer.post('/tweets').send({ content: 'writer root' }).expect(201);
+    const reply = await writer
+      .post('/tweets')
+      .send({ content: 'writer reply', parentId: root.body.id })
+      .expect(201);
+
+    const [readerRow, writerRow] = await Promise.all([
+      prisma.user.findUniqueOrThrow({ where: { username: 'laura2' } }),
+      prisma.user.findUniqueOrThrow({ where: { username: 'mark2' } }),
+    ]);
+    await prisma.follow.create({ data: { followerId: readerRow.id, followingId: writerRow.id } });
+
+    const timeline = await reader.get('/tweets/timeline').expect(200);
+    const replyInTimeline = timeline.body.items.find(
+      (t: { id: string }) => t.id === reply.body.id,
+    );
+    expect(replyInTimeline).toMatchObject({
+      inReplyTo: { id: root.body.id, username: 'mark2' },
+    });
+  });
+
+  it('cascade-deletes the reply subtree when the parent tweet is deleted', async () => {
+    const author = await signUpAndLogin('nina2');
+    const root = await author.post('/tweets').send({ content: 'doomed root' }).expect(201);
+    const reply = await author
+      .post('/tweets')
+      .send({ content: 'doomed reply', parentId: root.body.id })
+      .expect(201);
+
+    await author.delete(`/tweets/${root.body.id}`).expect(200);
+
+    await author.get(`/tweets/${root.body.id}`).expect(404);
+    await author.get(`/tweets/${reply.body.id}`).expect(404);
+
+    const timeline = await author.get('/tweets/timeline').expect(200);
+    const ids = timeline.body.items.map((t: { id: string }) => t.id);
+    expect(ids).not.toContain(root.body.id);
+    expect(ids).not.toContain(reply.body.id);
+  });
 });

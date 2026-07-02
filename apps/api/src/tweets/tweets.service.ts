@@ -16,22 +16,42 @@ const AUTHOR_SELECT = {
   select: USER_SUMMARY_SELECT,
 } as const;
 
+// Single source of truth for the projection backing PublicTweet's read sites
+// (create, paginateTweets, getById, listReplies) — mirrors the USER_SUMMARY_SELECT
+// pattern so replyCount/inReplyTo never drift across call sites (design D2).
+const TWEET_INCLUDE = {
+  author: AUTHOR_SELECT,
+  _count: { select: { likes: true, replies: true } },
+  parent: { select: { id: true, author: { select: { username: true } } } },
+} as const;
+
 interface TweetWithAuthor {
   id: string;
   content: string;
   createdAt: Date;
   author: { id: string; username: string; displayName: string; avatarStyle: string };
-  _count: { likes: number };
+  _count: { likes: number; replies: number };
+  parent: { id: string; author: { username: string } } | null;
 }
 
 @Injectable()
 export class TweetsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(authorId: string, content: string): Promise<PublicTweet> {
+  async create(authorId: string, content: string, parentId?: string): Promise<PublicTweet> {
+    if (parentId) {
+      const parent = await this.prisma.tweet.findUnique({
+        where: { id: parentId },
+        select: { id: true },
+      });
+      if (!parent) {
+        throw new NotFoundException('Parent tweet not found');
+      }
+    }
+
     const tweet = await this.prisma.tweet.create({
-      data: { authorId, content },
-      include: { author: AUTHOR_SELECT, _count: { select: { likes: true } } },
+      data: { authorId, content, parentId },
+      include: TWEET_INCLUDE,
     });
     return this.toPublicTweet(tweet, false);
   }
@@ -73,10 +93,39 @@ export class TweetsService {
     return this.paginateTweets(sessionUserId, { authorId: user.id }, opts);
   }
 
+  async getById(sessionUserId: string, id: string): Promise<PublicTweet> {
+    const tweet = await this.prisma.tweet.findUnique({
+      where: { id },
+      include: TWEET_INCLUDE,
+    });
+    if (!tweet) {
+      throw new NotFoundException('Tweet not found');
+    }
+
+    const like = await this.prisma.like.findUnique({
+      where: { userId_tweetId: { userId: sessionUserId, tweetId: id } },
+    });
+
+    return this.toPublicTweet(tweet, like !== null);
+  }
+
+  async listReplies(
+    sessionUserId: string,
+    id: string,
+    opts: { cursor?: string; limit?: number },
+  ): Promise<CursorPage<PublicTweet>> {
+    const parent = await this.prisma.tweet.findUnique({ where: { id }, select: { id: true } });
+    if (!parent) {
+      throw new NotFoundException('Tweet not found');
+    }
+
+    return this.paginateTweets(sessionUserId, { parentId: id }, { ...opts, order: 'asc' });
+  }
+
   private async paginateTweets(
     sessionUserId: string,
     where: Prisma.TweetWhereInput,
-    { cursor, limit = 20 }: { cursor?: string; limit?: number },
+    { cursor, limit = 20, order = 'desc' }: { cursor?: string; limit?: number; order?: 'asc' | 'desc' },
   ): Promise<CursorPage<PublicTweet>> {
     // Prisma silently misbehaves on a cursor id that matches no row, so validate it up front.
     if (cursor) {
@@ -91,8 +140,8 @@ export class TweetsService {
 
     const rows = await this.prisma.tweet.findMany({
       where,
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      include: { author: AUTHOR_SELECT, _count: { select: { likes: true } } },
+      orderBy: [{ createdAt: order }, { id: order }],
+      include: TWEET_INCLUDE,
       take: limit + 1,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     });
@@ -127,6 +176,10 @@ export class TweetsService {
       },
       likesCount: tweet._count.likes,
       likedByMe,
+      replyCount: tweet._count.replies,
+      inReplyTo: tweet.parent
+        ? { id: tweet.parent.id, username: tweet.parent.author.username }
+        : null,
     };
   }
 }

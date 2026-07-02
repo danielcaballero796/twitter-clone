@@ -46,11 +46,11 @@ describe('Demo seed script (e2e)', () => {
   it('inserts the fixed demo dataset and returns matching counts', async () => {
     const summary = await seed(prisma);
 
-    expect(summary).toEqual({ users: 8, follows: 20, tweets: 45, likes: 60 });
+    expect(summary).toEqual({ users: 8, follows: 20, tweets: 49, likes: 60 });
 
     await expect(prisma.user.count()).resolves.toBe(8);
     await expect(prisma.follow.count()).resolves.toBe(20);
-    await expect(prisma.tweet.count()).resolves.toBe(45);
+    await expect(prisma.tweet.count()).resolves.toBe(49);
     await expect(prisma.like.count()).resolves.toBe(60);
   });
 
@@ -76,7 +76,7 @@ describe('Demo seed script (e2e)', () => {
     const timelineTweetCount = await prisma.tweet.count({
       where: { authorId: { in: authorIds } },
     });
-    expect(timelineTweetCount).toBe(36);
+    expect(timelineTweetCount).toBe(40);
     expect(timelineTweetCount).toBeGreaterThanOrEqual(25);
 
     const firstPage = await prisma.tweet.findMany({
@@ -103,7 +103,7 @@ describe('Demo seed script (e2e)', () => {
     const tweets = await prisma.tweet.findMany({
       include: { _count: { select: { likes: true } } },
     });
-    expect(tweets).toHaveLength(45);
+    expect(tweets).toHaveLength(49);
     for (const tweet of tweets) {
       expect(tweet._count.likes).toBeGreaterThanOrEqual(0);
       expect(tweet._count.likes).toBeLessThanOrEqual(6);
@@ -159,12 +159,12 @@ describe('Demo seed script (e2e)', () => {
         expect(result.stdout).toContain('Seed complete:');
         expect(result.stdout).toContain('users: 8');
         expect(result.stdout).toContain('follows: 20');
-        expect(result.stdout).toContain('tweets: 45');
+        expect(result.stdout).toContain('tweets: 49');
         expect(result.stdout).toContain('likes: 60');
 
         await expect(prisma.user.count()).resolves.toBe(8);
         await expect(prisma.follow.count()).resolves.toBe(20);
-        await expect(prisma.tweet.count()).resolves.toBe(45);
+        await expect(prisma.tweet.count()).resolves.toBe(49);
         await expect(prisma.like.count()).resolves.toBe(60);
       },
       CLI_TIMEOUT_MS,
@@ -176,11 +176,11 @@ describe('Demo seed script (e2e)', () => {
     const second = await seed(prisma);
 
     expect(second).toEqual(first);
-    expect(second).toEqual({ users: 8, follows: 20, tweets: 45, likes: 60 });
+    expect(second).toEqual({ users: 8, follows: 20, tweets: 49, likes: 60 });
 
     await expect(prisma.user.count()).resolves.toBe(8);
     await expect(prisma.follow.count()).resolves.toBe(20);
-    await expect(prisma.tweet.count()).resolves.toBe(45);
+    await expect(prisma.tweet.count()).resolves.toBe(49);
     await expect(prisma.like.count()).resolves.toBe(60);
   });
 });

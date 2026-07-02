@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsString, Length } from 'class-validator';
+import { IsOptional, IsString, Length } from 'class-validator';
 import { MAX_TWEET_LENGTH, type CreateTweetRequest } from '@twitterclone/shared';
 
 export class CreateTweetDto implements CreateTweetRequest {
@@ -7,4 +7,9 @@ export class CreateTweetDto implements CreateTweetRequest {
   @IsString()
   @Length(1, MAX_TWEET_LENGTH)
   content!: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(1)
+  parentId?: string;
 }

@@ -28,7 +28,7 @@ export class TweetsController {
 
   @Post()
   create(@Req() req: AuthenticatedRequest, @Body() dto: CreateTweetDto): Promise<PublicTweet> {
-    return this.tweetsService.create(req.user.sub, dto.content);
+    return this.tweetsService.create(req.user.sub, dto.content, dto.parentId);
   }
 
   @Get('timeline')
@@ -37,6 +37,20 @@ export class TweetsController {
     @Query() query: TimelineQueryDto,
   ): Promise<CursorPage<PublicTweet>> {
     return this.tweetsService.timeline(req.user.sub, query);
+  }
+
+  @Get(':id')
+  getById(@Req() req: AuthenticatedRequest, @Param('id') id: string): Promise<PublicTweet> {
+    return this.tweetsService.getById(req.user.sub, id);
+  }
+
+  @Get(':id/replies')
+  listReplies(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Query() query: TimelineQueryDto,
+  ): Promise<CursorPage<PublicTweet>> {
+    return this.tweetsService.listReplies(req.user.sub, id, query);
   }
 
   @Delete(':id')

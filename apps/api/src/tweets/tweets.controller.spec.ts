@@ -98,6 +98,40 @@ describe('TweetsController (integration)', () => {
 
       await expect(prisma.tweet.count()).resolves.toBe(0);
     });
+
+    it('creates a reply when a valid parentId is given, with inReplyTo populated', async () => {
+      const agent = await loggedInAgent('donna');
+      const root = await agent.post('/tweets').send({ content: 'root tweet' }).expect(201);
+
+      const reply = await agent
+        .post('/tweets')
+        .send({ content: 'a reply', parentId: root.body.id })
+        .expect(201);
+
+      expect(reply.body).toMatchObject({
+        content: 'a reply',
+        inReplyTo: { id: root.body.id, username: 'donna' },
+      });
+    });
+
+    it('rejects an unknown parentId with 404 and creates nothing', async () => {
+      const agent = await loggedInAgent('erin');
+
+      await agent
+        .post('/tweets')
+        .send({ content: 'orphan', parentId: 'missing-parent-id' })
+        .expect(404);
+
+      await expect(prisma.tweet.count()).resolves.toBe(0);
+    });
+
+    it('rejects a malformed (empty string) parentId with 400 and creates nothing', async () => {
+      const agent = await loggedInAgent('fiona');
+
+      await agent.post('/tweets').send({ content: 'bad parent', parentId: '' }).expect(400);
+
+      await expect(prisma.tweet.count()).resolves.toBe(0);
+    });
   });
 
   describe('DELETE /tweets/:id', () => {
@@ -167,6 +201,64 @@ describe('TweetsController (integration)', () => {
 
     it('returns 401 without a session cookie', async () => {
       await request(app.getHttpServer()).get('/tweets/timeline').expect(401);
+    });
+
+    it('is routed as the static timeline endpoint, not swallowed by GET /tweets/:id (route ordering)', async () => {
+      const agent = await loggedInAgent('yolanda');
+
+      // If `@Get(':id')` were declared before `@Get('timeline')`, this request would be
+      // routed to getById with id="timeline" and 404 (no tweet with that id) instead of
+      // returning the timeline cursor-page shape.
+      const response = await agent.get('/tweets/timeline').expect(200);
+
+      expect(response.body).toMatchObject({ items: [], nextCursor: null, hasMore: false });
+    });
+  });
+
+  describe('GET /tweets/:id', () => {
+    it("returns 200 with the tweet's public shape", async () => {
+      const agent = await loggedInAgent('zane');
+      const created = await agent.post('/tweets').send({ content: 'gettable' }).expect(201);
+
+      const response = await agent.get(`/tweets/${created.body.id}`).expect(200);
+
+      expect(response.body).toMatchObject({ id: created.body.id, content: 'gettable' });
+    });
+
+    it('returns 404 for a nonexistent tweet id', async () => {
+      const agent = await loggedInAgent('amara');
+
+      await agent.get('/tweets/missing-tweet-id').expect(404);
+    });
+
+    it('returns 401 without a session cookie', async () => {
+      await request(app.getHttpServer()).get('/tweets/some-id').expect(401);
+    });
+  });
+
+  describe('GET /tweets/:id/replies', () => {
+    it('returns a cursor page of direct replies', async () => {
+      const agent = await loggedInAgent('brody');
+      const root = await agent.post('/tweets').send({ content: 'root' }).expect(201);
+      await agent
+        .post('/tweets')
+        .send({ content: 'a reply', parentId: root.body.id })
+        .expect(201);
+
+      const response = await agent.get(`/tweets/${root.body.id}/replies`).expect(200);
+
+      expect(response.body.items).toHaveLength(1);
+      expect(response.body.items[0]).toMatchObject({ content: 'a reply' });
+    });
+
+    it('returns 404 when the parent tweet does not exist', async () => {
+      const agent = await loggedInAgent('celia');
+
+      await agent.get('/tweets/missing-tweet-id/replies').expect(404);
+    });
+
+    it('returns 401 without a session cookie', async () => {
+      await request(app.getHttpServer()).get('/tweets/some-id/replies').expect(401);
     });
   });
 });

@@ -250,10 +250,41 @@ export async function seed(prisma: PrismaClient): Promise<SeedSummary> {
   );
   const likeResult = await prisma.like.createMany({ data: likeRows });
 
+  // Demo reply thread: appended after the main 45-tweet dataset (rather than
+  // interleaved) so it never disturbs the author-grouped ordering the comments
+  // above document — it exists purely so the thread UI (/t/:id) has something
+  // to show out of the box.
+  const threadBase = base + TWEET_FIXTURES.length * MINUTES_PER_TWEET * 60 * 1000;
+  const replyRoot = await prisma.tweet.create({
+    data: {
+      authorId: userIdByUsername.get('ada')!,
+      content: "What's everyone hacking on this week?",
+      createdAt: new Date(threadBase),
+    },
+  });
+  const REPLY_FIXTURES: Array<{ authorUsername: string; content: string }> = [
+    { authorUsername: 'linus', content: 'Reviewing kernel patches, as always.' },
+    { authorUsername: 'grace', content: 'Debugging a stubborn compiler edge case.' },
+    { authorUsername: 'margaret', content: 'Writing error-handling specs for a new system.' },
+  ];
+  const replies = await Promise.all(
+    REPLY_FIXTURES.map((fixture, index) =>
+      prisma.tweet.create({
+        data: {
+          authorId: userIdByUsername.get(fixture.authorUsername)!,
+          content: fixture.content,
+          parentId: replyRoot.id,
+          createdAt: new Date(threadBase + (index + 1) * 60 * 1000),
+        },
+      }),
+    ),
+  );
+  const totalTweets = tweets.length + 1 + replies.length;
+
   return {
     users: users.length,
     follows: followResult.count,
-    tweets: tweets.length,
+    tweets: totalTweets,
     likes: likeResult.count,
   };
 }

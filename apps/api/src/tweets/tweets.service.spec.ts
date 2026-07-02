@@ -55,6 +55,8 @@ describe('TweetsService', () => {
         },
         likesCount: 0,
         likedByMe: false,
+        replyCount: 0,
+        inReplyTo: null,
       });
       expect(new Date(tweet.createdAt).getTime()).not.toBeNaN();
 
@@ -79,6 +81,168 @@ describe('TweetsService', () => {
 
       expect(oneChar.content).toBe('x');
       expect(atLimit.content).toHaveLength(280);
+    });
+  });
+
+  describe('reply creation', () => {
+    it('persists parentId and returns inReplyTo populated with the parent id and author username', async () => {
+      const ada = await createUser('ada2');
+      const parent = await service.create(ada.id, 'root tweet');
+
+      const reply = await service.create(ada.id, 'a reply', parent.id);
+
+      expect(reply.inReplyTo).toEqual({ id: parent.id, username: 'ada2' });
+      const persisted = await prisma.tweet.findUnique({ where: { id: reply.id } });
+      expect(persisted?.parentId).toBe(parent.id);
+    });
+
+    it('rejects an unknown parentId with NotFoundException and creates nothing', async () => {
+      const bea = await createUser('bea2');
+
+      await expect(service.create(bea.id, 'orphan reply', 'missing-parent-id')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+      await expect(prisma.tweet.count()).resolves.toBe(0);
+    });
+
+    it('omitted parentId behaves byte-for-byte as before, with inReplyTo: null', async () => {
+      const cid = await createUser('cid2');
+
+      const tweet = await service.create(cid.id, 'top level');
+
+      expect(tweet.inReplyTo).toBeNull();
+    });
+
+    it('allows a reply to a reply', async () => {
+      const dee = await createUser('dee2');
+      const root = await service.create(dee.id, 'root');
+      const firstReply = await service.create(dee.id, 'first reply', root.id);
+
+      const secondReply = await service.create(dee.id, 'reply to a reply', firstReply.id);
+
+      expect(secondReply.inReplyTo).toEqual({ id: firstReply.id, username: 'dee2' });
+    });
+
+    it('replyCount reflects the direct-reply count on a tweet', async () => {
+      const eli = await createUser('eli2');
+      const root = await service.create(eli.id, 'root with replies');
+      await service.create(eli.id, 'reply one', root.id);
+      await service.create(eli.id, 'reply two', root.id);
+
+      const fetched = await service.getById(eli.id, root.id);
+
+      expect(fetched.replyCount).toBe(2);
+    });
+  });
+
+  describe('getById', () => {
+    it('returns 200 shape with likedByMe computed relative to the session user', async () => {
+      const finn = await createUser('finn2');
+      const tweet = await service.create(finn.id, 'gettable tweet');
+      await prisma.like.create({ data: { userId: finn.id, tweetId: tweet.id } });
+
+      const fetched = await service.getById(finn.id, tweet.id);
+
+      expect(fetched).toMatchObject({ id: tweet.id, likedByMe: true });
+    });
+
+    it('rejects a nonexistent tweet id with NotFoundException', async () => {
+      const gia = await createUser('gia2');
+
+      await expect(service.getById(gia.id, 'missing-tweet-id')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('listReplies', () => {
+    it('returns direct replies ordered createdAt asc, id asc', async () => {
+      const hal = await createUser('hal2');
+      const root = await prisma.tweet.create({ data: { authorId: hal.id, content: 'root' } });
+      const now = Date.now();
+      await prisma.tweet.create({
+        data: {
+          authorId: hal.id,
+          content: 'reply 1',
+          parentId: root.id,
+          createdAt: new Date(now - 3000),
+        },
+      });
+      await prisma.tweet.create({
+        data: {
+          authorId: hal.id,
+          content: 'reply 2',
+          parentId: root.id,
+          createdAt: new Date(now - 2000),
+        },
+      });
+      await prisma.tweet.create({
+        data: {
+          authorId: hal.id,
+          content: 'reply 3',
+          parentId: root.id,
+          createdAt: new Date(now - 1000),
+        },
+      });
+
+      const page = await service.listReplies(hal.id, root.id, {});
+
+      expect(page.items.map((t) => t.content)).toEqual(['reply 1', 'reply 2', 'reply 3']);
+    });
+
+    it('returns an empty page with hasMore=false for a tweet with no replies', async () => {
+      const ivy = await createUser('ivy2');
+      const root = await service.create(ivy.id, 'lonely root');
+
+      const page = await service.listReplies(ivy.id, root.id, {});
+
+      expect(page).toEqual({ items: [], nextCursor: null, hasMore: false });
+    });
+
+    it('paginates ascending without overlap or gap', async () => {
+      const jon = await createUser('jon2');
+      const root = await prisma.tweet.create({ data: { authorId: jon.id, content: 'root' } });
+      const now = Date.now();
+      for (let i = 0; i < 3; i += 1) {
+        await prisma.tweet.create({
+          data: {
+            authorId: jon.id,
+            content: `reply ${i}`,
+            parentId: root.id,
+            createdAt: new Date(now - (3 - i) * 1000),
+          },
+        });
+      }
+
+      const first = await service.listReplies(jon.id, root.id, { limit: 2 });
+      expect(first.items).toHaveLength(2);
+      expect(first.hasMore).toBe(true);
+      expect(first.items.map((t) => t.content)).toEqual(['reply 0', 'reply 1']);
+
+      const second = await service.listReplies(jon.id, root.id, {
+        cursor: first.nextCursor!,
+        limit: 2,
+      });
+      expect(second.items).toHaveLength(1);
+      expect(second.hasMore).toBe(false);
+      expect(second.items.map((t) => t.content)).toEqual(['reply 2']);
+    });
+
+    it('rejects a cursor that does not match any tweet with BadRequestException', async () => {
+      const kim = await createUser('kim2');
+      const root = await service.create(kim.id, 'root for bad cursor');
+
+      await expect(
+        service.listReplies(kim.id, root.id, { cursor: 'not-a-real-id' }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('rejects a nonexistent parent tweet id with NotFoundException', async () => {
+      const liv = await createUser('liv2');
+
+      await expect(service.listReplies(liv.id, 'missing-parent-id', {})).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
