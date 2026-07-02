@@ -159,6 +159,28 @@ describe('FollowsService', () => {
         NotFoundException,
       );
     });
+
+    it('caps default results at 50 with 51+ real followers, and returns all with limit=100', async () => {
+      const target = await createUser('target-bulk');
+
+      const bulkUsers = Array.from({ length: 51 }, (_, i) => ({
+        id: `bulk-follower-${i}`,
+        email: `bulk-follower-${i}@example.com`,
+        username: `bulk-follower-${i}`,
+        passwordHash: 'irrelevant-hash',
+        displayName: `bulk-follower-${i}`,
+      }));
+      await prisma.user.createMany({ data: bulkUsers });
+      await prisma.follow.createMany({
+        data: bulkUsers.map((user) => ({ followerId: user.id, followingId: target.id })),
+      });
+
+      const defaultPage = await service.followers(target.id, 'target-bulk', {});
+      expect(defaultPage.items).toHaveLength(50);
+
+      const maxPage = await service.followers(target.id, 'target-bulk', { limit: 100 });
+      expect(maxPage.items).toHaveLength(51);
+    });
   });
 
   describe('following', () => {

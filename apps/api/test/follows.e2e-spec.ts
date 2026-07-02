@@ -115,4 +115,44 @@ describe('Follows flow (e2e)', () => {
     await request(server).get('/users/anyone/following').expect(401);
     await request(server).get('/users?q=anyone').expect(401);
   });
+
+  it('returns real UserSummary lists over HTTP with session-relative isFollowing', async () => {
+    const a = await signUpAndLogin('followerg');
+    const b = await signUpAndLogin('followerh');
+
+    await a.post('/users/followerh/follow').expect(FOLLOW_SUCCESS_STATUS);
+
+    const aRow = await prisma.user.findUniqueOrThrow({ where: { username: 'followerg' } });
+
+    const bFollowers = await b.get('/users/followerh/followers').expect(200);
+    expect(bFollowers.body.items).toEqual([
+      {
+        id: aRow.id,
+        username: 'followerg',
+        displayName: 'followerg',
+        avatarUrl: expect.stringContaining('followerg'),
+        // B has not followed A back, so from B's own session isFollowing is false.
+        isFollowing: false,
+      },
+    ]);
+
+    const aFollowing = await a.get('/users/followerg/following').expect(200);
+    expect(aFollowing.body.items).toMatchObject([
+      {
+        username: 'followerh',
+        // A follows B, and A is the session user viewing their own following list.
+        isFollowing: true,
+      },
+    ]);
+  });
+
+  it('rejects an invalid or over-max limit on the followers/following endpoints with 400', async () => {
+    const i = await signUpAndLogin('followeri');
+    await signUpAndLogin('followerj');
+
+    await i.get('/users/followeri/followers?limit=abc').expect(400);
+    await i.get('/users/followeri/followers?limit=101').expect(400);
+    await i.get('/users/followerj/following?limit=abc').expect(400);
+    await i.get('/users/followerj/following?limit=101').expect(400);
+  });
 });
