@@ -1,0 +1,31 @@
+change: 12-notifications
+phase: archive
+artifact_store: hybrid
+execution_mode: auto      # user 2026-07-02: "si dale hasta terminar la funcionalidad"
+strict_tdd: true
+artifacts:
+  exploration: false      # direct user input; domain well known from changes 04/06/11
+  proposal: true
+  specs: true             # 26 scenarios (17 notifications, 9 web-notifications)
+  design: true            # D1-D7 binding
+  tasks: true             # 6 blocks, sequential 0-3, 4 verify, 5 archive
+  apply: true             # commits afe5a29 (shared), ed466dc (api), 7f1d9ac (web data), 0fbccaf (web UI) + fixes 60d4e32 (nginx proxy), f214623/nav restyle
+  verify: true            # full gate green (api 196 tests, web 106, lint/format/typecheck, coverage >=85%); live docker check via curl + user manual UI walk (badge, list, links, mark-read); nginx Accept-split fix found and shipped during live verify
+  archive: true
+approvals:
+  proposal: true          # user: "vale continua" (2026-07-02)
+  specs: true
+  design: true
+  tasks: true
+  apply: true
+  verify: true            # user: "vale me parece cool" after live walk (2026-07-02)
+  archive: true
+notes: |
+  Scope decision 2026-07-02: notifications first (persistence), real-time delivery
+  deferred to change 13-realtime (SSE recommended over WebSockets for this use case).
+  Live-verify finding: /notifications collides SPA-route vs API-route behind nginx;
+  resolved with Accept-header split in docker/nginx.conf (60d4e32).
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-02
