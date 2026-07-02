@@ -16,6 +16,8 @@ import HomePage from './features/auth/HomePage';
 import LoginPage from './features/auth/LoginPage';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import RegisterPage from './features/auth/RegisterPage';
+import NotificationsNavLink from './features/notifications/NotificationsNavLink';
+import NotificationsPage from './features/notifications/NotificationsPage';
 import ThreadPage from './features/tweets/ThreadPage';
 import ExplorePage from './features/users/ExplorePage';
 import ProfileNavLink from './features/users/ProfileNavLink';
@@ -55,6 +57,7 @@ function AppShell() {
             <NavLink to="/explore" className={navLinkClassName}>
               Explore
             </NavLink>
+            <NotificationsNavLink />
             <ProfileNavLink />
           </nav>
           <ThemeToggle />
@@ -69,6 +72,7 @@ function AppShell() {
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/u/:username" element={<ProfilePage />} />
             <Route path="/t/:id" element={<ThreadPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
