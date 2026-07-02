@@ -2,20 +2,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
 import { BrowserRouter, Link, Navigate, NavLink, Route, Routes } from 'react-router-dom';
 import { APP_NAME } from '@twitterclone/shared';
+import { navLinkClassName } from './components/nav-link';
 import ThemeToggle from './features/theme/ThemeToggle';
 import HomePage from './features/auth/HomePage';
 import LoginPage from './features/auth/LoginPage';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import RegisterPage from './features/auth/RegisterPage';
 import ExplorePage from './features/users/ExplorePage';
+import ProfileNavLink from './features/users/ProfileNavLink';
 import ProfilePage from './features/users/ProfilePage';
-
-function navLinkClassName({ isActive }: { isActive: boolean }) {
-  const base = 'rounded px-2 py-1 text-sm transition-colors duration-200 cursor-pointer';
-  return isActive
-    ? `${base} font-medium text-indigo-600 dark:text-indigo-400`
-    : `${base} text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100`;
-}
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient());
@@ -41,6 +36,7 @@ export default function App() {
                 <NavLink to="/explore" className={navLinkClassName}>
                   Explore
                 </NavLink>
+                <ProfileNavLink />
               </nav>
               <ThemeToggle />
             </div>
