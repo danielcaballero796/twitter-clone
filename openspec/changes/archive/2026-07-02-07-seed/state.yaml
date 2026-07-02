@@ -1,5 +1,5 @@
 change: 07-seed
-phase: apply
+phase: archive
 artifact_store: hybrid
 execution_mode: auto
 strict_tdd: true
@@ -10,21 +10,21 @@ artifacts:
   design: true
   tasks: true
   apply: true
-  verify: false
-  archive: false
+  verify: true         # PASS after CRITICAL closed in b41a673 (CLI guard tests); 2 pre-existing WARNINGs accepted
+  archive: true        # Synced seed spec to openspec/specs/seed/spec.md, moved to archive/2026-07-02-07-seed/
 approvals:
   proposal: true       # authored by orchestrator per standing user decision
   specs: true
   design: true         # authored by orchestrator (D1-D5 binding)
   tasks: true
   apply: true
-  verify: false
-  archive: false
+  verify: true         # PASS after CRITICAL closed in b41a673
+  archive: true        # 2026-07-02
 tasks_progress:
   completed:
     - "0. Setup — db:seed script + prisma.seed config wired in apps/api/package.json"
     - "1. Seed script — apps/api/prisma/seed.ts + apps/api/test/seed.e2e-spec.ts (RED->GREEN->REFACTOR, full api suite green, coverage 99.28%)"
     - "2. Docs — README Demo data section with seed command, usernames, password, production guard note"
-  pending:
-    - "3. Final verification — push + confirm CI green (in progress by orchestrator)"
+    - "3. Final verification — push + confirm CI green"
+  pending: []
 last_updated: 2026-07-02
