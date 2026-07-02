@@ -1,0 +1,26 @@
+change: 04-follows
+phase: proposal
+artifact_store: hybrid
+execution_mode: interactive
+strict_tdd: true
+artifacts:
+  exploration: false   # scope decided interactively with user (engram: sdd/04-follows/scope-decision)
+  proposal: true
+  specs: false
+  design: false
+  tasks: false
+  apply: false
+  verify: false
+  archive: false
+approvals:
+  proposal: false
+  specs: false
+  design: false
+  tasks: false
+  apply: false
+  verify: false
+  archive: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-02
