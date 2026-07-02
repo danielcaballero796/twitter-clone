@@ -291,6 +291,54 @@ describe('ProfilePage', () => {
     expect(likeButton).toHaveTextContent('2');
   });
 
+  it('removes a deleted own tweet from the profile tweet list', async () => {
+    let tweets = [makeTweet({ id: 'mine', content: 'delete me from profile', author: mockAuthor })];
+    server.use(
+      http.get(`${API_URL}/auth/me`, () =>
+        HttpResponse.json({
+          id: mockAuthor.id,
+          email: 'alice@example.com',
+          username: mockAuthor.username,
+          displayName: mockAuthor.displayName,
+          bio: null,
+          avatarUrl: mockAuthor.avatarUrl,
+        }),
+      ),
+      http.get(`${API_URL}/users/${mockAuthor.username}`, () =>
+        HttpResponse.json(
+          makeProfile({
+            id: mockAuthor.id,
+            username: mockAuthor.username,
+            displayName: mockAuthor.displayName,
+            avatarUrl: mockAuthor.avatarUrl,
+            isFollowing: false,
+          }),
+        ),
+      ),
+      http.get(`${API_URL}/users/${mockAuthor.username}/tweets`, () =>
+        HttpResponse.json({ items: tweets, nextCursor: null, hasMore: false }),
+      ),
+      http.delete(`${API_URL}/tweets/mine`, () => {
+        tweets = tweets.filter((tweet) => tweet.id !== 'mine');
+        return HttpResponse.json({ success: true });
+      }),
+    );
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    const user = userEvent.setup();
+    renderProfile(mockAuthor.username);
+
+    await waitFor(() => expect(screen.getByText('delete me from profile')).toBeInTheDocument());
+
+    await user.click(screen.getByRole('button', { name: /delete tweet/i }));
+
+    await waitFor(() =>
+      expect(screen.queryByText('delete me from profile')).not.toBeInTheDocument(),
+    );
+
+    confirmSpy.mockRestore();
+  });
+
   it('redirects to login when navigating to /u/:username unauthenticated', async () => {
     // Default MSW handler returns 401 for /auth/me — no session.
     renderAuthApp(`/u/${otherUser.username}`);
