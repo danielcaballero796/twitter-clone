@@ -16,5 +16,43 @@ services:
       timeout: 3s
       retries: 10
 
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: twitterclone-api
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/twitter_dev
+      JWT_SECRET: ${JWT_SECRET:-twitterclone-demo-secret-do-not-use-in-production}
+      # NODE_ENV stays unset on purpose: the seed's production guard keeps
+      # protecting real deployments while demo seeding stays possible.
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      # node:22-slim has no curl; fetch is built into node 22
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://localhost:3000/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: twitterclone-web
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    depends_on:
+      api:
+        condition: service_healthy
+
 volumes:
   pgdata:

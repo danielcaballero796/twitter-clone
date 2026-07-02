@@ -10,24 +10,57 @@ Minimal Twitter-like app built as a hiring challenge. pnpm monorepo:
 
 ## Prerequisites
 
-- Node.js >= 22 (`.nvmrc` provided — `nvm use`)
-- pnpm >= 9 (`corepack enable` picks the pinned version from `packageManager`)
-- Docker Desktop (for PostgreSQL)
+- **Docker** (Engine or Desktop) with Compose v2 — the only requirement for the quick start below.
+- Node.js >= 22 (`.nvmrc` provided — `nvm use`) and pnpm >= 9 (`corepack enable` picks the pinned version from `packageManager`) — only needed for native dev mode.
 
-## Setup
+## Quick start (Docker — reviewer path)
+
+One command boots the whole product: postgres, the API (migrated), and the web app, behind a single origin.
+
+```bash
+docker compose up -d --build
+```
+
+Open **http://localhost:8080** (or `http://localhost:${WEB_PORT}` if overridden below). No `.env` file is required — every variable has a working default on a clean checkout, and migrations run automatically before the API starts listening.
+
+nginx serves the built SPA and reverse-proxies `/auth`, `/users`, `/tweets` and `/health` to the api container — one origin, no CORS, first-party session cookie.
+
+Seed the running stack with the same deterministic demo dataset described below:
+
+```bash
+docker compose exec api npx ts-node prisma/seed.ts
+```
+
+Override the host port without rebuilding any image (either inline or via the root `.env`):
+
+```bash
+WEB_PORT=3005 docker compose up -d
+```
+
+Tear down:
+
+```bash
+docker compose down       # stop and remove containers
+docker compose down -v    # also drop the postgres volume (fresh state next boot)
+```
+
+## Native dev mode (hot reload)
+
+Prefer this path when developing: hot reload on both apps, source-consumed `@twitterclone/shared`, CORS configured for `localhost:5173`. Docker here is only used for PostgreSQL.
 
 ```bash
 # 1. Install dependencies
 pnpm install
 
-# 2. Environment: copy the template
-#    - root .env        → variables for docker-compose (ports/credentials)
-#    - apps/api/.env    → variables for the API (DATABASE_URL, etc.)
+# 2. Environment: copy the template into the two places that read it
+#    - root .env        → read by docker-compose (POSTGRES_*, WEB_PORT)
+#    - apps/api/.env    → read by the API via dotenv (DATABASE_URL, JWT_SECRET, etc.)
+#    The web app needs NO .env in dev: VITE_API_URL defaults to http://localhost:3000.
 cp .env.example .env
 cp .env.example apps/api/.env
 
 # 3. Start PostgreSQL (creates twitter_dev + twitter_test databases)
-docker compose up -d
+docker compose up -d postgres
 
 # 4. Apply database migrations
 pnpm --filter api exec prisma migrate deploy
@@ -44,7 +77,7 @@ pnpm --filter web dev
 
 > **Stale volume after re-init?** The `docker/init-db.sql` script only runs on an
 > empty volume. If the databases are missing or in a bad state, reset with
-> `docker compose down -v` and start again with `docker compose up -d`.
+> `docker compose down -v` and start again with `docker compose up -d postgres`.
 
 ## Scripts (root)
 
@@ -62,17 +95,19 @@ pnpm --filter web dev
 - **Web**: Vitest + Testing Library (jsdom).
 
 ```bash
-pnpm --filter api test   # requires docker compose up -d + migrated twitter_test
+pnpm --filter api test   # requires docker compose up -d postgres + migrated twitter_test
 pnpm --filter web test
 ```
 
 ## Demo data
 
-Populate a fresh database with a fixed, deterministic demo dataset (8 users, 20 follows, 45 tweets, 60 likes) so you can log in and immediately exercise timeline pagination, follows, and likes:
+Populate a fresh database with a fixed, deterministic demo dataset (8 users, 20 follows, 45 tweets, 60 likes) so you can log in and immediately exercise timeline pagination, follows, and likes. In native dev mode:
 
 ```bash
 pnpm --filter @twitterclone/api db:seed
 ```
+
+Running the dockerized stack instead? See the `docker compose exec api npx ts-node prisma/seed.ts` command in the quick start above.
 
 Every seeded user shares the same demo password: `Flock123!`
 
@@ -135,7 +170,7 @@ Class-based dark mode (Tailwind v4 `@custom-variant`), toggled by a `useTheme` h
 ## Trade-offs consciously taken
 
 - Single-column, breakpoint-less layout (Twitter-like center feed) instead of a multi-column desktop shell.
-- CSRF relies on SameSite=Lax cookies + origin-restricted CORS; no double-submit token layer.
+- CSRF relies on SameSite=Lax cookies (plus origin-restricted CORS in native dev mode; the Docker stack is single-origin, so CORS doesn't apply); no double-submit token layer.
 - No rate limiting or security-header middleware (helmet/throttler) — first items on a production hardening list.
 - Registration errors are surfaced as coarse messages rather than per-field validation feedback.
 

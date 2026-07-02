@@ -31,10 +31,10 @@ Commit: `feat(docker): containerize the web app behind an nginx proxy`
 
 Commit: `feat(docker): run the full stack with docker compose`
 
-- [ ] 3.1 `docker-compose.yml`: api + web services, healthchecks, `WEB_PORT`, `.env` optional (D6)
-- [ ] 3.2 `.env.example`: document `WEB_PORT` + docker defaults
-- [ ] 3.3 Full verification (spec scenarios): cold boot, health via proxy, register/login/me with cookie jar, SPA fallback, seed via exec, `WEB_PORT` override without rebuild
-- [ ] 3.4 README: Docker-first runbook + dev-mode section + trade-offs update
+- [x] 3.1 `docker-compose.yml`: api + web services, healthchecks, `WEB_PORT`, `.env` optional (D6)
+- [x] 3.2 `.env.example`: document `WEB_PORT` + docker defaults
+- [x] 3.3 Full verification (spec scenarios): cold boot, health via proxy, register/login/me with cookie jar, SPA fallback, seed via exec, `WEB_PORT` override without rebuild
+- [x] 3.4 README: Docker-first runbook + dev-mode section + trade-offs update
 
 ## Block 4 — CI + archive
 
