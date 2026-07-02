@@ -23,9 +23,9 @@ Commit: `feat(docker): containerize the api with migrate-on-boot`
 
 Commit: `feat(docker): containerize the web app behind an nginx proxy`
 
-- [ ] 2.1 `docker/nginx.conf` per D5 (SPA fallback + API prefix proxy)
-- [ ] 2.2 `apps/web/Dockerfile` per D3/D5
-- [ ] 2.3 Verify: `docker build -f apps/web/Dockerfile .` succeeds
+- [x] 2.1 `docker/nginx.conf` per D5 (SPA fallback + API prefix proxy)
+- [x] 2.2 `apps/web/Dockerfile` per D3/D5
+- [x] 2.3 Verify: `docker build -f apps/web/Dockerfile .` succeeds
 
 ## Block 3 — Compose + runbook
 
