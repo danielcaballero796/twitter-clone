@@ -1,5 +1,5 @@
 change: 04-follows
-phase: apply
+phase: archive
 artifact_store: hybrid
 execution_mode: interactive
 strict_tdd: true
@@ -9,9 +9,9 @@ artifacts:
   specs: true
   design: true
   tasks: true
-  apply: false         # in progress — backend blocks 0-4 done, web blocks 5-7 pending
-  verify: false
-  archive: false
+  apply: true
+  verify: true
+  archive: true
 approvals:
   proposal: true
   specs: true
