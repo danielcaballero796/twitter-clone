@@ -17,11 +17,11 @@
 - [x] 1.3 Verify: web suite green (App-level tests unaffected — no testid/route changes)
 
 ## 2. Tweets feature polish (D4) — commit: `feat(web): polish tweet components with icons, skeletons, and empty states`
-- [ ] 2.1 `TweetCard.tsx` — replace glyphs with Heart/HeartSolid/Trash icons; preserve `data-testid="tweet-like-button"`, `aria-pressed`, `aria-label`, `data-testid="tweet-content"`; hover/ring/spacing per D4
-- [ ] 2.2 `TimelineFeed.tsx` — skeleton rows replacing/augmenting `timeline-loading` (testid preserved); empty state (`timeline-empty`) adds guidance text + link to `/explore`; load-more secondary button style
-- [ ] 2.3 `Composer.tsx` — surface/focus tokens, counter styling (`composer-counter` preserved, red past 280), primary submit button with spinner icon
-- [ ] 2.4 If any existing test asserts a replaced glyph directly, update ONLY that assertion; document in commit body
-- [ ] 2.5 Verify: `TweetCard.test.tsx`, `TimelineFeed.test.tsx`, `Composer.test.tsx` green unmodified (except documented glyph edits)
+- [x] 2.1 `TweetCard.tsx` — replace glyphs with Heart/HeartSolid/Trash icons; preserve `data-testid="tweet-like-button"`, `aria-pressed`, `aria-label`, `data-testid="tweet-content"`; hover/ring/spacing per D4
+- [x] 2.2 `TimelineFeed.tsx` — skeleton rows replacing/augmenting `timeline-loading` (testid preserved); empty state (`timeline-empty`) adds guidance text + link to `/explore`; load-more secondary button style
+- [x] 2.3 `Composer.tsx` — surface/focus tokens, counter styling (`composer-counter` preserved, red past 280), primary submit button with spinner icon
+- [x] 2.4 If any existing test asserts a replaced glyph directly, update ONLY that assertion; document in commit body — N/A, no test asserted a glyph directly (all glyph-adjacent assertions used testid/aria-label/textContent-count, unaffected by the icon swap)
+- [x] 2.5 Verify: `TweetCard.test.tsx`, `TimelineFeed.test.tsx`, `Composer.test.tsx` green unmodified (except documented glyph edits)
 
 ## 3. Users + auth polish (D4) — commit: `feat(web): polish auth and user discovery pages with card layouts`
 - [ ] 3.1 `LoginPage.tsx`, `RegisterPage.tsx` — centered surface card (`max-w-sm mx-auto bg-white dark:bg-slate-900 border rounded-xl p-6 shadow-sm`), labeled inputs, focus rings; `role="alert"` error preserved

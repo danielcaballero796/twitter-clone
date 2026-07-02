@@ -1,6 +1,7 @@
 import type { PublicTweet } from '@twitterclone/shared';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { HeartIcon, HeartSolidIcon, TrashIcon } from '../../components/icons';
 import { useToggleLike } from './useToggleLike';
 
 const MINUTE_MS = 60_000;
@@ -62,31 +63,41 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
   }
 
   return (
-    <article className="flex gap-3 py-3">
+    <article className="flex gap-3 px-4 py-3 transition-colors duration-200 hover:bg-slate-50 dark:hover:bg-slate-900/60">
       <img
         src={tweet.author.avatarUrl}
         alt={`${tweet.author.displayName} avatar`}
-        className="h-10 w-10 shrink-0 rounded-full bg-slate-100"
+        className="h-10 w-10 shrink-0 rounded-full bg-slate-100 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-800"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-center gap-2 text-sm">
-          <Link to={`/u/${tweet.author.username}`} className="flex min-w-0 items-center gap-2">
-            <span className="truncate font-semibold">{tweet.author.displayName}</span>
-            <span className="truncate text-slate-500">@{tweet.author.username}</span>
+          <Link
+            to={`/u/${tweet.author.username}`}
+            className="flex min-w-0 items-center gap-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950"
+          >
+            <span className="truncate font-semibold text-slate-900 dark:text-slate-100">
+              {tweet.author.displayName}
+            </span>
+            <span className="truncate text-slate-600 dark:text-slate-400">
+              @{tweet.author.username}
+            </span>
           </Link>
-          <span className="text-slate-400">· {timeAgo(tweet.createdAt)}</span>
+          <span className="text-slate-600 dark:text-slate-400">· {timeAgo(tweet.createdAt)}</span>
           {isOwn && (
             <button
               type="button"
               aria-label="Delete tweet"
               onClick={handleDelete}
-              className="ml-auto rounded px-2 py-1 text-xs text-slate-400 hover:bg-red-50 hover:text-red-600"
+              className="ml-auto flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400 dark:focus-visible:ring-offset-slate-950"
             >
-              ✕
+              <TrashIcon />
             </button>
           )}
         </div>
-        <p data-testid="tweet-content" className="whitespace-pre-wrap break-words text-sm">
+        <p
+          data-testid="tweet-content"
+          className="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-slate-900 dark:text-slate-100"
+        >
           {tweet.content}
         </p>
         <button
@@ -96,15 +107,21 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
           aria-label={displayedLikedByMe ? 'Unlike tweet' : 'Like tweet'}
           onClick={handleLike}
           disabled={toggleLike.isPending}
-          className={`flex w-fit items-center gap-1 rounded px-2 py-1 text-xs disabled:opacity-50 ${
-            displayedLikedByMe ? 'text-rose-600' : 'text-slate-500 hover:text-rose-600'
+          className={`flex w-fit cursor-pointer items-center gap-1.5 rounded px-2 py-1.5 text-xs transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-slate-950 ${
+            displayedLikedByMe
+              ? 'text-rose-600 dark:text-rose-400'
+              : 'text-slate-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400'
           }`}
         >
-          <span aria-hidden="true">{displayedLikedByMe ? '♥' : '♡'}</span>
-          <span>{displayedLikesCount}</span>
+          {displayedLikedByMe ? (
+            <HeartSolidIcon className="h-4 w-4" />
+          ) : (
+            <HeartIcon className="h-4 w-4" />
+          )}
+          <span className="tabular-nums">{displayedLikesCount}</span>
         </button>
         {likeErrored && (
-          <p role="alert" className="text-xs text-red-600">
+          <p role="alert" className="text-xs text-red-600 dark:text-red-400">
             Could not update like status. Please try again.
           </p>
         )}
