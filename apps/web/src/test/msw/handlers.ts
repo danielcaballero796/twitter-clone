@@ -1,5 +1,10 @@
 import { http, HttpResponse } from 'msw';
-import type { CreateTweetRequest, PublicTweet, TweetAuthor } from '@twitterclone/shared';
+import type {
+  CreateTweetRequest,
+  PublicTweet,
+  TweetAuthor,
+  UserSummary,
+} from '@twitterclone/shared';
 
 export const API_URL = 'http://localhost:3000';
 
@@ -10,12 +15,31 @@ export const mockAuthor: TweetAuthor = {
   avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=alice',
 };
 
+/** A second user distinct from the default session user — target for search/follow fixtures. */
+export const otherUser: TweetAuthor = {
+  id: '2',
+  username: 'bob',
+  displayName: 'Bob',
+  avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=bob',
+};
+
 export function makeTweet(overrides: Partial<PublicTweet> = {}): PublicTweet {
   return {
     id: 'tweet-1',
     content: 'A default tweet',
     createdAt: new Date().toISOString(),
     author: mockAuthor,
+    ...overrides,
+  };
+}
+
+export function makeUserSummary(overrides: Partial<UserSummary> = {}): UserSummary {
+  return {
+    id: otherUser.id,
+    username: otherUser.username,
+    displayName: otherUser.displayName,
+    avatarUrl: otherUser.avatarUrl,
+    isFollowing: false,
     ...overrides,
   };
 }
@@ -33,4 +57,7 @@ export const handlers = [
     });
   }),
   http.delete(`${API_URL}/tweets/:id`, () => HttpResponse.json({ success: true })),
+  http.get(`${API_URL}/users`, () => HttpResponse.json({ items: [] })),
+  http.post(`${API_URL}/users/:username/follow`, () => HttpResponse.json({ success: true })),
+  http.delete(`${API_URL}/users/:username/follow`, () => HttpResponse.json({ success: true })),
 ];

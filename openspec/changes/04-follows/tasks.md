@@ -24,8 +24,8 @@
 - [x] 4.3 REFACTOR: all e2e suites green (auth + tweets + follows + health) — full `pnpm test` 81/81 passing, 97.85% coverage
 
 ## 5. Web users API + hooks — commit: `feat(web): add users api client and search/follow hooks`
-- [ ] 5.1 Add stateful `apps/web/src/test/msw/handlers.ts` handlers for `GET /users?q=`, `POST/DELETE /users/:username/follow` (mutate in-memory fixture so refetches reflect the change)
-- [ ] 5.2 `apps/web/src/features/users/{api.ts,useSearchUsers.ts,useToggleFollow.ts}` — `useQuery` for search (debounce input upstream in component), single `useToggleFollow({username, isFollowing})` mutation with optimistic cache flip across cached search results + rollback on error + invalidate search and `TIMELINE_QUERY_KEY` on settled
+- [x] 5.1 Add stateful `apps/web/src/test/msw/handlers.ts` handlers for `GET /users?q=`, `POST/DELETE /users/:username/follow` (mutate in-memory fixture so refetches reflect the change)
+- [x] 5.2 `apps/web/src/features/users/{api.ts,useSearchUsers.ts,useToggleFollow.ts}` — `useQuery` for search (debounce input upstream in component), single `useToggleFollow({username, isFollowing})` mutation with optimistic cache flip across cached search results + rollback on error + invalidate search and `TIMELINE_QUERY_KEY` on settled
 
 ## 6. Web /explore UI + mandatory follow-flow test — commit: `feat(web): add explore page with search, follow toggle and tests`
 - [ ] 6.1 RED: `SearchBox.test.tsx` — fires search after debounce interval, not per keystroke. `UserCard.test.tsx`/`ExplorePage.test.tsx` — loading indicator while in flight; empty-state message on zero results; error state on search failure; follow button flips to "Following" optimistically; unfollow button flips to "Follow" optimistically; rollback + error surfaced on mutation failure; `/explore` redirects to login when unauthenticated. Run → failing
