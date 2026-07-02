@@ -1,6 +1,18 @@
-import { Controller, Delete, HttpCode, HttpStatus, Param, Post, Req } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import type { Request } from 'express';
+import type { UserListResponse } from '@twitterclone/shared';
 import type { JwtPayload } from '../auth/types';
+import { ListQueryDto } from './dto/list-query.dto';
 import { FollowsService } from './follows.service';
 
 /** The global JwtAuthGuard rejects the request before `user` can be absent. */
@@ -29,5 +41,23 @@ export class FollowsController {
   ): Promise<{ success: true }> {
     await this.followsService.unfollow(req.user.sub, username);
     return { success: true };
+  }
+
+  @Get('followers')
+  followers(
+    @Req() req: AuthenticatedRequest,
+    @Param('username') username: string,
+    @Query() query: ListQueryDto,
+  ): Promise<UserListResponse> {
+    return this.followsService.followers(req.user.sub, username, query);
+  }
+
+  @Get('following')
+  following(
+    @Req() req: AuthenticatedRequest,
+    @Param('username') username: string,
+    @Query() query: ListQueryDto,
+  ): Promise<UserListResponse> {
+    return this.followsService.following(req.user.sub, username, query);
   }
 }

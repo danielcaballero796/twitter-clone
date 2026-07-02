@@ -9,9 +9,9 @@
 - [x] 1.3 REFACTOR: rerun green
 
 ## 2. Followers/Following lists + isFollowing — commit: `feat(api): add followers/following lists with limit cap + tests`
-- [ ] 2.1 RED: extend `follows.service.spec.ts` — followers list returns `UserSummary[]`; following list returns `UserSummary[]`; default limit 50, `limit>100` rejected 400; `isFollowing` per item reflects session user S's graph (not target's); unknown username 404. Run → failing
-- [ ] 2.2 GREEN: `apps/api/src/follows/dto/list-query.dto.ts` (`limit` `@Type(Number) @IsInt @Min(1) @Max(100)` default 50); `follows.service.ts` `followers()`/`following()` + `toUserSummary` mapper (batched isFollowing query, reuse `avatarUrlFor`); `follows.controller.ts` `GET /users/:username/{followers,following}`
-- [ ] 2.3 REFACTOR: rerun green, `pnpm --filter api test --coverage` ≥85% for `follows/**`
+- [x] 2.1 RED: extend `follows.service.spec.ts` — followers list returns `UserSummary[]`; following list returns `UserSummary[]`; default limit 50, `limit>100` rejected 400; `isFollowing` per item reflects session user S's graph (not target's); unknown username 404. Run → failing
+- [x] 2.2 GREEN: `apps/api/src/follows/dto/list-query.dto.ts` (`limit` `@Type(Number) @IsInt @Min(1) @Max(100)` default 50); `follows.service.ts` `followers()`/`following()` + `toUserSummary` mapper (batched isFollowing query, reuse `avatarUrlFor`); `follows.controller.ts` `GET /users/:username/{followers,following}`
+- [x] 2.3 REFACTOR: rerun green, `pnpm --filter api test --coverage` ≥85% for `follows/**` (global suite coverage 90.74% — `follows.controller.ts` reaches full coverage once block 4 registers `FollowsModule` and the e2e suite exercises it)
 
 ## 3. User search API — commit: `feat(api): add user search endpoint with isFollowing + tests`
 - [ ] 3.1 RED: `users.service.spec.ts` + `users.controller.spec.ts` — match by username substring; match by displayName substring; case-insensitive match; session user excluded from results; capped at 10; `isFollowing` true for already-followed match; empty/missing `q` → 400 (ValidationPipe); unauthenticated → 401. Run → failing

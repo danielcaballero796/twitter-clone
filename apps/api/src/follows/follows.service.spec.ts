@@ -101,4 +101,91 @@ describe('FollowsService', () => {
       await expect(service.unfollow(kim.id, 'ghost')).rejects.toBeInstanceOf(NotFoundException);
     });
   });
+
+  describe('followers', () => {
+    it('returns a UserSummary[] of the target username followers', async () => {
+      const laura = await createUser('laura');
+      const marco = await createUser('marco');
+      await service.follow(marco.id, 'laura');
+
+      const page = await service.followers(laura.id, 'laura', {});
+
+      expect(page.items).toEqual([
+        {
+          id: marco.id,
+          username: 'marco',
+          displayName: 'marco',
+          avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=marco',
+          isFollowing: false,
+        },
+      ]);
+    });
+
+    it('defaults to a limit of 50 and rejects a limit above 100', async () => {
+      const nina = await createUser('nina');
+
+      const page = await service.followers(nina.id, 'nina', {});
+      expect(page.items).toEqual([]);
+
+      await expect(
+        service.followers(nina.id, 'nina', { limit: 101 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+    });
+
+    it('computes isFollowing relative to the session user, not the target', async () => {
+      const oscar = await createUser('oscar');
+      const paul = await createUser('paul');
+      await createUser('target');
+      await service.follow(paul.id, 'target');
+      await service.follow(oscar.id, 'paul');
+
+      const page = await service.followers(oscar.id, 'target', {});
+
+      expect(page.items).toEqual([
+        {
+          id: paul.id,
+          username: 'paul',
+          displayName: 'paul',
+          avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=paul',
+          isFollowing: true,
+        },
+      ]);
+    });
+
+    it('rejects an unknown target username with NotFoundException', async () => {
+      const quinn = await createUser('quinn');
+
+      await expect(service.followers(quinn.id, 'ghost', {})).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('following', () => {
+    it('returns a UserSummary[] of accounts the target username follows', async () => {
+      const rachel = await createUser('rachel');
+      const sam = await createUser('sam');
+      await service.follow(rachel.id, 'sam');
+
+      const page = await service.following(rachel.id, 'rachel', {});
+
+      expect(page.items).toEqual([
+        {
+          id: sam.id,
+          username: 'sam',
+          displayName: 'sam',
+          avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=sam',
+          isFollowing: true,
+        },
+      ]);
+    });
+
+    it('rejects an unknown target username with NotFoundException', async () => {
+      const tara = await createUser('tara');
+
+      await expect(service.following(tara.id, 'ghost', {})).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
+    });
+  });
 });
