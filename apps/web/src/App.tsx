@@ -6,6 +6,7 @@ import HomePage from './features/auth/HomePage';
 import LoginPage from './features/auth/LoginPage';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import RegisterPage from './features/auth/RegisterPage';
+import ExplorePage from './features/users/ExplorePage';
 
 export default function App() {
   const [queryClient] = useState(() => new QueryClient());
@@ -23,6 +24,7 @@ export default function App() {
               <Route path="/register" element={<RegisterPage />} />
               <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/explore" element={<ExplorePage />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

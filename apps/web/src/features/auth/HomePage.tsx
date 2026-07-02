@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Composer from '../tweets/Composer';
 import TimelineFeed from '../tweets/TimelineFeed';
 import { logout } from './api';
@@ -22,7 +22,12 @@ export default function HomePage() {
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6">
       <header className="flex items-center justify-between">
-        <p data-testid="shell-status">Welcome, {user?.displayName ?? user?.username}</p>
+        <div className="flex items-center gap-4">
+          <p data-testid="shell-status">Welcome, {user?.displayName ?? user?.username}</p>
+          <Link to="/explore" className="text-sm font-semibold text-slate-600 hover:underline">
+            Explore
+          </Link>
+        </div>
         <button
           type="button"
           onClick={handleLogout}

@@ -6,6 +6,17 @@ import { server } from '../../test/msw/server';
 import { mockUser, renderAuthApp } from '../../test/render-auth-app';
 import { SESSION_QUERY_KEY } from './useSession';
 
+describe('HomePage', () => {
+  it('shows a nav link to /explore', async () => {
+    server.use(http.get(`${API_URL}/auth/me`, () => HttpResponse.json(mockUser)));
+
+    renderAuthApp('/');
+
+    await waitFor(() => expect(screen.getByText(/welcome, alice/i)).toBeInTheDocument());
+    expect(screen.getByRole('link', { name: /explore/i })).toHaveAttribute('href', '/explore');
+  });
+});
+
 describe('HomePage logout flow', () => {
   it('calls the logout endpoint, clears the cached session, and redirects to /login', async () => {
     let logoutCalled = false;

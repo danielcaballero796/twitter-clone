@@ -23,4 +23,13 @@ describe('ProtectedRoute', () => {
     await waitFor(() => expect(screen.getByText(/welcome, alice/i)).toBeInTheDocument());
     expect(screen.queryByRole('heading', { name: /log in/i })).not.toBeInTheDocument();
   });
+
+  it('redirects unauthenticated visits to /explore to /login', async () => {
+    // Default MSW handler returns 401 for /auth/me — no session.
+    renderAuthApp('/explore');
+
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { name: /log in/i })).toBeInTheDocument(),
+    );
+  });
 });

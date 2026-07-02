@@ -6,6 +6,7 @@ import HomePage from '../features/auth/HomePage';
 import LoginPage from '../features/auth/LoginPage';
 import ProtectedRoute from '../features/auth/ProtectedRoute';
 import RegisterPage from '../features/auth/RegisterPage';
+import ExplorePage from '../features/users/ExplorePage';
 
 export const mockUser: PublicUser = {
   id: '1',
@@ -30,6 +31,7 @@ export function renderAuthApp(initialEntry: string) {
           <Route path="/register" element={<RegisterPage />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/explore" element={<ExplorePage />} />
           </Route>
         </Routes>
       </MemoryRouter>

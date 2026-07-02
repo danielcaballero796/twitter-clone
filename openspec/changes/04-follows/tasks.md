@@ -28,10 +28,10 @@
 - [x] 5.2 `apps/web/src/features/users/{api.ts,useSearchUsers.ts,useToggleFollow.ts}` — `useQuery` for search (debounce input upstream in component), single `useToggleFollow({username, isFollowing})` mutation with optimistic cache flip across cached search results + rollback on error + invalidate search and `TIMELINE_QUERY_KEY` on settled
 
 ## 6. Web /explore UI + mandatory follow-flow test — commit: `feat(web): add explore page with search, follow toggle and tests`
-- [ ] 6.1 RED: `SearchBox.test.tsx` — fires search after debounce interval, not per keystroke. `UserCard.test.tsx`/`ExplorePage.test.tsx` — loading indicator while in flight; empty-state message on zero results; error state on search failure; follow button flips to "Following" optimistically; unfollow button flips to "Follow" optimistically; rollback + error surfaced on mutation failure; `/explore` redirects to login when unauthenticated. Run → failing
-- [ ] 6.2 RED (mandatory): `ExplorePage.test.tsx` (or dedicated `follow-flow.test.tsx`) — full flow: search for target user → click follow → button flips → timeline refetch → target's tweets appear. Run → failing
-- [ ] 6.3 GREEN: `apps/web/src/features/users/{SearchBox,UserCard,ExplorePage}.tsx`; `apps/web/src/App.tsx` add `/explore` under `ProtectedRoute`; `apps/web/src/features/auth/HomePage.tsx` add header nav `Link` to `/explore` only (no structural change, preserve existing `data-testid`s)
-- [ ] 6.4 REFACTOR: web suite green, typecheck clean
+- [x] 6.1 RED: `SearchBox.test.tsx` — fires search after debounce interval, not per keystroke. `UserCard.test.tsx`/`ExplorePage.test.tsx` — loading indicator while in flight; empty-state message on zero results; error state on search failure; follow button flips to "Following" optimistically; unfollow button flips to "Follow" optimistically; rollback + error surfaced on mutation failure; `/explore` redirects to login when unauthenticated. Run → failing
+- [x] 6.2 RED (mandatory): `ExplorePage.test.tsx` (or dedicated `follow-flow.test.tsx`) — full flow: search for target user → click follow → button flips → timeline refetch → target's tweets appear. Run → failing
+- [x] 6.3 GREEN: `apps/web/src/features/users/{SearchBox,UserCard,ExplorePage}.tsx`; `apps/web/src/App.tsx` add `/explore` under `ProtectedRoute`; `apps/web/src/features/auth/HomePage.tsx` add header nav `Link` to `/explore` only (no structural change, preserve existing `data-testid`s)
+- [x] 6.4 REFACTOR: web suite green, typecheck clean
 
 ## 7. Final verification
 - [ ] 7.1 `pnpm test` + `pnpm build` (all workspaces) green; api coverage ≥85% (dto/module excluded); `pnpm lint` clean; `pnpm format --check` clean (Prettier miss cost change 03 a red CI run — do not skip); `pnpm -r typecheck` clean
