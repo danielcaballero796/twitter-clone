@@ -1,9 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import Composer from '../tweets/Composer';
+import TimelineFeed from '../tweets/TimelineFeed';
 import { logout } from './api';
 import { SESSION_QUERY_KEY, useSession } from './useSession';
 
-/** Minimal authenticated landing page — the real home feed ships in change 03. */
 export default function HomePage() {
   const { user } = useSession();
   const queryClient = useQueryClient();
@@ -19,15 +20,19 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <p data-testid="shell-status">Welcome, {user?.displayName ?? user?.username}</p>
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="w-fit rounded border border-slate-300 px-4 py-2 text-sm"
-      >
-        Log out
-      </button>
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6">
+      <header className="flex items-center justify-between">
+        <p data-testid="shell-status">Welcome, {user?.displayName ?? user?.username}</p>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-fit rounded border border-slate-300 px-4 py-2 text-sm"
+        >
+          Log out
+        </button>
+      </header>
+      <Composer />
+      <TimelineFeed />
     </div>
   );
 }
