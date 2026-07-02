@@ -99,9 +99,9 @@ describe('TweetsService', () => {
     it('rejects an unknown parentId with NotFoundException and creates nothing', async () => {
       const bea = await createUser('bea2');
 
-      await expect(service.create(bea.id, 'orphan reply', 'missing-parent-id')).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.create(bea.id, 'orphan reply', 'missing-parent-id'),
+      ).rejects.toBeInstanceOf(NotFoundException);
       await expect(prisma.tweet.count()).resolves.toBe(0);
     });
 

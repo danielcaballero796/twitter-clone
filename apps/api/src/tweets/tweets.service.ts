@@ -125,7 +125,11 @@ export class TweetsService {
   private async paginateTweets(
     sessionUserId: string,
     where: Prisma.TweetWhereInput,
-    { cursor, limit = 20, order = 'desc' }: { cursor?: string; limit?: number; order?: 'asc' | 'desc' },
+    {
+      cursor,
+      limit = 20,
+      order = 'desc',
+    }: { cursor?: string; limit?: number; order?: 'asc' | 'desc' },
   ): Promise<CursorPage<PublicTweet>> {
     // Prisma silently misbehaves on a cursor id that matches no row, so validate it up front.
     if (cursor) {

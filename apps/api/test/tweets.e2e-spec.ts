@@ -170,9 +170,7 @@ describe('Tweets flow (e2e)', () => {
     await prisma.follow.create({ data: { followerId: readerRow.id, followingId: writerRow.id } });
 
     const timeline = await reader.get('/tweets/timeline').expect(200);
-    const replyInTimeline = timeline.body.items.find(
-      (t: { id: string }) => t.id === reply.body.id,
-    );
+    const replyInTimeline = timeline.body.items.find((t: { id: string }) => t.id === reply.body.id);
     expect(replyInTimeline).toMatchObject({
       inReplyTo: { id: root.body.id, username: 'mark2' },
     });

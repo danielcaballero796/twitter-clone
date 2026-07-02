@@ -240,10 +240,7 @@ describe('TweetsController (integration)', () => {
     it('returns a cursor page of direct replies', async () => {
       const agent = await loggedInAgent('brody');
       const root = await agent.post('/tweets').send({ content: 'root' }).expect(201);
-      await agent
-        .post('/tweets')
-        .send({ content: 'a reply', parentId: root.body.id })
-        .expect(201);
+      await agent.post('/tweets').send({ content: 'a reply', parentId: root.body.id }).expect(201);
 
       const response = await agent.get(`/tweets/${root.body.id}/replies`).expect(200);
 
