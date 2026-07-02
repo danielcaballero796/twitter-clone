@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import SearchBox from './SearchBox';
 import UserCard from './UserCard';
 import { useSearchUsers } from './useSearchUsers';
@@ -18,16 +19,19 @@ function SkeletonUserRow() {
 export default function ExplorePage() {
   const [query, setQuery] = useState('');
   const search = useSearchUsers(query);
+  useDocumentTitle('Explore / TheFlock');
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6">
-      <h1 className="text-lg font-bold text-slate-900 dark:text-slate-100">Explore</h1>
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Explore</h2>
       <SearchBox onSearch={setQuery} />
       {query.length === 0 ? null : search.isLoading ? (
         <div
           data-testid="explore-loading"
+          role="status"
           className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900"
         >
+          <span className="sr-only">Loading search results…</span>
           <SkeletonUserRow />
           <SkeletonUserRow />
         </div>

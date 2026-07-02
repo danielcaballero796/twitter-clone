@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ApiError } from '../../lib/api';
 import { useSession } from '../auth/useSession';
 import TweetCard from '../tweets/TweetCard';
@@ -11,7 +12,8 @@ import { useUserTweets } from './useUserTweets';
 
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6">
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6" role="status">
+      <span className="sr-only">Loading profile…</span>
       <div className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center gap-3">
           <div className="h-16 w-16 shrink-0 rounded-full bg-slate-200 motion-safe:animate-pulse dark:bg-slate-800" />
@@ -36,6 +38,10 @@ export default function ProfilePage() {
     username,
     isFollowing: profile.data?.isFollowing ?? false,
   });
+
+  useDocumentTitle(
+    profile.data?.username ? `@${profile.data.username} / TheFlock` : `@${username} / TheFlock`,
+  );
 
   if (profile.isLoading || userTweets.isLoading) {
     return (
@@ -73,6 +79,41 @@ export default function ProfilePage() {
   const isOwnProfile = sessionUser?.username === profile.data.username;
   const tweets = userTweets.data?.pages.flatMap((page) => page.items) ?? [];
 
+  function renderTweets() {
+    if (userTweets.isError) {
+      return (
+        <p
+          data-testid="profile-tweets-error"
+          role="alert"
+          className="py-8 text-center text-sm text-red-600 dark:text-red-400"
+        >
+          Could not load this user&apos;s tweets.{' '}
+          <button
+            type="button"
+            onClick={() => void userTweets.refetch()}
+            className="cursor-pointer font-medium text-indigo-600 underline-offset-2 transition-colors duration-200 hover:underline dark:text-indigo-400"
+          >
+            Try again
+          </button>
+        </p>
+      );
+    }
+
+    return (
+      <ul className="divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
+        {tweets.map((tweet) => (
+          <li key={tweet.id}>
+            <TweetCard
+              tweet={tweet}
+              sessionUserId={sessionUser?.id}
+              onDelete={(id) => deleteTweet.mutate(id)}
+            />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6">
       <header
@@ -86,9 +127,9 @@ export default function ProfilePage() {
             className="h-16 w-16 shrink-0 rounded-full bg-slate-100 ring-2 ring-slate-200 dark:bg-slate-800 dark:ring-slate-800"
           />
           <div className="flex min-w-0 flex-1 flex-col">
-            <span className="truncate text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="truncate text-lg font-bold text-slate-900 dark:text-slate-100">
               {profile.data.displayName}
-            </span>
+            </h2>
             <span className="truncate text-sm text-slate-600 dark:text-slate-400">
               @{profile.data.username}
             </span>
@@ -161,17 +202,7 @@ export default function ProfilePage() {
           <EditProfileForm profile={profile.data} onClose={() => setIsEditing(false)} />
         )}
       </header>
-      <ul className="divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">
-        {tweets.map((tweet) => (
-          <li key={tweet.id}>
-            <TweetCard
-              tweet={tweet}
-              sessionUserId={sessionUser?.id}
-              onDelete={(id) => deleteTweet.mutate(id)}
-            />
-          </li>
-        ))}
-      </ul>
+      {renderTweets()}
     </div>
   );
 }

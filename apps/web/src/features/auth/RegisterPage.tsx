@@ -1,6 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { ApiError, register } from './api';
 import { SESSION_QUERY_KEY } from './useSession';
 
@@ -15,6 +16,7 @@ export default function RegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  useDocumentTitle('Sign up / TheFlock');
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -52,6 +54,8 @@ export default function RegisterPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'register-error' : undefined}
               className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
               required
             />
@@ -66,6 +70,8 @@ export default function RegisterPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'register-error' : undefined}
               className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
               required
             />
@@ -80,6 +86,8 @@ export default function RegisterPage() {
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'register-error' : undefined}
               className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
               required
             />
@@ -94,22 +102,25 @@ export default function RegisterPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={Boolean(error)}
+              aria-describedby={error ? 'register-error' : undefined}
               className="rounded border border-slate-300 bg-white px-3 py-2 text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:ring-offset-slate-950"
               required
               minLength={8}
             />
           </label>
           {error && (
-            <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+            <p id="register-error" role="alert" className="text-sm text-red-600 dark:text-red-400">
               {error}
             </p>
           )}
           <button
             type="submit"
             disabled={submitting}
+            aria-busy={submitting}
             className="min-h-11 cursor-pointer rounded bg-indigo-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:ring-offset-slate-950"
           >
-            Create account
+            {submitting ? 'Creating account…' : 'Create account'}
           </button>
         </form>
       </div>

@@ -1,8 +1,7 @@
 import { type FormEvent, useState } from 'react';
+import { MAX_TWEET_LENGTH } from '@twitterclone/shared';
 import { ArrowPathIcon } from '../../components/icons';
 import { useCreateTweet } from './useCreateTweet';
-
-const MAX_TWEET_LENGTH = 280;
 
 export default function Composer() {
   const [content, setContent] = useState('');
@@ -35,10 +34,12 @@ export default function Composer() {
         onChange={(e) => setContent(e.target.value)}
         placeholder="What's happening?"
         rows={3}
+        aria-invalid={overLimit}
+        aria-describedby={overLimit ? 'composer-error' : undefined}
         className="w-full resize-none rounded border border-slate-300 bg-white px-3 py-2 text-[15px] text-slate-900 transition-colors duration-200 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus-visible:ring-offset-slate-950"
       />
       {overLimit && (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p id="composer-error" role="alert" className="text-sm text-red-600 dark:text-red-400">
           Tweet is too long — max {MAX_TWEET_LENGTH} characters
         </p>
       )}

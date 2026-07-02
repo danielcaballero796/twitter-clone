@@ -43,8 +43,10 @@ export default function TimelineFeed() {
     return (
       <div
         data-testid="timeline-loading"
+        role="status"
         className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900"
       >
+        <span className="sr-only">Loading timeline…</span>
         <SkeletonRow />
         <SkeletonRow />
         <SkeletonRow />
@@ -104,6 +106,7 @@ export default function TimelineFeed() {
       {isFetchingNextPage && (
         <p
           data-testid="timeline-loading-more"
+          role="status"
           className="py-4 text-center text-sm text-slate-600 dark:text-slate-400"
         >
           Loading more…

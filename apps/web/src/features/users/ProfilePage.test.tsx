@@ -375,9 +375,7 @@ describe('ProfilePage', () => {
             avatarUrl: profileState.avatarUrl,
           }),
         ),
-        http.get(`${API_URL}/users/${mockAuthor.username}`, () =>
-          HttpResponse.json(profileState),
-        ),
+        http.get(`${API_URL}/users/${mockAuthor.username}`, () => HttpResponse.json(profileState)),
         http.patch(`${API_URL}/users/me`, async ({ request }) => {
           const body = (await request.json()) as UpdateProfileRequest;
           profileState = {
@@ -467,9 +465,7 @@ describe('ProfilePage', () => {
 
     it('keeps the form open with an alert when the save fails', async () => {
       mockOwnEditableProfile();
-      server.use(
-        http.patch(`${API_URL}/users/me`, () => new HttpResponse(null, { status: 500 })),
-      );
+      server.use(http.patch(`${API_URL}/users/me`, () => new HttpResponse(null, { status: 500 })));
       const user = userEvent.setup();
       renderProfile(mockAuthor.username);
 

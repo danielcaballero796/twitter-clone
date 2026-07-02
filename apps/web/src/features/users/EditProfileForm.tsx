@@ -51,8 +51,19 @@ export default function EditProfileForm({ profile, onClose }: EditProfileFormPro
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
           maxLength={MAX_NAME_LENGTH}
+          aria-invalid={nameInvalid}
+          aria-describedby={nameInvalid ? 'edit-profile-name-error' : undefined}
           className="w-full rounded border border-slate-300 bg-white px-3 py-2 text-[15px] text-slate-900 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         />
+        {nameInvalid && (
+          <p
+            id="edit-profile-name-error"
+            role="alert"
+            className="text-xs text-red-600 dark:text-red-400"
+          >
+            Name must be between 1 and {MAX_NAME_LENGTH} characters.
+          </p>
+        )}
       </div>
       <div className="flex flex-col gap-1">
         <label
@@ -68,11 +79,22 @@ export default function EditProfileForm({ profile, onClose }: EditProfileFormPro
           maxLength={MAX_BIO_LENGTH}
           rows={3}
           placeholder="Tell the flock about yourself"
+          aria-invalid={bioInvalid}
+          aria-describedby={bioInvalid ? 'edit-profile-bio-error' : undefined}
           className="w-full resize-none rounded border border-slate-300 bg-white px-3 py-2 text-[15px] text-slate-900 transition-colors duration-200 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500"
         />
         <span className="self-end text-xs tabular-nums text-slate-600 dark:text-slate-400">
           {MAX_BIO_LENGTH - bio.length}
         </span>
+        {bioInvalid && (
+          <p
+            id="edit-profile-bio-error"
+            role="alert"
+            className="text-xs text-red-600 dark:text-red-400"
+          >
+            Bio must be {MAX_BIO_LENGTH} characters or fewer.
+          </p>
+        )}
       </div>
       <fieldset className="flex flex-col gap-2">
         <legend className="text-sm font-semibold text-slate-700 dark:text-slate-300">Avatar</legend>
@@ -104,7 +126,7 @@ export default function EditProfileForm({ profile, onClose }: EditProfileFormPro
         </div>
       </fieldset>
       {updateProfile.isError && (
-        <p role="alert" className="text-xs text-red-600 dark:text-red-400">
+        <p id="edit-profile-error" role="alert" className="text-xs text-red-600 dark:text-red-400">
           Could not update your profile. Please try again.
         </p>
       )}

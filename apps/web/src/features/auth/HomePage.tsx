@@ -1,5 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
+import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import Composer from '../tweets/Composer';
 import TimelineFeed from '../tweets/TimelineFeed';
 import { logout } from './api';
@@ -9,6 +10,7 @@ export default function HomePage() {
   const { user } = useSession();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  useDocumentTitle('Home / TheFlock');
 
   async function handleLogout() {
     try {
@@ -21,6 +23,7 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto flex w-full max-w-xl flex-col gap-4 px-4 py-6">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Home</h2>
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <p data-testid="shell-status" className="text-slate-900 dark:text-slate-100">
