@@ -35,8 +35,8 @@
 - [x] 3.3 Push; confirm CI green
 
 ## Scenario Coverage Checklist (9/9)
-- **CLI Seeding (2)** [B1]: Fresh database seeded via CLI (counts + summary); `seed()` returns matching `SeedSummary` counts
-- **Production Guard (1)** [B1]: Refused under `NODE_ENV=production`, exit 1, no writes
+- **CLI Seeding (2)** [B1]: Fresh database seeded via CLI — covered by the `CLI entry` happy-path test in `seed.e2e-spec.ts`, which spawns the real `prisma/seed.ts` entry in a child process and asserts exit 0, printed summary, and DB counts; `seed()` returns matching `SeedSummary` counts (direct-call test)
+- **Production Guard (1)** [B1]: Refused under `NODE_ENV=production` — covered by the `CLI entry` guard test in `seed.e2e-spec.ts` (child process, asserts exit 1, refusal message on stderr, and zero writes against a known sentinel state). Initially only verified manually; automated coverage added after verify flagged the gap
 - **Wipe-Then-Insert Idempotency (1)** [B1]: Re-running the seed twice converges to identical counts, no constraint errors
 - **Credential Validity (1)** [B1]: Seeded `ada` passwordHash verifies against `Flock123!` via `@node-rs/argon2`
 - **Timeline Depth (1)** [B1]: ada's timeline-visible tweet count is 36 (>= 25), forcing pagination past the default limit of 20

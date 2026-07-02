@@ -1,6 +1,33 @@
+import { spawnSync } from 'node:child_process';
+import { join } from 'node:path';
 import { verify } from '@node-rs/argon2';
 import { PrismaClient } from '@prisma/client';
 import { seed } from '../prisma/seed';
+
+const API_DIR = join(__dirname, '..');
+const CLI_TIMEOUT_MS = 120_000;
+
+/** Runs the real seed CLI entry (`prisma/seed.ts`) in a child process. */
+function runSeedCli(envOverrides: Record<string, string>): {
+  status: number | null;
+  stdout: string;
+  stderr: string;
+} {
+  const result = spawnSync(
+    process.execPath,
+    ['--require', 'ts-node/register/transpile-only', join('prisma', 'seed.ts')],
+    {
+      cwd: API_DIR,
+      env: { ...process.env, ...envOverrides },
+      encoding: 'utf8',
+      timeout: CLI_TIMEOUT_MS,
+    },
+  );
+  if (result.error) {
+    throw result.error;
+  }
+  return { status: result.status, stdout: result.stdout, stderr: result.stderr };
+}
 
 describe('Demo seed script (e2e)', () => {
   const prisma = new PrismaClient();
@@ -81,6 +108,67 @@ describe('Demo seed script (e2e)', () => {
       expect(tweet._count.likes).toBeGreaterThanOrEqual(0);
       expect(tweet._count.likes).toBeLessThanOrEqual(6);
     }
+  });
+
+  describe('CLI entry', () => {
+    it(
+      'refuses to run under NODE_ENV=production: exit 1, refusal message, no writes',
+      async () => {
+        // Put the database into a known state the guard must not touch.
+        // Wipe first: this spec's afterEach only cleans up after its own
+        // tests, so rows left behind by other processes must not leak in.
+        await prisma.like.deleteMany();
+        await prisma.follow.deleteMany();
+        await prisma.tweet.deleteMany();
+        await prisma.user.deleteMany();
+        await prisma.user.create({
+          data: {
+            email: 'sentinel@example.com',
+            username: 'sentinel',
+            passwordHash: 'not-a-real-hash',
+            displayName: 'Sentinel',
+          },
+        });
+
+        const result = runSeedCli({
+          NODE_ENV: 'production',
+          DATABASE_URL: process.env.DATABASE_URL!,
+        });
+
+        expect(result.status).toBe(1);
+        expect(result.stderr).toContain('Refusing to run');
+
+        // No deletes and no inserts: the sentinel row is the only user.
+        const users = await prisma.user.findMany();
+        expect(users).toHaveLength(1);
+        expect(users[0].username).toBe('sentinel');
+        await expect(prisma.tweet.count()).resolves.toBe(0);
+      },
+      CLI_TIMEOUT_MS,
+    );
+
+    it(
+      'seeds the database and prints the summary counts on the happy path',
+      async () => {
+        const result = runSeedCli({
+          NODE_ENV: 'test',
+          DATABASE_URL: process.env.DATABASE_URL!,
+        });
+
+        expect(result.status).toBe(0);
+        expect(result.stdout).toContain('Seed complete:');
+        expect(result.stdout).toContain('users: 8');
+        expect(result.stdout).toContain('follows: 20');
+        expect(result.stdout).toContain('tweets: 45');
+        expect(result.stdout).toContain('likes: 60');
+
+        await expect(prisma.user.count()).resolves.toBe(8);
+        await expect(prisma.follow.count()).resolves.toBe(20);
+        await expect(prisma.tweet.count()).resolves.toBe(45);
+        await expect(prisma.like.count()).resolves.toBe(60);
+      },
+      CLI_TIMEOUT_MS,
+    );
   });
 
   it('is idempotent when run twice in a row', async () => {
