@@ -1,5 +1,5 @@
 change: 06-likes
-phase: tasks
+phase: apply
 artifact_store: hybrid
 execution_mode: interactive
 strict_tdd: true
@@ -8,7 +8,7 @@ artifacts:
   proposal: true
   specs: true          # 20 scenarios (8 likes, 6 tweets-likes, 6 web-likes)
   design: true
-  tasks: false
+  tasks: true          # 7 blocks, checklist 20/20
   apply: false
   verify: false
   archive: false
@@ -16,7 +16,7 @@ approvals:
   proposal: true       # authored by orchestrator per user "likes + seed juntos"
   specs: true          # orchestrator review PASS — no patches needed
   design: true         # authored by orchestrator (D1-D5 binding)
-  tasks: false
+  tasks: true          # orchestrator review PASS — agent fixed e2e count arithmetic from design draft
   apply: false
   verify: false
   archive: false
