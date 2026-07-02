@@ -16,6 +16,7 @@ import HomePage from './features/auth/HomePage';
 import LoginPage from './features/auth/LoginPage';
 import ProtectedRoute from './features/auth/ProtectedRoute';
 import RegisterPage from './features/auth/RegisterPage';
+import ThreadPage from './features/tweets/ThreadPage';
 import ExplorePage from './features/users/ExplorePage';
 import ProfileNavLink from './features/users/ProfileNavLink';
 import ProfilePage from './features/users/ProfilePage';
@@ -67,6 +68,7 @@ function AppShell() {
             <Route path="/" element={<HomePage />} />
             <Route path="/explore" element={<ExplorePage />} />
             <Route path="/u/:username" element={<ProfilePage />} />
+            <Route path="/t/:id" element={<ThreadPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

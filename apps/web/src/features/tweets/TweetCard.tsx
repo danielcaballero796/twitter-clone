@@ -1,7 +1,7 @@
 import type { PublicTweet } from '@twitterclone/shared';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { HeartIcon, HeartSolidIcon, TrashIcon } from '../../components/icons';
+import { ChatBubbleIcon, HeartIcon, HeartSolidIcon, TrashIcon } from '../../components/icons';
 import { useToggleLike } from './useToggleLike';
 
 const MINUTE_MS = 60_000;
@@ -43,7 +43,13 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
   const displayedLikesCount = likeOverride?.likesCount ?? tweet.likesCount;
 
   function handleDelete() {
-    if (window.confirm('Delete this tweet?')) {
+    const confirmMessage =
+      tweet.replyCount > 0
+        ? `Delete this tweet and its ${tweet.replyCount} ${
+            tweet.replyCount === 1 ? 'reply' : 'replies'
+          }? This cannot be undone.`
+        : 'Delete this tweet?';
+    if (window.confirm(confirmMessage)) {
       onDelete(tweet.id);
     }
   }
@@ -94,32 +100,54 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
             </button>
           )}
         </div>
+        {tweet.inReplyTo && (
+          <p className="text-xs text-slate-600 dark:text-slate-400">
+            Replying to{' '}
+            <Link
+              to={`/t/${tweet.inReplyTo.id}`}
+              className="rounded font-medium text-indigo-600 underline-offset-2 transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-indigo-400 dark:focus-visible:ring-offset-slate-950"
+            >
+              @{tweet.inReplyTo.username}
+            </Link>
+          </p>
+        )}
         <p
           data-testid="tweet-content"
           className="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-slate-900 dark:text-slate-100"
         >
           {tweet.content}
         </p>
-        <button
-          type="button"
-          data-testid="tweet-like-button"
-          aria-pressed={displayedLikedByMe}
-          aria-label={displayedLikedByMe ? 'Unlike tweet' : 'Like tweet'}
-          onClick={handleLike}
-          disabled={toggleLike.isPending}
-          className={`flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded px-2 text-xs transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-slate-950 ${
-            displayedLikedByMe
-              ? 'text-rose-600 dark:text-rose-400'
-              : 'text-slate-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400'
-          }`}
-        >
-          {displayedLikedByMe ? (
-            <HeartSolidIcon className="h-4 w-4" />
-          ) : (
-            <HeartIcon className="h-4 w-4" />
-          )}
-          <span className="tabular-nums">{displayedLikesCount}</span>
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            data-testid="tweet-like-button"
+            aria-pressed={displayedLikedByMe}
+            aria-label={displayedLikedByMe ? 'Unlike tweet' : 'Like tweet'}
+            onClick={handleLike}
+            disabled={toggleLike.isPending}
+            className={`flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded px-2 text-xs transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-slate-950 ${
+              displayedLikedByMe
+                ? 'text-rose-600 dark:text-rose-400'
+                : 'text-slate-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400'
+            }`}
+          >
+            {displayedLikedByMe ? (
+              <HeartSolidIcon className="h-4 w-4" />
+            ) : (
+              <HeartIcon className="h-4 w-4" />
+            )}
+            <span className="tabular-nums">{displayedLikesCount}</span>
+          </button>
+          <Link
+            to={`/t/${tweet.id}`}
+            data-testid="tweet-reply-link"
+            aria-label={`${tweet.replyCount} replies, open thread`}
+            className="flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded px-2 text-xs text-slate-600 transition-colors duration-200 hover:text-indigo-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-slate-400 dark:hover:text-indigo-400 dark:focus-visible:ring-offset-slate-950"
+          >
+            <ChatBubbleIcon className="h-4 w-4" />
+            <span className="tabular-nums">{tweet.replyCount}</span>
+          </Link>
+        </div>
         {likeErrored && (
           <p role="alert" className="text-xs text-red-600 dark:text-red-400">
             Could not update like status. Please try again.
