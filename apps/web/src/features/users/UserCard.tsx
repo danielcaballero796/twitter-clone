@@ -1,4 +1,5 @@
 import type { UserSummary } from '@twitterclone/shared';
+import { Link } from 'react-router-dom';
 import { useToggleFollow } from './useToggleFollow';
 
 interface UserCardProps {
@@ -15,10 +16,10 @@ export default function UserCard({ user }: UserCardProps) {
         alt={`${user.displayName} avatar`}
         className="h-10 w-10 shrink-0 rounded-full bg-slate-100"
       />
-      <div className="flex min-w-0 flex-1 flex-col">
+      <Link to={`/u/${user.username}`} className="flex min-w-0 flex-1 flex-col">
         <span className="truncate font-semibold">{user.displayName}</span>
         <span className="truncate text-sm text-slate-500">@{user.username}</span>
-      </div>
+      </Link>
       <button
         type="button"
         onClick={() => toggleFollow.mutate()}

@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse, delay } from 'msw';
+import { MemoryRouter } from 'react-router-dom';
 import { API_URL, makeTweet, mockAuthor } from '../../test/msw/handlers';
 import { server } from '../../test/msw/server';
 import TimelineFeed from './TimelineFeed';
@@ -23,7 +24,9 @@ function renderFeed() {
   });
   render(
     <QueryClientProvider client={queryClient}>
-      <TimelineFeed />
+      <MemoryRouter>
+        <TimelineFeed />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
   return queryClient;

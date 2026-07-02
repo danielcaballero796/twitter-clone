@@ -1,4 +1,5 @@
 import type { PublicTweet } from '@twitterclone/shared';
+import { Link } from 'react-router-dom';
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
@@ -36,8 +37,10 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex items-center gap-2 text-sm">
-          <span className="truncate font-semibold">{tweet.author.displayName}</span>
-          <span className="truncate text-slate-500">@{tweet.author.username}</span>
+          <Link to={`/u/${tweet.author.username}`} className="flex min-w-0 items-center gap-2">
+            <span className="truncate font-semibold">{tweet.author.displayName}</span>
+            <span className="truncate text-slate-500">@{tweet.author.username}</span>
+          </Link>
           <span className="text-slate-400">· {timeAgo(tweet.createdAt)}</span>
           {isOwn && (
             <button

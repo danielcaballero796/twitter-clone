@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import type { ReactElement } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { API_URL, makeTweet, mockAuthor } from '../../test/msw/handlers';
 import { server } from '../../test/msw/server';
 import Composer from './Composer';
@@ -12,7 +13,11 @@ function renderWithClient(ui: ReactElement) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </QueryClientProvider>,
+  );
   return queryClient;
 }
 
