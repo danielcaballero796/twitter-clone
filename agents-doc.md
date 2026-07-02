@@ -21,11 +21,12 @@ name: security-reviewer
 description: OWASP-focused security review of the twitter clone (auth, Prisma, nginx, Docker)
 tools: Read, Grep, Glob, Bash
 ---
+
 <paste the prompt body from the section below>
 ```
 
-Then ask Claude: *"run the security-reviewer and the performance-reviewer in parallel over the
-current state of the repo"* — or wire them into a workflow that fans out all of them and
+Then ask Claude: _"run the security-reviewer and the performance-reviewer in parallel over the
+current state of the repo"_ — or wire them into a workflow that fans out all of them and
 synthesizes a single prioritized report.
 
 **Ground rules shared by every agent** (already embedded in each prompt):
@@ -321,12 +322,12 @@ right, and the fix. Contract drift findings must quote BOTH sides.
 
 Suggested cadence for this repo:
 
-| When | Agents |
-|------|--------|
-| Before opening a PR | staff-quality (4) on the diff |
-| After finishing a feature | architecture (1) + staff-quality (4) + testing (5) |
-| Before a release/demo | security (2) + performance (3) + infra (6) + a11y (7) |
-| After schema/endpoint changes | data-contract (8) |
+| When                          | Agents                                                |
+| ----------------------------- | ----------------------------------------------------- |
+| Before opening a PR           | staff-quality (4) on the diff                         |
+| After finishing a feature     | architecture (1) + staff-quality (4) + testing (5)    |
+| Before a release/demo         | security (2) + performance (3) + infra (6) + a11y (7) |
+| After schema/endpoint changes | data-contract (8)                                     |
 
 **Synthesis prompt** (for the orchestrator after a parallel run):
 
