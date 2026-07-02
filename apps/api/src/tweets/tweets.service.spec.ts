@@ -28,6 +28,7 @@ describe('TweetsService', () => {
   });
 
   afterEach(async () => {
+    await prisma.like.deleteMany();
     await prisma.tweet.deleteMany();
     await prisma.user.deleteMany();
   });
@@ -179,7 +180,7 @@ describe('TweetsService', () => {
       await seedTweet(target.id, 'ivan newer', minutesAgo(1));
       await seedTweet(other.id, 'julia tweet', minutesAgo(2));
 
-      const page = await service.listByUsername('ivan', {});
+      const page = await service.listByUsername(target.id, 'ivan', {});
 
       expect(page.items.map((tweet) => tweet.content)).toEqual(['ivan newer', 'ivan older']);
     });
@@ -190,12 +191,12 @@ describe('TweetsService', () => {
         await seedTweet(target.id, `karen tweet ${i}`, minutesAgo(10 - i));
       }
 
-      const first = await service.listByUsername('karen', { limit: 2 });
+      const first = await service.listByUsername(target.id, 'karen', { limit: 2 });
       expect(first.items).toHaveLength(2);
       expect(first.hasMore).toBe(true);
       expect(first).toMatchObject({ nextCursor: first.items[1].id });
 
-      const second = await service.listByUsername('karen', {
+      const second = await service.listByUsername(target.id, 'karen', {
         cursor: first.nextCursor!,
         limit: 2,
       });
@@ -208,17 +209,97 @@ describe('TweetsService', () => {
     });
 
     it('returns an empty page for a user with zero tweets', async () => {
-      await createUser('leo');
+      const leo = await createUser('leo');
 
-      const page = await service.listByUsername('leo', {});
+      const page = await service.listByUsername(leo.id, 'leo', {});
 
       expect(page).toEqual({ items: [], nextCursor: null, hasMore: false });
     });
 
     it('rejects an unknown username with NotFoundException before running any tweet query', async () => {
-      await expect(service.listByUsername('ghost-user', {})).rejects.toBeInstanceOf(
+      const requester = await createUser('requester');
+
+      await expect(service.listByUsername(requester.id, 'ghost-user', {})).rejects.toBeInstanceOf(
         NotFoundException,
       );
+    });
+  });
+
+  describe('likes enrichment', () => {
+    const seedTweet = (authorId: string, content: string, createdAt: Date) =>
+      prisma.tweet.create({ data: { authorId, content, createdAt } });
+
+    const minutesAgo = (n: number) => new Date(Date.now() - n * 60_000);
+
+    const like = (userId: string, tweetId: string) =>
+      prisma.like.create({ data: { userId, tweetId } });
+
+    it('timeline items carry likesCount and likedByMe', async () => {
+      const self = await createUser('mona');
+      const tweet = await seedTweet(self.id, 'liked tweet', minutesAgo(1));
+      await like(self.id, tweet.id);
+
+      const page = await service.timeline(self.id, {});
+
+      expect(page.items[0]).toMatchObject({ likesCount: 1, likedByMe: true });
+    });
+
+    it('listByUsername items carry likesCount and likedByMe', async () => {
+      const author = await createUser('nate');
+      const viewer = await createUser('olive');
+      const tweet = await seedTweet(author.id, 'author tweet', minutesAgo(1));
+      await like(viewer.id, tweet.id);
+
+      const page = await service.listByUsername(viewer.id, 'nate', {});
+
+      expect(page.items[0]).toMatchObject({ likesCount: 1, likedByMe: true });
+    });
+
+    it('likedByMe is session-relative: same tweet, different session users get different values', async () => {
+      const author = await createUser('peter');
+      const liker = await createUser('quinnie');
+      const nonLiker = await createUser('rose');
+      const tweet = await seedTweet(author.id, 'shared tweet', minutesAgo(1));
+      await like(liker.id, tweet.id);
+
+      const likerView = await service.listByUsername(liker.id, 'peter', {});
+      const nonLikerView = await service.listByUsername(nonLiker.id, 'peter', {});
+
+      expect(likerView.items[0]).toMatchObject({ likedByMe: true });
+      expect(nonLikerView.items[0]).toMatchObject({ likedByMe: false });
+    });
+
+    it('likesCount aggregates correctly across 2 likers', async () => {
+      const author = await createUser('sam2');
+      const likerOne = await createUser('tina2');
+      const likerTwo = await createUser('uma2');
+      const tweet = await seedTweet(author.id, 'popular tweet', minutesAgo(1));
+      await like(likerOne.id, tweet.id);
+      await like(likerTwo.id, tweet.id);
+
+      const page = await service.listByUsername(author.id, 'sam2', {});
+
+      expect(page.items[0]).toMatchObject({ likesCount: 2 });
+    });
+
+    it('create() returns likesCount: 0, likedByMe: false', async () => {
+      const vic = await createUser('vic2');
+
+      const tweet = await service.create(vic.id, 'brand new');
+
+      expect(tweet).toMatchObject({ likesCount: 0, likedByMe: false });
+    });
+
+    it('likesCount returns to 0 after like-then-unlike on subsequent fetch', async () => {
+      const author = await createUser('wendy2');
+      const liker = await createUser('xander2');
+      const tweet = await seedTweet(author.id, 'fleeting like', minutesAgo(1));
+      await like(liker.id, tweet.id);
+      await prisma.like.deleteMany({ where: { userId: liker.id, tweetId: tweet.id } });
+
+      const page = await service.listByUsername(liker.id, 'wendy2', {});
+
+      expect(page.items[0]).toMatchObject({ likesCount: 0, likedByMe: false });
     });
   });
 });

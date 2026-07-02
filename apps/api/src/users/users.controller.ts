@@ -29,10 +29,11 @@ export class UsersController {
 
   @Get(':username/tweets')
   tweets(
+    @Req() req: AuthenticatedRequest,
     @Param('username') username: string,
     @Query() query: TimelineQueryDto,
   ): Promise<CursorPage<PublicTweet>> {
-    return this.tweetsService.listByUsername(username, query);
+    return this.tweetsService.listByUsername(req.user.sub, username, query);
   }
 
   @Get(':username')

@@ -16,6 +16,7 @@ interface TweetWithAuthor {
   content: string;
   createdAt: Date;
   author: { id: string; username: string; displayName: string };
+  _count: { likes: number };
 }
 
 @Injectable()
@@ -25,9 +26,9 @@ export class TweetsService {
   async create(authorId: string, content: string): Promise<PublicTweet> {
     const tweet = await this.prisma.tweet.create({
       data: { authorId, content },
-      include: { author: AUTHOR_SELECT },
+      include: { author: AUTHOR_SELECT, _count: { select: { likes: true } } },
     });
-    return this.toPublicTweet(tweet);
+    return this.toPublicTweet(tweet, false);
   }
 
   async delete(userId: string, tweetId: string): Promise<void> {
@@ -51,10 +52,11 @@ export class TweetsService {
     });
     const authorIds = [...follows.map((f) => f.followingId), userId];
 
-    return this.paginateTweets({ authorId: { in: authorIds } }, opts);
+    return this.paginateTweets(userId, { authorId: { in: authorIds } }, opts);
   }
 
   async listByUsername(
+    sessionUserId: string,
     username: string,
     opts: { cursor?: string; limit?: number },
   ): Promise<CursorPage<PublicTweet>> {
@@ -63,10 +65,11 @@ export class TweetsService {
       throw new NotFoundException('User not found');
     }
 
-    return this.paginateTweets({ authorId: user.id }, opts);
+    return this.paginateTweets(sessionUserId, { authorId: user.id }, opts);
   }
 
   private async paginateTweets(
+    sessionUserId: string,
     where: Prisma.TweetWhereInput,
     { cursor, limit = 20 }: { cursor?: string; limit?: number },
   ): Promise<CursorPage<PublicTweet>> {
@@ -84,13 +87,21 @@ export class TweetsService {
     const rows = await this.prisma.tweet.findMany({
       where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      include: { author: AUTHOR_SELECT },
+      include: { author: AUTHOR_SELECT, _count: { select: { likes: true } } },
       take: limit + 1,
       ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     });
 
     const hasMore = rows.length > limit;
-    const items = (hasMore ? rows.slice(0, limit) : rows).map((tweet) => this.toPublicTweet(tweet));
+    const pageRows = hasMore ? rows.slice(0, limit) : rows;
+
+    const likedRows = await this.prisma.like.findMany({
+      where: { userId: sessionUserId, tweetId: { in: pageRows.map((tweet) => tweet.id) } },
+      select: { tweetId: true },
+    });
+    const likedSet = new Set(likedRows.map((row) => row.tweetId));
+
+    const items = pageRows.map((tweet) => this.toPublicTweet(tweet, likedSet.has(tweet.id)));
     return {
       items,
       nextCursor: hasMore ? items[items.length - 1].id : null,
@@ -98,7 +109,7 @@ export class TweetsService {
     };
   }
 
-  toPublicTweet(tweet: TweetWithAuthor): PublicTweet {
+  toPublicTweet(tweet: TweetWithAuthor, likedByMe: boolean): PublicTweet {
     return {
       id: tweet.id,
       content: tweet.content,
@@ -109,9 +120,8 @@ export class TweetsService {
         displayName: tweet.author.displayName,
         avatarUrl: avatarUrlFor(tweet.author.username),
       },
-      // TODO(block 2): compute real likesCount/likedByMe in paginateTweets/create.
-      likesCount: 0,
-      likedByMe: false,
+      likesCount: tweet._count.likes,
+      likedByMe,
     };
   }
 }
