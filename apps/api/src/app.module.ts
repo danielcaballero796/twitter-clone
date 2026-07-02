@@ -4,12 +4,13 @@ import { AuthModule } from './auth/auth.module';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { FollowsModule } from './follows/follows.module';
 import { HealthController } from './health/health.controller';
+import { LikesModule } from './likes/likes.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { TweetsModule } from './tweets/tweets.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [PrismaModule, UsersModule, AuthModule, TweetsModule, FollowsModule],
+  imports: [PrismaModule, UsersModule, AuthModule, TweetsModule, FollowsModule, LikesModule],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
