@@ -34,7 +34,7 @@
 
 ## 7. Final verification
 - [x] 7.1 `pnpm test` + `pnpm build` (all workspaces) green; api coverage ≥85% (dto/module excluded); lint/format/typecheck clean _(api 53/53 + web 20/20; api all-files 98.73% stmts, tweets module 100% across the board)_
-- [ ] 7.2 Push; confirm CI green (`gh pr checks`) — left for orchestrator
+- [x] 7.2 Push; confirm CI green _(run 28562735587 ✓ — first run failed on Prettier format check for 3 files, fixed in `style:` commit)_
 
 ## Scenario Coverage Checklist (26/26)
 - **Tweets API — Creation (5)** [G1]: Successful creation; 280-char boundary; empty rejected; over-limit rejected; unauthenticated rejected(G4)
