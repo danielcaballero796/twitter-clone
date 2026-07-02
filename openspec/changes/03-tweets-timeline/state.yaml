@@ -1,0 +1,26 @@
+change: 03-tweets-timeline
+phase: tasks
+artifact_store: hybrid
+execution_mode: interactive
+strict_tdd: true
+artifacts:
+  exploration: true    # sdd/03-tweets-timeline/explore (engram #369)
+  proposal: true
+  specs: true
+  design: true
+  tasks: true
+  apply: false
+  verify: false
+  archive: false
+approvals:
+  proposal: false
+  specs: false
+  design: false
+  tasks: false
+  apply: false
+  verify: false
+  archive: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-01
