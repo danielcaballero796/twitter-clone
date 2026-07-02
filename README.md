@@ -23,7 +23,7 @@ docker compose up -d --build
 
 Open **http://localhost:8080** (or `http://localhost:${WEB_PORT}` if overridden below). No `.env` file is required — every variable has a working default on a clean checkout, and migrations run automatically before the API starts listening.
 
-nginx serves the built SPA and reverse-proxies `/auth`, `/users`, `/tweets` and `/health` to the api container — one origin, no CORS, first-party session cookie.
+nginx serves the built SPA and reverse-proxies `/auth`, `/users`, `/tweets`, `/notifications` and `/health` to the api container — one origin, no CORS, first-party session cookie. (`/notifications` doubles as a SPA route: nginx splits on the `Accept` header — browser navigations get the app shell, JSON fetches reach the API.)
 
 Seed the running stack with the same deterministic demo dataset described below:
 
@@ -101,7 +101,7 @@ pnpm --filter web test
 
 ## Demo data
 
-Populate a fresh database with a fixed, deterministic demo dataset (8 users, 20 follows, 45 tweets, 60 likes) so you can log in and immediately exercise timeline pagination, follows, and likes. In native dev mode:
+Populate a fresh database with a fixed, deterministic demo dataset (8 users, 20 follows, 49 tweets including a reply thread, 60 likes, 6 notifications) so you can log in and immediately exercise timeline pagination, follows, likes, threads, and notifications. In native dev mode:
 
 ```bash
 pnpm --filter @twitterclone/api db:seed
@@ -122,7 +122,7 @@ Every seeded user shares the same demo password: `Flock123!`
 | `dennis`    |
 | `katherine` |
 
-Log in as `ada@theflock.dev` / `Flock123!` to see a timeline that spans multiple pages (she follows 5 of the other seeded users).
+Log in as `ada@theflock.dev` / `Flock123!` to see a timeline that spans multiple pages (she follows 5 of the other seeded users), a reply thread on her latest tweet, and a notifications bell with 3 unread items.
 
 Re-running the seed wipes existing seed-owned data (likes, follows, tweets, users) before inserting again, so it always converges to the same dataset. The script refuses to run when `NODE_ENV=production`.
 
@@ -138,7 +138,7 @@ One language (TypeScript) across the whole stack: shared types between API and c
 
 ### Backend layout
 
-Domain modules (`auth`, `users`, `tweets`, `follows`, `likes`, `health`), each with controller → service → `PrismaService`. DTOs validated with `class-validator` (global `ValidationPipe` with `whitelist` + `transform`). A global JWT guard protects everything by default; public routes opt out with a `@Public()` decorator. There is deliberately no separate repository layer: Prisma Client is already a typed data-access abstraction, and services are the single point of contact with it — extracting repository interfaces later is a mechanical refactor.
+Domain modules (`auth`, `users`, `tweets`, `follows`, `likes`, `notifications`, `health`), each with controller → service → `PrismaService`. DTOs validated with `class-validator` (global `ValidationPipe` with `whitelist` + `transform`). A global JWT guard protects everything by default; public routes opt out with a `@Public()` decorator. There is deliberately no separate repository layer: Prisma Client is already a typed data-access abstraction, and services are the single point of contact with it — extracting repository interfaces later is a mechanical refactor.
 
 ### Auth
 
@@ -157,7 +157,11 @@ Domain modules (`auth`, `users`, `tweets`, `follows`, `likes`, `health`), each w
 
 ### Data model notes
 
-`Tweet.parentId` (nullable self-reference) shipped in the initial schema so a future replies/threads feature needs no disruptive migration. `Follow` and `Like` use composite primary keys with supporting indexes for the reverse lookups.
+`Tweet.parentId` (nullable self-reference) shipped in the initial schema, so the reply-threads feature landed without a disruptive migration — replies are ordinary tweets that also appear in the timeline, with thread pages at `/t/:id`. `Follow` and `Like` use composite primary keys with supporting indexes for the reverse lookups.
+
+### Notifications
+
+Like, reply, and follow fan out **on write** into a persistent `Notification` row for the affected user (self-actions never notify — enforced in one place, `NotificationsService.create`). Undo is symmetric: unlike/unfollow delete their notification, and cascade FKs clean up when the referenced tweet or user goes away. The web app shows an unread badge in the nav (TanStack Query) and marks everything read when the `/notifications` page is visited. Real-time push is the natural next layer (SSE) — persistence deliberately shipped first.
 
 ### Avatars
 
