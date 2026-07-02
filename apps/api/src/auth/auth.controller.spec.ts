@@ -33,7 +33,7 @@ describe('AuthController (integration)', () => {
   });
 
   describe('POST /auth/register', () => {
-    it('returns 201 with the public user shape on valid input', async () => {
+    it('returns 201 with the public user shape and establishes a session cookie', async () => {
       const response = await request(app.getHttpServer())
         .post('/auth/register')
         .send({
@@ -46,6 +46,12 @@ describe('AuthController (integration)', () => {
 
       expect(response.body).toMatchObject({ email: 'henry@example.com', username: 'henry' });
       expect(response.body).not.toHaveProperty('passwordHash');
+
+      const cookie = response.headers['set-cookie']?.[0] ?? '';
+      expect(cookie).toContain('access_token=');
+      expect(cookie).toMatch(/HttpOnly/i);
+      expect(cookie).toMatch(/SameSite=Lax/i);
+      expect(cookie).toMatch(/Max-Age=604800/);
     });
 
     it('rejects a malformed email with 400', async () => {

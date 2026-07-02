@@ -27,8 +27,13 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  async register(@Body() dto: RegisterDto): Promise<PublicUser> {
-    return this.authService.register(dto);
+  async register(
+    @Body() dto: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<PublicUser> {
+    const { user, accessToken } = await this.authService.register(dto);
+    res.cookie(ACCESS_TOKEN_COOKIE, accessToken, buildAccessTokenCookieOptions());
+    return user;
   }
 
   @Public()

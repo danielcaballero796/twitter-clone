@@ -21,9 +21,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(dto: RegisterDto): Promise<PublicUser> {
+  async register(dto: RegisterDto): Promise<AuthenticatedSession> {
     const user = await this.usersService.create(dto);
-    return this.usersService.toPublicUser(user);
+    return {
+      user: this.usersService.toPublicUser(user),
+      accessToken: await this.signToken(user),
+    };
   }
 
   async login(dto: LoginDto): Promise<AuthenticatedSession> {

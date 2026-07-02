@@ -31,17 +31,21 @@ describe('AuthService', () => {
   });
 
   describe('register', () => {
-    it('creates a user and returns the public shape (no passwordHash)', async () => {
-      const result = await service.register({
+    it('creates a user and returns the public shape plus a valid signed JWT', async () => {
+      const session = await service.register({
         email: 'frank@example.com',
         username: 'frank',
         password: 'supersecret',
         displayName: 'Frank',
       });
 
-      expect(result).not.toHaveProperty('passwordHash');
-      expect(result.email).toBe('frank@example.com');
-      expect(result.username).toBe('frank');
+      expect(session.user).not.toHaveProperty('passwordHash');
+      expect(session.user.email).toBe('frank@example.com');
+      expect(session.user.username).toBe('frank');
+      const payload = await jwtService.verifyAsync<{ sub: string; username: string }>(
+        session.accessToken,
+      );
+      expect(payload.username).toBe('frank');
     });
   });
 

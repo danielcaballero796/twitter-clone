@@ -32,7 +32,7 @@ describe('Auth flow (e2e)', () => {
   it('registers, logs in, accesses a protected route, logs out, then is rejected', async () => {
     const agent = request.agent(app.getHttpServer());
 
-    await agent
+    const registerResponse = await agent
       .post('/auth/register')
       .send({
         email: 'paul@example.com',
@@ -41,6 +41,13 @@ describe('Auth flow (e2e)', () => {
         displayName: 'Paul',
       })
       .expect(201);
+
+    const registerCookie = registerResponse.headers['set-cookie']?.[0] ?? '';
+    expect(registerCookie).toContain('access_token=');
+
+    // Registration already established a session — /auth/me works before any explicit login.
+    const meAfterRegister = await agent.get('/auth/me').expect(200);
+    expect(meAfterRegister.body).toMatchObject({ email: 'paul@example.com', username: 'paul' });
 
     await agent
       .post('/auth/login')
