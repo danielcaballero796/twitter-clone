@@ -87,10 +87,7 @@ describe('Composer', () => {
 
     await waitFor(() => expect(screen.getByText('an older tweet')).toBeInTheDocument());
 
-    await user.type(
-      screen.getByPlaceholderText(/what's happening/i),
-      'fresh off the composer',
-    );
+    await user.type(screen.getByPlaceholderText(/what's happening/i), 'fresh off the composer');
     await user.click(screen.getByRole('button', { name: /^tweet$/i }));
 
     await waitFor(() => expect(screen.getByText('fresh off the composer')).toBeInTheDocument());

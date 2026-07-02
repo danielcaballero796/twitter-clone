@@ -70,9 +70,7 @@ export class TweetsService {
     });
 
     const hasMore = rows.length > limit;
-    const items = (hasMore ? rows.slice(0, limit) : rows).map((tweet) =>
-      this.toPublicTweet(tweet),
-    );
+    const items = (hasMore ? rows.slice(0, limit) : rows).map((tweet) => this.toPublicTweet(tweet));
     return {
       items,
       nextCursor: hasMore ? items[items.length - 1].id : null,

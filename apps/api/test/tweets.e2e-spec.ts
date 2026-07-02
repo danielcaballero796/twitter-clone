@@ -86,7 +86,10 @@ describe('Tweets flow (e2e)', () => {
     const writer = await signUpAndLogin('igor');
 
     for (let i = 1; i <= 3; i += 1) {
-      await writer.post('/tweets').send({ content: `tweet ${i}` }).expect(201);
+      await writer
+        .post('/tweets')
+        .send({ content: `tweet ${i}` })
+        .expect(201);
     }
 
     // Follow API ships in change 04 — seed the follow edge directly.
