@@ -1,5 +1,7 @@
 import type { PublicTweet } from '@twitterclone/shared';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useToggleLike } from './useToggleLike';
 
 const MINUTE_MS = 60_000;
 const HOUR_MS = 60 * MINUTE_MS;
@@ -19,13 +21,38 @@ interface TweetCardProps {
   onDelete: (id: string) => void;
 }
 
+interface LikeOverride {
+  likedByMe: boolean;
+  likesCount: number;
+}
+
 export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardProps) {
   const isOwn = tweet.author.id === sessionUserId;
+  const toggleLike = useToggleLike({ tweetId: tweet.id, likedByMe: tweet.likedByMe });
+  const [likeOverride, setLikeOverride] = useState<LikeOverride | null>(null);
+  const [likeErrored, setLikeErrored] = useState(false);
+
+  const displayedLikedByMe = likeOverride?.likedByMe ?? tweet.likedByMe;
+  const displayedLikesCount = likeOverride?.likesCount ?? tweet.likesCount;
 
   function handleDelete() {
     if (window.confirm('Delete this tweet?')) {
       onDelete(tweet.id);
     }
+  }
+
+  function handleLike() {
+    setLikeErrored(false);
+    const nextLikedByMe = !displayedLikedByMe;
+    const nextLikesCount = displayedLikesCount + (nextLikedByMe ? 1 : -1);
+    setLikeOverride({ likedByMe: nextLikedByMe, likesCount: nextLikesCount });
+
+    toggleLike.mutate(undefined, {
+      onError: () => {
+        setLikeOverride(null);
+        setLikeErrored(true);
+      },
+    });
   }
 
   return (
@@ -56,6 +83,25 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
         <p data-testid="tweet-content" className="whitespace-pre-wrap break-words text-sm">
           {tweet.content}
         </p>
+        <button
+          type="button"
+          data-testid="tweet-like-button"
+          aria-pressed={displayedLikedByMe}
+          aria-label={displayedLikedByMe ? 'Unlike tweet' : 'Like tweet'}
+          onClick={handleLike}
+          disabled={toggleLike.isPending}
+          className={`flex w-fit items-center gap-1 rounded px-2 py-1 text-xs disabled:opacity-50 ${
+            displayedLikedByMe ? 'text-rose-600' : 'text-slate-500 hover:text-rose-600'
+          }`}
+        >
+          <span aria-hidden="true">{displayedLikedByMe ? '♥' : '♡'}</span>
+          <span>{displayedLikesCount}</span>
+        </button>
+        {likeErrored && (
+          <p role="alert" className="text-xs text-red-600">
+            Could not update like status. Please try again.
+          </p>
+        )}
       </div>
     </article>
   );

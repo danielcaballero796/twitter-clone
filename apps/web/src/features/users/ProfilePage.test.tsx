@@ -262,6 +262,35 @@ describe('ProfilePage', () => {
     expect(screen.queryByRole('button', { name: /^following$/i })).not.toBeInTheDocument();
   });
 
+  it('flips a like optimistically on a TweetCard from the user-tweets cache, with rollback on failure', async () => {
+    server.use(
+      http.get(`${API_URL}/users/${otherUser.username}`, () => HttpResponse.json(makeProfile())),
+      http.get(`${API_URL}/users/${otherUser.username}/tweets`, () =>
+        HttpResponse.json({
+          items: [
+            makeTweet({ id: 't1', content: 'first tweet', author: otherUser, likesCount: 2 }),
+          ],
+          nextCursor: null,
+          hasMore: false,
+        }),
+      ),
+      http.post(`${API_URL}/tweets/t1/like`, () => new HttpResponse(null, { status: 500 })),
+    );
+
+    const user = userEvent.setup();
+    renderProfile(otherUser.username);
+
+    await waitFor(() => expect(screen.getByText('first tweet')).toBeInTheDocument());
+    const likeButton = screen.getByTestId('tweet-like-button');
+    expect(likeButton).toHaveTextContent('2');
+
+    await user.click(likeButton);
+
+    await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument());
+    expect(likeButton).toHaveAttribute('aria-pressed', 'false');
+    expect(likeButton).toHaveTextContent('2');
+  });
+
   it('redirects to login when navigating to /u/:username unauthenticated', async () => {
     // Default MSW handler returns 401 for /auth/me — no session.
     renderAuthApp(`/u/${otherUser.username}`);

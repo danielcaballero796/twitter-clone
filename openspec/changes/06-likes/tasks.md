@@ -28,9 +28,9 @@
 - [x] 4.5 Run existing hook/handler tests — all stay green unchanged
 
 ## 5. Web UI (D4) — commit: `feat(web): add like button with optimistic count + tests`
-- [ ] 5.1 RED: `apps/web/src/features/tweets/TweetCard.test.tsx` — like button renders with count including 0; clicking like on an unliked tweet flips to liked state and increments count by 1 optimistically; clicking unlike on a liked tweet flips to not-liked state and decrements count by 1 optimistically; mutation failure rolls back both button state and count and surfaces an error; existing delete behavior and all existing `data-testid`s unchanged. `apps/web/src/features/users/ProfilePage.test.tsx` (or a user-tweets-cache-focused test) — like toggle works on a `TweetCard` rendered from the user-tweets cache on the profile page, with the same rollback-on-failure behavior. Run → failing
-- [ ] 5.2 GREEN: add a like button (heart icon + count) to `apps/web/src/features/tweets/TweetCard.tsx` using `useToggleLike`, with `aria-pressed` reflecting `likedByMe`; additive only — no changes to existing structure or `data-testid`s
-- [ ] 5.3 REFACTOR: full web suite green, `pnpm -r typecheck` clean
+- [x] 5.1 RED: `apps/web/src/features/tweets/TweetCard.test.tsx` — like button renders with count including 0; clicking like on an unliked tweet flips to liked state and increments count by 1 optimistically; clicking unlike on a liked tweet flips to not-liked state and decrements count by 1 optimistically; mutation failure rolls back both button state and count and surfaces an error; existing delete behavior and all existing `data-testid`s unchanged. `apps/web/src/features/users/ProfilePage.test.tsx` (or a user-tweets-cache-focused test) — like toggle works on a `TweetCard` rendered from the user-tweets cache on the profile page, with the same rollback-on-failure behavior. Run → failing
+- [x] 5.2 GREEN: add a like button (heart icon + count) to `apps/web/src/features/tweets/TweetCard.tsx` using `useToggleLike`, with `aria-pressed` reflecting `likedByMe`; additive only — no changes to existing structure or `data-testid`s
+- [x] 5.3 REFACTOR: full web suite green, `pnpm -r typecheck` clean
 
 ## 6. Final verification
 - [ ] 6.1 `pnpm test` (all workspaces) green; `pnpm build` green; api coverage ≥85% (dto/module excluded); `pnpm lint` clean; `pnpm format` (check-only at root; run `pnpm format:write` to fix, then reverify `pnpm format`) clean; `pnpm -r typecheck` clean
