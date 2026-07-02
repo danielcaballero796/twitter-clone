@@ -72,9 +72,7 @@ export default function TimelineFeed() {
         data-testid="timeline-empty"
         className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-white py-12 text-center dark:border-slate-800 dark:bg-slate-900"
       >
-        <p className="font-semibold text-slate-900 dark:text-slate-100">
-          Your timeline is empty
-        </p>
+        <p className="font-semibold text-slate-900 dark:text-slate-100">Your timeline is empty</p>
         <p className="text-sm text-slate-600 dark:text-slate-400">
           No tweets yet — share your first tweet, or{' '}
           <Link

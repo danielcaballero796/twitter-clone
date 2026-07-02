@@ -57,9 +57,7 @@ export default function Composer() {
           disabled={empty || overLimit || createTweet.isPending}
           className="flex h-9 min-w-20 cursor-pointer items-center justify-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:ring-offset-slate-950"
         >
-          {createTweet.isPending && (
-            <ArrowPathIcon className="h-4 w-4 motion-safe:animate-spin" />
-          )}
+          {createTweet.isPending && <ArrowPathIcon className="h-4 w-4 motion-safe:animate-spin" />}
           Tweet
         </button>
       </div>

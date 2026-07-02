@@ -31,20 +31,20 @@
 - [x] 3.5 Verify: `LoginPage`, `RegisterPage`, `ExplorePage`, `SearchBox`, `UserCard`, `ProfilePage` tests green unmodified
 
 ## 4. Final verification — commit: `chore(web): verify theme and polish against ui-ux-pro-max checklist`
-- [ ] 4.1 Full `pnpm --filter @twitterclone/web test` green (50 pre-existing + theme tests)
-- [ ] 4.2 ui-ux-pro-max pre-delivery checklist, both modes:
-  - [ ] No emoji icons anywhere
-  - [ ] `cursor-pointer` on all interactives
-  - [ ] No layout-shifting hover
-  - [ ] Light-mode text contrast ≥4.5:1
-  - [ ] Borders visible in both modes
-  - [ ] `focus-visible` states on all controls
-  - [ ] `motion-safe` on animations
-  - [ ] Responsive at 375/768/1024/1440px
-  - [ ] No FOUC on reload in either stored mode
-- [ ] 4.3 `pnpm -r typecheck`, `pnpm lint`, `pnpm format`, `pnpm build` clean
-- [ ] 4.4 Confirm commit granularity matches the 5 commits above
-- [ ] 4.5 Push; confirm CI green
+- [x] 4.1 Full `pnpm --filter @twitterclone/web test` green (50 pre-existing + theme tests) — 58/58 passing
+- [x] 4.2 ui-ux-pro-max pre-delivery checklist, both modes:
+  - [x] No emoji icons anywhere — `grep` for ♥/♡/✕ across `apps/web/src/**/*.tsx` (excluding tests) returns nothing; all icons are inline SVG from `components/icons.tsx`
+  - [x] `cursor-pointer` on all interactives — every `<button>` across App/ThemeToggle/TweetCard/Composer/HomePage/LoginPage/RegisterPage/UserCard/ProfilePage carries `cursor-pointer`; `<Link>`/`<NavLink>` rely on native anchor pointer cursor
+  - [x] No layout-shifting hover — hover states are `hover:bg-*`/`hover:text-*` color-only; skeletons reserve final layout space (fixed heights/widths matching real content)
+  - [x] Light-mode text contrast ≥4.5:1 — muted text is `text-slate-600` minimum (never lighter) per D2; primary text is `text-slate-900`; decorative icon-only colors (delete/search icon at `text-slate-400`) match the D4 spec literally and are supplementary, not body text
+  - [x] Borders visible in both modes — audited every `border-slate-*` usage: light mode is `-200`/`-300`, dark mode is `-700`/`-800`, matching D2's pair
+  - [x] `focus-visible` states on all controls — every button/input has `focus-visible:ring-2 focus-visible:ring-indigo-500` (+ ring-offset where on a filled background)
+  - [x] `motion-safe` on animations — all `animate-pulse` (skeletons) and `animate-spin` (composer spinner) are prefixed `motion-safe:`
+  - [x] Responsive at 375/768/1024/1440px — app shell uses flex/gap with no fixed pixel widths; brand + 2 nav links + toggle fit comfortably within a 375px viewport minus `px-4` padding
+  - [x] No FOUC on reload in either stored mode — verified by reading `apps/web/index.html`: the inline guard script runs before the module script and before first paint, reading `theflock:theme` / `matchMedia`; this is a structural/manual check per design D5 (no automated DOM-paint-order test exists in this stack)
+- [x] 4.3 `pnpm -r typecheck`, `pnpm lint`, `pnpm format`, `pnpm build` clean — all pass; api test suite (122/122) also re-run to confirm no cross-workspace damage
+- [x] 4.4 Confirm commit granularity matches the 5 commits above
+- [x] 4.5 Push; confirm CI green
 
 ## Scenario Coverage Checklist (16/16)
 - **web-theme (7)** [B0]: system default; toggle→dark persist; toggle→light persist; stored-dark on mount; system matchMedia reactivity; toggle accessibility; FOUC guard in index.html

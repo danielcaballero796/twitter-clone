@@ -13,7 +13,10 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'warn' }));
 function createMatchMediaStub() {
   // Cache one MediaQueryList per query string so every `matchMedia(query)` call within a test
   // (both the component under test and the test's own assertions) shares the same listener set.
-  const cache = new Map<string, MediaQueryList & { listeners: Set<(e: MediaQueryListEvent) => void> }>();
+  const cache = new Map<
+    string,
+    MediaQueryList & { listeners: Set<(e: MediaQueryListEvent) => void> }
+  >();
 
   return vi.fn().mockImplementation((query: string) => {
     const cached = cache.get(query);
@@ -27,11 +30,11 @@ function createMatchMediaStub() {
       listeners: new Set(),
       addListener: vi.fn(),
       removeListener: vi.fn(),
-      addEventListener: vi.fn((_event: string, listener: (e: MediaQueryListEvent) => void) => {
-        mql.listeners.add(listener);
+      addEventListener: vi.fn((_event: string, listener: EventListenerOrEventListenerObject) => {
+        mql.listeners.add(listener as (e: MediaQueryListEvent) => void);
       }),
-      removeEventListener: vi.fn((_event: string, listener: (e: MediaQueryListEvent) => void) => {
-        mql.listeners.delete(listener);
+      removeEventListener: vi.fn((_event: string, listener: EventListenerOrEventListenerObject) => {
+        mql.listeners.delete(listener as (e: MediaQueryListEvent) => void);
       }),
       dispatchEvent: vi.fn((event: Event) => {
         mql.listeners.forEach((listener) => listener(event as MediaQueryListEvent));
