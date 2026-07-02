@@ -186,9 +186,7 @@ describe('UsersService', () => {
 
       const result = await service.search(self.id, 'followed1');
 
-      expect(result.items).toEqual([
-        expect.objectContaining({ id: target.id, isFollowing: true }),
-      ]);
+      expect(result.items).toEqual([expect.objectContaining({ id: target.id, isFollowing: true })]);
     });
   });
 });

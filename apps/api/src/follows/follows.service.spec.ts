@@ -127,9 +127,9 @@ describe('FollowsService', () => {
       const page = await service.followers(nina.id, 'nina', {});
       expect(page.items).toEqual([]);
 
-      await expect(
-        service.followers(nina.id, 'nina', { limit: 101 }),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(service.followers(nina.id, 'nina', { limit: 101 })).rejects.toBeInstanceOf(
+        BadRequestException,
+      );
     });
 
     it('computes isFollowing relative to the session user, not the target', async () => {
