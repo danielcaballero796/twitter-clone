@@ -3,7 +3,9 @@ import type {
   AvatarStyle,
   CreateTweetRequest,
   PublicTweet,
+  PublicUser,
   TweetAuthor,
+  UpdateProfileRequest,
   UserListResponse,
   UserProfile,
   UserSummary,
@@ -170,6 +172,18 @@ function toUserProfile(user: FixtureUser): UserProfile {
   };
 }
 
+function toPublicUser(user: FixtureUser): PublicUser {
+  return {
+    id: user.id,
+    email: `${user.username}@example.com`,
+    username: user.username,
+    displayName: user.displayName,
+    bio: user.bio,
+    avatarStyle: user.avatarStyle,
+    avatarUrl: user.avatarUrl,
+  };
+}
+
 function toPublicTweet(tweet: FixtureTweet): PublicTweet {
   const author = findUser(tweet.authorUsername);
   const tweetAuthor: TweetAuthor = author
@@ -226,6 +240,24 @@ export const handlers = [
   http.delete(`${API_URL}/tweets/:tweetId/like`, ({ params }) => {
     likedTweetIds.delete(params.tweetId as string);
     return HttpResponse.json({ success: true });
+  }),
+  http.patch(`${API_URL}/users/me`, async ({ request }) => {
+    const body = (await request.json()) as UpdateProfileRequest;
+    const user = findUser(ACTING_USERNAME);
+    if (!user) {
+      return notFound();
+    }
+    if (body.displayName !== undefined) {
+      user.displayName = body.displayName;
+    }
+    if (body.bio !== undefined) {
+      user.bio = body.bio === '' ? null : body.bio;
+    }
+    if (body.avatarStyle !== undefined) {
+      user.avatarStyle = body.avatarStyle;
+      user.avatarUrl = `https://api.dicebear.com/9.x/${body.avatarStyle}/svg?seed=${user.username}`;
+    }
+    return HttpResponse.json(toPublicUser(user));
   }),
   http.get(`${API_URL}/users`, ({ request }) => {
     const q = (new URL(request.url).searchParams.get('q') ?? '').toLowerCase();

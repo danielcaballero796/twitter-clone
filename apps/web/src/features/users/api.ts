@@ -1,4 +1,11 @@
-import type { CursorPage, PublicTweet, UserListResponse, UserProfile } from '@twitterclone/shared';
+import type {
+  CursorPage,
+  PublicTweet,
+  PublicUser,
+  UpdateProfileRequest,
+  UserListResponse,
+  UserProfile,
+} from '@twitterclone/shared';
 import { request } from '../../lib/api';
 
 export function searchUsers(q: string): Promise<UserListResponse> {
@@ -12,6 +19,10 @@ export function followUser(username: string): Promise<{ success: true }> {
 
 export function unfollowUser(username: string): Promise<{ success: true }> {
   return request(`/users/${username}/follow`, { method: 'DELETE' });
+}
+
+export function updateProfile(input: UpdateProfileRequest): Promise<PublicUser> {
+  return request('/users/me', { method: 'PATCH', body: JSON.stringify(input) });
 }
 
 export function getProfile(username: string): Promise<UserProfile> {

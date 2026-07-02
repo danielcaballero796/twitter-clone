@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ApiError } from '../../lib/api';
 import { useSession } from '../auth/useSession';
 import TweetCard from '../tweets/TweetCard';
 import { useDeleteTweet } from '../tweets/useDeleteTweet';
+import EditProfileForm from './EditProfileForm';
 import { useProfile } from './useProfile';
 import { useToggleFollow } from './useToggleFollow';
 import { useUserTweets } from './useUserTweets';
@@ -26,6 +28,7 @@ function ProfileSkeleton() {
 export default function ProfilePage() {
   const { username = '' } = useParams<{ username: string }>();
   const { user: sessionUser } = useSession();
+  const [isEditing, setIsEditing] = useState(false);
   const profile = useProfile(username);
   const userTweets = useUserTweets(username);
   const deleteTweet = useDeleteTweet();
@@ -90,6 +93,16 @@ export default function ProfilePage() {
               @{profile.data.username}
             </span>
           </div>
+          {isOwnProfile && !isEditing && (
+            <button
+              type="button"
+              data-testid="edit-profile-button"
+              onClick={() => setIsEditing(true)}
+              className="min-h-11 shrink-0 cursor-pointer rounded-full border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition-colors duration-200 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 dark:focus-visible:ring-offset-slate-950"
+            >
+              Edit profile
+            </button>
+          )}
           {!isOwnProfile && (
             <button
               type="button"
@@ -143,6 +156,9 @@ export default function ProfilePage() {
           <p role="alert" className="text-xs text-red-600 dark:text-red-400">
             Could not update follow status. Please try again.
           </p>
+        )}
+        {isOwnProfile && isEditing && (
+          <EditProfileForm profile={profile.data} onClose={() => setIsEditing(false)} />
         )}
       </header>
       <ul className="divide-y divide-slate-200 overflow-hidden rounded-xl border border-slate-200 bg-white dark:divide-slate-800 dark:border-slate-800 dark:bg-slate-900">

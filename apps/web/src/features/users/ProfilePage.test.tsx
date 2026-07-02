@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { http, HttpResponse, delay } from 'msw';
-import type { UserProfile } from '@twitterclone/shared';
+import { AVATAR_STYLES, type UpdateProfileRequest, type UserProfile } from '@twitterclone/shared';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { API_URL, makeTweet, mockAuthor, otherUser } from '../../test/msw/handlers';
 import { server } from '../../test/msw/server';
@@ -347,5 +347,157 @@ describe('ProfilePage', () => {
     await waitFor(() =>
       expect(screen.getByRole('heading', { name: /log in/i })).toBeInTheDocument(),
     );
+  });
+
+  describe('edit profile', () => {
+    /**
+     * Installs an own-profile session with a stateful profile: the PATCH handler
+     * mutates it, so the profile refetch after a save reflects the edit.
+     */
+    function mockOwnEditableProfile() {
+      let profileState = makeProfile({
+        id: mockAuthor.id,
+        username: mockAuthor.username,
+        displayName: mockAuthor.displayName,
+        bio: 'Original bio',
+        avatarUrl: mockAuthor.avatarUrl,
+        isFollowing: false,
+      });
+      server.use(
+        http.get(`${API_URL}/auth/me`, () =>
+          HttpResponse.json({
+            id: profileState.id,
+            email: 'alice@example.com',
+            username: profileState.username,
+            displayName: profileState.displayName,
+            bio: profileState.bio,
+            avatarStyle: profileState.avatarStyle,
+            avatarUrl: profileState.avatarUrl,
+          }),
+        ),
+        http.get(`${API_URL}/users/${mockAuthor.username}`, () =>
+          HttpResponse.json(profileState),
+        ),
+        http.patch(`${API_URL}/users/me`, async ({ request }) => {
+          const body = (await request.json()) as UpdateProfileRequest;
+          profileState = {
+            ...profileState,
+            ...(body.displayName !== undefined ? { displayName: body.displayName } : {}),
+            ...(body.bio !== undefined ? { bio: body.bio === '' ? null : body.bio } : {}),
+            ...(body.avatarStyle !== undefined
+              ? {
+                  avatarStyle: body.avatarStyle,
+                  avatarUrl: `https://api.dicebear.com/9.x/${body.avatarStyle}/svg?seed=${profileState.username}`,
+                }
+              : {}),
+          };
+          return HttpResponse.json({
+            id: profileState.id,
+            email: 'alice@example.com',
+            username: profileState.username,
+            displayName: profileState.displayName,
+            bio: profileState.bio,
+            avatarStyle: profileState.avatarStyle,
+            avatarUrl: profileState.avatarUrl,
+          });
+        }),
+      );
+      mockEmptyTweets(mockAuthor.username);
+    }
+
+    it('shows the edit button on the own profile and never on others', async () => {
+      mockOwnEditableProfile();
+      renderProfile(mockAuthor.username);
+
+      await waitFor(() => expect(screen.getByTestId('edit-profile-button')).toBeInTheDocument());
+      expect(screen.queryByRole('button', { name: /^follow$/i })).not.toBeInTheDocument();
+    });
+
+    it('does not show the edit button on someone else profile', async () => {
+      server.use(
+        http.get(`${API_URL}/users/${otherUser.username}`, () => HttpResponse.json(makeProfile())),
+      );
+      mockEmptyTweets(otherUser.username);
+
+      renderProfile(otherUser.username);
+
+      await waitFor(() => expect(screen.getByText('Bob')).toBeInTheDocument());
+      expect(screen.queryByTestId('edit-profile-button')).not.toBeInTheDocument();
+    });
+
+    it('prefills the form and renders one preview per avatar style', async () => {
+      mockOwnEditableProfile();
+      const user = userEvent.setup();
+      renderProfile(mockAuthor.username);
+
+      await waitFor(() => expect(screen.getByTestId('edit-profile-button')).toBeInTheDocument());
+      await user.click(screen.getByTestId('edit-profile-button'));
+
+      expect(screen.getByLabelText('Name')).toHaveValue(mockAuthor.displayName);
+      expect(screen.getByLabelText('Bio')).toHaveValue('Original bio');
+      expect(screen.getAllByRole('radio')).toHaveLength(AVATAR_STYLES.length);
+      expect(screen.getByRole('radio', { name: /identicon avatar/i })).toBeChecked();
+    });
+
+    it('saves name, bio and avatar style, closing the form and updating the header', async () => {
+      mockOwnEditableProfile();
+      const user = userEvent.setup();
+      renderProfile(mockAuthor.username);
+
+      await waitFor(() => expect(screen.getByTestId('edit-profile-button')).toBeInTheDocument());
+      await user.click(screen.getByTestId('edit-profile-button'));
+
+      await user.clear(screen.getByLabelText('Name'));
+      await user.type(screen.getByLabelText('Name'), 'Alice Edited');
+      await user.clear(screen.getByLabelText('Bio'));
+      await user.type(screen.getByLabelText('Bio'), 'Brand new bio');
+      await user.click(screen.getByRole('radio', { name: /bottts avatar/i }));
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() => expect(screen.getByText('Alice Edited')).toBeInTheDocument());
+      expect(screen.queryByTestId('edit-profile-form')).not.toBeInTheDocument();
+      expect(screen.getByTestId('profile-bio')).toHaveTextContent('Brand new bio');
+      await waitFor(() =>
+        expect(screen.getByAltText('Alice Edited avatar')).toHaveAttribute(
+          'src',
+          `https://api.dicebear.com/9.x/bottts/svg?seed=${mockAuthor.username}`,
+        ),
+      );
+    });
+
+    it('keeps the form open with an alert when the save fails', async () => {
+      mockOwnEditableProfile();
+      server.use(
+        http.patch(`${API_URL}/users/me`, () => new HttpResponse(null, { status: 500 })),
+      );
+      const user = userEvent.setup();
+      renderProfile(mockAuthor.username);
+
+      await waitFor(() => expect(screen.getByTestId('edit-profile-button')).toBeInTheDocument());
+      await user.click(screen.getByTestId('edit-profile-button'));
+      await user.clear(screen.getByLabelText('Name'));
+      await user.type(screen.getByLabelText('Name'), 'Doomed Edit');
+      await user.click(screen.getByRole('button', { name: /^save$/i }));
+
+      await waitFor(() => expect(screen.getByRole('alert')).toBeInTheDocument());
+      expect(screen.getByTestId('edit-profile-form')).toBeInTheDocument();
+      expect(screen.getByLabelText('Name')).toHaveValue('Doomed Edit');
+    });
+
+    it('discards changes on cancel', async () => {
+      mockOwnEditableProfile();
+      const user = userEvent.setup();
+      renderProfile(mockAuthor.username);
+
+      await waitFor(() => expect(screen.getByTestId('edit-profile-button')).toBeInTheDocument());
+      await user.click(screen.getByTestId('edit-profile-button'));
+      await user.clear(screen.getByLabelText('Name'));
+      await user.type(screen.getByLabelText('Name'), 'Never Saved');
+      await user.click(screen.getByRole('button', { name: /^cancel$/i }));
+
+      expect(screen.queryByTestId('edit-profile-form')).not.toBeInTheDocument();
+      expect(screen.getByText(mockAuthor.displayName)).toBeInTheDocument();
+      expect(screen.queryByText('Never Saved')).not.toBeInTheDocument();
+    });
   });
 });
