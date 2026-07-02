@@ -8,8 +8,12 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/apps/api/src/main.js",
     "start:dev": "ts-node src/main.ts",
+    "db:seed": "ts-node prisma/seed.ts",
     "test": "jest --coverage --runInBand",
     "typecheck": "tsc --noEmit"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.0",

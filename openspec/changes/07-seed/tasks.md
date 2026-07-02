@@ -1,9 +1,9 @@
 # Tasks: 07-seed — Deterministic Demo Seed Script
 
 ## 0. Setup — commit: `chore(api): wire db:seed script and prisma seed config`
-- [ ] 0.1 Add `"db:seed": "ts-node prisma/seed.ts"` to `apps/api/package.json` `scripts`
-- [ ] 0.2 Add top-level `"prisma": { "seed": "ts-node prisma/seed.ts" }` to `apps/api/package.json` so `prisma db seed` / `migrate reset` hooks work
-- [ ] 0.3 Verify with `pnpm --filter @twitterclone/api run` that `db:seed` is listed (script not yet runnable — file doesn't exist until block 1)
+- [x] 0.1 Add `"db:seed": "ts-node prisma/seed.ts"` to `apps/api/package.json` `scripts`
+- [x] 0.2 Add top-level `"prisma": { "seed": "ts-node prisma/seed.ts" }` to `apps/api/package.json` so `prisma db seed` / `migrate reset` hooks work
+- [x] 0.3 Verify with `pnpm --filter @twitterclone/api run` that `db:seed` is listed (script not yet runnable — file doesn't exist until block 1)
 
 ## 1. Seed script (D1-D4) — commit: `feat(api): add deterministic demo seed script + tests`
 - [ ] 1.1 RED: `apps/api/test/seed.e2e-spec.ts` — import `seed` from `../prisma/seed`, run against the real test Postgres (reset tables in `afterEach` following the established `likes.e2e-spec.ts` pattern: `like.deleteMany()` → `follow.deleteMany()` → `tweet.deleteMany()` → `user.deleteMany()`). Assert:
