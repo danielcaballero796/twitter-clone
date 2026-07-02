@@ -110,6 +110,25 @@ export interface UserListResponse {
   items: UserSummary[];
 }
 
+/** Interaction kinds that fan out to a persistent notification. */
+export type NotificationType = 'LIKE' | 'REPLY' | 'FOLLOW';
+
+/** Notification shape returned by `GET /notifications`. */
+export interface PublicNotification {
+  id: string;
+  type: NotificationType;
+  read: boolean;
+  createdAt: string;
+  actor: UserSummary;
+  /** Liked tweet for LIKE, the reply tweet for REPLY, null for FOLLOW. */
+  tweetId: string | null;
+}
+
+/** Response shape for `GET /notifications/unread-count`. */
+export interface UnreadCountResponse {
+  count: number;
+}
+
 /** Profile payload returned by `GET /users/:username`, with session-relative follow state. */
 export interface UserProfile {
   id: string;
