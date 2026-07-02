@@ -121,6 +121,21 @@ describe('FollowsService', () => {
       ]);
     });
 
+    it('derives follower avatars from their stored avatar style', async () => {
+      await createUser('styletarget');
+      const rita = await createUser('rita');
+      await prisma.user.update({ where: { id: rita.id }, data: { avatarStyle: 'fun-emoji' } });
+      await service.follow(rita.id, 'styletarget');
+
+      const page = await service.followers(rita.id, 'styletarget', {});
+
+      expect(page.items).toEqual([
+        expect.objectContaining({
+          avatarUrl: 'https://api.dicebear.com/9.x/fun-emoji/svg?seed=rita',
+        }),
+      ]);
+    });
+
     it('defaults to a limit of 50 and rejects a limit above 100', async () => {
       const nina = await createUser('nina');
 

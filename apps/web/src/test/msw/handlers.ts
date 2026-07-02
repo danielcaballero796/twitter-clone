@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import type {
+  AvatarStyle,
   CreateTweetRequest,
   PublicTweet,
   TweetAuthor,
@@ -65,6 +66,7 @@ interface FixtureUser {
   username: string;
   displayName: string;
   bio: string | null;
+  avatarStyle: AvatarStyle;
   avatarUrl: string;
 }
 
@@ -84,6 +86,7 @@ function initialUsers(): FixtureUser[] {
       username: mockAuthor.username,
       displayName: mockAuthor.displayName,
       bio: null,
+      avatarStyle: 'identicon',
       avatarUrl: mockAuthor.avatarUrl,
     },
     {
@@ -91,6 +94,7 @@ function initialUsers(): FixtureUser[] {
       username: otherUser.username,
       displayName: otherUser.displayName,
       bio: 'Just here for the memes.',
+      avatarStyle: 'identicon',
       avatarUrl: otherUser.avatarUrl,
     },
   ];
@@ -156,6 +160,7 @@ function toUserProfile(user: FixtureUser): UserProfile {
     username: user.username,
     displayName: user.displayName,
     bio: user.bio,
+    avatarStyle: user.avatarStyle,
     avatarUrl: user.avatarUrl,
     followersCount,
     followingCount,

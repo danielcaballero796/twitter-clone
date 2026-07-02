@@ -114,9 +114,28 @@ describe('UsersService', () => {
         username: 'erin',
         displayName: 'Erin',
         bio: null,
+        avatarStyle: 'identicon',
         avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=erin',
       });
       expect(publicUser).not.toHaveProperty('passwordHash');
+    });
+
+    it('derives avatarUrl from the stored avatar style, keeping the username seed', async () => {
+      const created = await service.create({
+        email: 'frank@example.com',
+        username: 'frank',
+        password: 'supersecret',
+        displayName: 'Frank',
+      });
+      const styled = await prisma.user.update({
+        where: { id: created.id },
+        data: { avatarStyle: 'bottts' },
+      });
+
+      const publicUser = service.toPublicUser(styled);
+
+      expect(publicUser.avatarStyle).toBe('bottts');
+      expect(publicUser.avatarUrl).toBe('https://api.dicebear.com/9.x/bottts/svg?seed=frank');
     });
   });
 
@@ -188,6 +207,20 @@ describe('UsersService', () => {
 
       expect(result.items).toEqual([expect.objectContaining({ id: target.id, isFollowing: true })]);
     });
+
+    it('uses the stored avatar style in result avatars', async () => {
+      const self = await createUser('styleseeker', 'Style Seeker');
+      const target = await createUser('styledmatch', 'Styled Match');
+      await prisma.user.update({ where: { id: target.id }, data: { avatarStyle: 'shapes' } });
+
+      const result = await service.search(self.id, 'styledmatch');
+
+      expect(result.items).toEqual([
+        expect.objectContaining({
+          avatarUrl: 'https://api.dicebear.com/9.x/shapes/svg?seed=styledmatch',
+        }),
+      ]);
+    });
   });
 
   describe('profile', () => {
@@ -210,6 +243,7 @@ describe('UsersService', () => {
         username: 'profiletarget',
         displayName: 'Profile Target',
         bio: null,
+        avatarStyle: 'identicon',
         avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=profiletarget',
         followersCount: 0,
         followingCount: 0,
@@ -265,6 +299,19 @@ describe('UsersService', () => {
       const profile = await service.profile(self.id, self.username);
 
       expect(profile.isFollowing).toBe(false);
+    });
+
+    it('derives the profile avatar from the stored style', async () => {
+      const self = await createUser('profstyleself', 'Prof Style Self');
+      const target = await createUser('profstyletarget', 'Prof Style Target');
+      await prisma.user.update({ where: { id: target.id }, data: { avatarStyle: 'pixel-art' } });
+
+      const profile = await service.profile(self.id, target.username);
+
+      expect(profile.avatarStyle).toBe('pixel-art');
+      expect(profile.avatarUrl).toBe(
+        'https://api.dicebear.com/9.x/pixel-art/svg?seed=profstyletarget',
+      );
     });
 
     it('rejects an unknown username with NotFoundException', async () => {

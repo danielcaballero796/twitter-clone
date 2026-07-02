@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
-import type { PublicUser, UserListResponse, UserProfile } from '@twitterclone/shared';
+import type { AvatarStyle, PublicUser, UserListResponse, UserProfile } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from './avatar';
 
@@ -63,7 +63,8 @@ export class UsersService {
       username: user.username,
       displayName: user.displayName,
       bio: user.bio,
-      avatarUrl: avatarUrlFor(user.username),
+      avatarStyle: user.avatarStyle as AvatarStyle,
+      avatarUrl: avatarUrlFor(user.username, user.avatarStyle),
     };
   }
 
@@ -76,7 +77,7 @@ export class UsersService {
         ],
         NOT: { id: sessionUserId },
       },
-      select: { id: true, username: true, displayName: true },
+      select: { id: true, username: true, displayName: true, avatarStyle: true },
       take: SEARCH_RESULT_CAP,
     });
 
@@ -94,7 +95,7 @@ export class UsersService {
         id: user.id,
         username: user.username,
         displayName: user.displayName,
-        avatarUrl: avatarUrlFor(user.username),
+        avatarUrl: avatarUrlFor(user.username, user.avatarStyle),
         isFollowing: followingSet.has(user.id),
       })),
     };
@@ -123,7 +124,8 @@ export class UsersService {
       username: user.username,
       displayName: user.displayName,
       bio: user.bio,
-      avatarUrl: avatarUrlFor(user.username),
+      avatarStyle: user.avatarStyle as AvatarStyle,
+      avatarUrl: avatarUrlFor(user.username, user.avatarStyle),
       followersCount: user._count.followers,
       followingCount: user._count.following,
       tweetsCount: user._count.tweets,

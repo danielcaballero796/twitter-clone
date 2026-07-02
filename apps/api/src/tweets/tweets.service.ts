@@ -9,13 +9,15 @@ import type { CursorPage, PublicTweet } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from '../users/avatar';
 
-const AUTHOR_SELECT = { select: { id: true, username: true, displayName: true } } as const;
+const AUTHOR_SELECT = {
+  select: { id: true, username: true, displayName: true, avatarStyle: true },
+} as const;
 
 interface TweetWithAuthor {
   id: string;
   content: string;
   createdAt: Date;
-  author: { id: string; username: string; displayName: string };
+  author: { id: string; username: string; displayName: string; avatarStyle: string };
   _count: { likes: number };
 }
 
@@ -118,7 +120,7 @@ export class TweetsService {
         id: tweet.author.id,
         username: tweet.author.username,
         displayName: tweet.author.displayName,
-        avatarUrl: avatarUrlFor(tweet.author.username),
+        avatarUrl: avatarUrlFor(tweet.author.username, tweet.author.avatarStyle),
       },
       likesCount: tweet._count.likes,
       likedByMe,

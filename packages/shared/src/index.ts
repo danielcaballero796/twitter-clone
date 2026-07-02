@@ -11,6 +11,18 @@ export interface HealthStatus {
   status: 'ok';
 }
 
+/** DiceBear collections a user may pick for their avatar — single source of truth for API validation and the web picker. */
+export const AVATAR_STYLES = [
+  'identicon',
+  'bottts',
+  'shapes',
+  'thumbs',
+  'pixel-art',
+  'fun-emoji',
+] as const;
+
+export type AvatarStyle = (typeof AVATAR_STYLES)[number];
+
 /** Authenticated user shape returned by the API — never includes the password hash. */
 export interface PublicUser {
   id: string;
@@ -18,7 +30,15 @@ export interface PublicUser {
   username: string;
   displayName: string;
   bio: string | null;
+  avatarStyle: AvatarStyle;
   avatarUrl: string;
+}
+
+/** Body accepted by `PATCH /users/me` — every field optional, only provided ones change. Empty bio clears it. */
+export interface UpdateProfileRequest {
+  displayName?: string;
+  bio?: string;
+  avatarStyle?: AvatarStyle;
 }
 
 /** Body accepted by `POST /auth/register`. */
@@ -87,6 +107,7 @@ export interface UserProfile {
   username: string;
   displayName: string;
   bio: string | null;
+  avatarStyle: AvatarStyle;
   avatarUrl: string;
   followersCount: number;
   followingCount: number;

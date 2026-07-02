@@ -62,6 +62,15 @@ describe('TweetsService', () => {
       expect(persisted?.authorId).toBe(alice.id);
     });
 
+    it('derives the author avatar from their stored avatar style', async () => {
+      const styled = await createUser('styled');
+      await prisma.user.update({ where: { id: styled.id }, data: { avatarStyle: 'thumbs' } });
+
+      const tweet = await service.create(styled.id, 'styled tweet');
+
+      expect(tweet.author.avatarUrl).toBe('https://api.dicebear.com/9.x/thumbs/svg?seed=styled');
+    });
+
     it('persists 1-char and exactly 280-char content', async () => {
       const bob = await createUser('bob');
 

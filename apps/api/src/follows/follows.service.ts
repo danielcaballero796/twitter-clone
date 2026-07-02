@@ -14,6 +14,7 @@ interface UserRow {
   id: string;
   username: string;
   displayName: string;
+  avatarStyle: string;
 }
 
 @Injectable()
@@ -50,7 +51,9 @@ export class FollowsService {
 
     const rows = await this.prisma.follow.findMany({
       where: { followingId: target.id },
-      select: { follower: { select: { id: true, username: true, displayName: true } } },
+      select: {
+        follower: { select: { id: true, username: true, displayName: true, avatarStyle: true } },
+      },
       take: limit,
     });
 
@@ -70,7 +73,9 @@ export class FollowsService {
 
     const rows = await this.prisma.follow.findMany({
       where: { followerId: target.id },
-      select: { following: { select: { id: true, username: true, displayName: true } } },
+      select: {
+        following: { select: { id: true, username: true, displayName: true, avatarStyle: true } },
+      },
       take: limit,
     });
 
@@ -100,7 +105,7 @@ export class FollowsService {
       id: user.id,
       username: user.username,
       displayName: user.displayName,
-      avatarUrl: avatarUrlFor(user.username),
+      avatarUrl: avatarUrlFor(user.username, user.avatarStyle),
       isFollowing: followingSet.has(user.id),
     };
   }

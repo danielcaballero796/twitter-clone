@@ -15,6 +15,7 @@ export const mockUser: PublicUser = {
   username: 'alice',
   displayName: 'Alice',
   bio: null,
+  avatarStyle: 'identicon',
   avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=alice',
 };
 

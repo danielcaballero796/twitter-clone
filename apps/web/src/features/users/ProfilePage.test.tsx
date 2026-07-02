@@ -31,6 +31,7 @@ function makeProfile(overrides: Partial<UserProfile> = {}): UserProfile {
     username: otherUser.username,
     displayName: otherUser.displayName,
     bio: 'Just here for the memes.',
+    avatarStyle: 'identicon',
     avatarUrl: otherUser.avatarUrl,
     followersCount: 10,
     followingCount: 5,
