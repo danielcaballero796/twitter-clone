@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type Theme = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -30,6 +30,12 @@ export function useTheme() {
     return stored ?? (systemPrefersDark() ? 'dark' : 'light');
   });
 
+  // Tracks the latest resolved theme synchronously so `toggle()` never reads a stale value from
+  // its render closure when called more than once before a re-render commits (e.g. rapid keyboard
+  // auto-repeat within the same tick/act()).
+  const resolvedThemeRef = useRef(resolvedTheme);
+  resolvedThemeRef.current = resolvedTheme;
+
   useEffect(() => {
     applyResolvedTheme(resolvedTheme);
   }, [resolvedTheme]);
@@ -43,18 +49,21 @@ export function useTheme() {
     // (and this project's jsdom test stub) dispatch a plain `change` Event without a `matches`
     // property, whereas the MediaQueryList itself is always current at the time it fires.
     function handleChange() {
-      setResolvedTheme(mediaQueryList.matches ? 'dark' : 'light');
+      const next: ResolvedTheme = mediaQueryList.matches ? 'dark' : 'light';
+      resolvedThemeRef.current = next;
+      setResolvedTheme(next);
     }
     mediaQueryList.addEventListener('change', handleChange);
     return () => mediaQueryList.removeEventListener('change', handleChange);
   }, [theme]);
 
   const toggle = useCallback(() => {
-    const next: ResolvedTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
+    const next: ResolvedTheme = resolvedThemeRef.current === 'dark' ? 'light' : 'dark';
+    resolvedThemeRef.current = next;
     window.localStorage.setItem(THEME_STORAGE_KEY, next);
     setTheme(next);
     setResolvedTheme(next);
-  }, [resolvedTheme]);
+  }, []);
 
   return { theme, resolvedTheme, toggle };
 }

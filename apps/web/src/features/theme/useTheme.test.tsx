@@ -47,6 +47,21 @@ describe('useTheme', () => {
     expect(window.localStorage.getItem(THEME_KEY)).toBe('light');
   });
 
+  it('nets back to the original theme when toggled twice in the same tick', () => {
+    setSystemPrefersDark(false);
+    window.localStorage.setItem(THEME_KEY, 'dark');
+    const { result } = renderHook(() => useTheme());
+
+    act(() => {
+      result.current.toggle();
+      result.current.toggle();
+    });
+
+    expect(result.current.resolvedTheme).toBe('dark');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(window.localStorage.getItem(THEME_KEY)).toBe('dark');
+  });
+
   it('applies a stored dark theme immediately on mount', () => {
     window.localStorage.setItem(THEME_KEY, 'dark');
 
