@@ -1,15 +1,15 @@
 # Tasks: 08-ui-theme — UI/UX Polish + Light/Dark Mode
 
 ## 0. Theme infra (D1, D5 TDD) — commit: `feat(web): add theme infrastructure with useTheme hook and toggle`
-- [ ] 0.1 RED: stub `window.matchMedia` in `apps/web/src/test/setup.ts`; reset `localStorage` + `document.documentElement.className` in `afterEach`
-- [ ] 0.2 RED: `apps/web/src/features/theme/useTheme.test.tsx` — 4 cases: system-default light, toggle→dark+persist, toggle→light+persist, stored dark applied on mount. Run → failing (module doesn't exist)
-- [ ] 0.3 RED: `apps/web/src/features/theme/ThemeToggle.test.tsx` — aria-label matches resolved theme, `data-testid="theme-toggle"`, keyboard-operable button. Run → failing
-- [ ] 0.4 RED: system-mode matchMedia change-event test (dispatch `change` on the stubbed media query list, assert `dark` class toggles without a `localStorage` write). Run → failing
-- [ ] 0.5 GREEN: `apps/web/src/index.css` — `@custom-variant dark (&:where(.dark, .dark *));`, `@theme { --font-sans }`, base layer `color-scheme` pair per D1
-- [ ] 0.6 GREEN: `apps/web/src/features/theme/useTheme.ts` — `'light'|'dark'|'system'` model, localStorage key `theflock:theme`, `{ theme, resolvedTheme, toggle }`, matchMedia subscription in system mode
-- [ ] 0.7 GREEN: `apps/web/src/features/theme/ThemeToggle.tsx` — Sun/Moon icon button, aria-label pair, `data-testid="theme-toggle"`, 44px hit area. Run all 3 test files → green
-- [ ] 0.8 GREEN: `apps/web/index.html` — FOUC guard inline script (before module script, D1 exact snippet), Inter Google Fonts `<link>`, `<title>TheFlock</title>`
-- [ ] 0.9 REFACTOR: rerun theme tests + full web suite green
+- [x] 0.1 RED: stub `window.matchMedia` in `apps/web/src/test/setup.ts`; reset `localStorage` + `document.documentElement.className` in `afterEach`
+- [x] 0.2 RED: `apps/web/src/features/theme/useTheme.test.tsx` — 4 cases: system-default light, toggle→dark+persist, toggle→light+persist, stored dark applied on mount. Run → failing (module doesn't exist)
+- [x] 0.3 RED: `apps/web/src/features/theme/ThemeToggle.test.tsx` — aria-label matches resolved theme, `data-testid="theme-toggle"`, keyboard-operable button. Run → failing
+- [x] 0.4 RED: system-mode matchMedia change-event test (dispatch `change` on the stubbed media query list, assert `dark` class toggles without a `localStorage` write). Run → failing
+- [x] 0.5 GREEN: `apps/web/src/index.css` — `@custom-variant dark (&:where(.dark, .dark *));`, `@theme { --font-sans }`, base layer `color-scheme` pair per D1
+- [x] 0.6 GREEN: `apps/web/src/features/theme/useTheme.ts` — `'light'|'dark'|'system'` model, localStorage key `theflock:theme`, `{ theme, resolvedTheme, toggle }`, matchMedia subscription in system mode
+- [x] 0.7 GREEN: `apps/web/src/features/theme/ThemeToggle.tsx` — Sun/Moon icon button, aria-label pair, `data-testid="theme-toggle"`, 44px hit area. Run all 3 test files → green
+- [x] 0.8 GREEN: `apps/web/index.html` — FOUC guard inline script (before module script, D1 exact snippet), Inter Google Fonts `<link>`, `<title>TheFlock</title>`
+- [x] 0.9 REFACTOR: rerun theme tests + full web suite green
 
 ## 1. App shell (D3) — commit: `feat(web): rebuild app shell with nav, theme toggle, and icon system`
 - [ ] 1.1 `apps/web/src/components/icons.tsx` — Heart, HeartSolid, Trash, Sun, Moon, MagnifyingGlass, ArrowPath SVGs (24x24, `aria-hidden`, currentColor)
