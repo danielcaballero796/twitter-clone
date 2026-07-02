@@ -1,0 +1,26 @@
+change: 05-profile
+phase: apply
+artifact_store: hybrid
+execution_mode: interactive
+strict_tdd: true
+artifacts:
+  exploration: false   # scope derived from 04 session decision "profile if time permits"; api surface verified inline by orchestrator
+  proposal: true
+  specs: true          # 27 scenarios (8 users-profile, 6 users-tweets, 13 web-profile)
+  design: true
+  tasks: true          # 8 blocks, checklist 27/27
+  apply: false
+  verify: false
+  archive: false
+approvals:
+  proposal: true       # authored by orchestrator per user "arrancá con el 05"
+  specs: true          # orchestrator review PASS — no patches needed
+  design: true         # authored by orchestrator (D1-D5 binding)
+  tasks: true          # orchestrator review PASS — block order respects dependencies
+  apply: false
+  verify: false
+  archive: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-01
