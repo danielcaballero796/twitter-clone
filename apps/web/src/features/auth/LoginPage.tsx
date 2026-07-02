@@ -69,7 +69,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={submitting}
-            className="h-10 cursor-pointer rounded bg-indigo-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:ring-offset-slate-950"
+            className="min-h-11 cursor-pointer rounded bg-indigo-600 px-4 py-2 text-white transition-colors duration-200 hover:bg-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:bg-indigo-500 dark:hover:bg-indigo-400 dark:focus-visible:ring-offset-slate-950"
           >
             Log in
           </button>

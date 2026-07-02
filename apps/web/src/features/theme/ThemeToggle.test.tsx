@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ThemeToggle from './ThemeToggle';
+import { THEME_STORAGE_KEY } from './useTheme';
 
 function setSystemPrefersDark(matches: boolean) {
   const mql = window.matchMedia('(prefers-color-scheme: dark)');
@@ -30,7 +31,7 @@ describe('ThemeToggle', () => {
     );
   });
 
-  it('is keyboard-operable via native button semantics', async () => {
+  it('applies the dark class to <html> and persists the choice to localStorage when activated via keyboard', async () => {
     setSystemPrefersDark(false);
     const user = userEvent.setup();
     render(<ThemeToggle />);
@@ -40,5 +41,7 @@ describe('ThemeToggle', () => {
     await user.keyboard('{Enter}');
 
     expect(button).toHaveAttribute('aria-label', 'Switch to light theme');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark');
   });
 });

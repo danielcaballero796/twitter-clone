@@ -50,13 +50,11 @@ export function useTheme() {
   }, [theme]);
 
   const toggle = useCallback(() => {
-    setResolvedTheme((current) => {
-      const next: ResolvedTheme = current === 'dark' ? 'light' : 'dark';
-      window.localStorage.setItem(THEME_STORAGE_KEY, next);
-      setTheme(next);
-      return next;
-    });
-  }, []);
+    const next: ResolvedTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
+    window.localStorage.setItem(THEME_STORAGE_KEY, next);
+    setTheme(next);
+    setResolvedTheme(next);
+  }, [resolvedTheme]);
 
   return { theme, resolvedTheme, toggle };
 }

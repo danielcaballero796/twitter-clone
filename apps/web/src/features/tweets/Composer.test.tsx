@@ -67,6 +67,20 @@ describe('Composer', () => {
     expect(createCalled).toBe(false);
   });
 
+  it('does not block submission due to trailing whitespace pushed past the limit', async () => {
+    const user = userEvent.setup();
+    renderWithClient(<Composer />);
+
+    const textarea = screen.getByPlaceholderText(/what's happening/i);
+    await user.click(textarea);
+    await user.paste('z'.repeat(280));
+    await user.paste('   ');
+
+    expect(screen.getByTestId('composer-counter')).toHaveTextContent('0');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /tweet/i })).not.toBeDisabled();
+  });
+
   it('creates a tweet and shows it at the top of the timeline without a reload', async () => {
     // Stateful mock — the created tweet must survive the post-mutation refetch.
     let tweets = [makeTweet({ id: 'existing-1', content: 'an older tweet' })];

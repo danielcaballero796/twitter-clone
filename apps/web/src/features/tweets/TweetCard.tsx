@@ -88,7 +88,7 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
               type="button"
               aria-label="Delete tweet"
               onClick={handleDelete}
-              className="ml-auto flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400 dark:focus-visible:ring-offset-slate-950"
+              className="ml-auto flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-slate-400 transition-colors duration-200 hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400 dark:focus-visible:ring-offset-slate-950"
             >
               <TrashIcon />
             </button>
@@ -107,7 +107,7 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
           aria-label={displayedLikedByMe ? 'Unlike tweet' : 'Like tweet'}
           onClick={handleLike}
           disabled={toggleLike.isPending}
-          className={`flex w-fit cursor-pointer items-center gap-1.5 rounded px-2 py-1.5 text-xs transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-slate-950 ${
+          className={`flex min-h-11 w-fit cursor-pointer items-center gap-1.5 rounded px-2 text-xs transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 disabled:opacity-50 dark:focus-visible:ring-offset-slate-950 ${
             displayedLikedByMe
               ? 'text-rose-600 dark:text-rose-400'
               : 'text-slate-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400'
