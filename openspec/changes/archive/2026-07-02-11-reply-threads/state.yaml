@@ -1,0 +1,26 @@
+change: 11-reply-threads
+phase: archive
+artifact_store: hybrid
+execution_mode: interactive
+strict_tdd: true
+artifacts:
+  exploration: false
+  proposal: true
+  specs: true             # 25 scenarios (16 tweets, 9 web-tweets)
+  design: true            # D1-D9 binding; D3 (paginateTweets generalization) gated by behavior-preserving tests
+  tasks: true             # 6 blocks; 0-3 sequential, 4 verify, 5 archive
+  apply: true             # blocks 0-3 done; api committed b070970, web committed 3589c65 + 0189b10
+  verify: true            # full gate green (lint/format/typecheck, api 170 tests, web 90 tests); live-stack walk via docker compose: reply creation, inReplyTo marker, replyCount increment, ascending thread, cascade delete all verified
+  archive: true
+approvals:
+  proposal: true          # user approved 2026-07-02 with one override: replies DO appear in the home timeline/profiles (early-Twitter model), context via inReplyTo marker
+  specs: true
+  design: true
+  tasks: true
+  apply: true
+  verify: true
+  archive: true
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-02
