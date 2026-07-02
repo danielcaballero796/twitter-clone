@@ -62,3 +62,48 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Boot the full stack (default env, no .env file)
+        run: docker compose up -d --build
+
+      - name: Wait for the proxy to answer /health
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/health > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          echo "stack never became healthy" >&2
+          docker compose ps
+          exit 1
+
+      - name: Register through the proxy
+        run: |
+          curl -fsS -c cookies.txt -H 'Content-Type: application/json' \
+            -d '{"email":"smoke@example.com","username":"smoke","password":"smoke-password-1","displayName":"Smoke Test"}' \
+            http://localhost:8080/auth/register
+
+      - name: Login through the proxy
+        run: |
+          curl -fsS -c cookies.txt -H 'Content-Type: application/json' \
+            -d '{"email":"smoke@example.com","password":"smoke-password-1"}' \
+            http://localhost:8080/auth/login
+
+      - name: Authenticated /auth/me with the cookie jar
+        run: |
+          body=$(curl -fsS -b cookies.txt http://localhost:8080/auth/me)
+          echo "$body"
+          echo "$body" | grep -q '"username":"smoke"'
+
+      - name: SPA fallback serves index.html on client routes
+        run: curl -fsS http://localhost:8080/u/smoke | grep -qi '<div id="root">'
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
