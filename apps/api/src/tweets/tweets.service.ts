@@ -1,5 +1,10 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import type { PublicTweet } from '@twitterclone/shared';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import type { CursorPage, PublicTweet } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from '../users/avatar';
 
@@ -33,6 +38,46 @@ export class TweetsService {
       throw new ForbiddenException('You can only delete your own tweets');
     }
     await this.prisma.tweet.delete({ where: { id: tweetId } });
+  }
+
+  async timeline(
+    userId: string,
+    { cursor, limit = 20 }: { cursor?: string; limit?: number },
+  ): Promise<CursorPage<PublicTweet>> {
+    // Prisma silently misbehaves on a cursor id that matches no row, so validate it up front.
+    if (cursor) {
+      const cursorRow = await this.prisma.tweet.findUnique({
+        where: { id: cursor },
+        select: { id: true },
+      });
+      if (!cursorRow) {
+        throw new BadRequestException('Invalid cursor');
+      }
+    }
+
+    const follows = await this.prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
+    });
+    const authorIds = [...follows.map((f) => f.followingId), userId];
+
+    const rows = await this.prisma.tweet.findMany({
+      where: { authorId: { in: authorIds } },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      include: { author: AUTHOR_SELECT },
+      take: limit + 1,
+      ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+    });
+
+    const hasMore = rows.length > limit;
+    const items = (hasMore ? rows.slice(0, limit) : rows).map((tweet) =>
+      this.toPublicTweet(tweet),
+    );
+    return {
+      items,
+      nextCursor: hasMore ? items[items.length - 1].id : null,
+      hasMore,
+    };
   }
 
   toPublicTweet(tweet: TweetWithAuthor): PublicTweet {

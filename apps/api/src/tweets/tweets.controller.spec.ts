@@ -124,4 +124,49 @@ describe('TweetsController (integration)', () => {
       await request(app.getHttpServer()).delete('/tweets/whatever').expect(401);
     });
   });
+
+  describe('GET /tweets/timeline', () => {
+    it('returns the cursor page shape with the session user own tweets', async () => {
+      const agent = await loggedInAgent('wanda');
+      await agent.post('/tweets').send({ content: 'my own tweet' }).expect(201);
+
+      const response = await agent.get('/tweets/timeline').expect(200);
+
+      expect(response.body).toMatchObject({
+        items: [{ content: 'my own tweet', author: { username: 'wanda' } }],
+        nextCursor: null,
+        hasMore: false,
+      });
+    });
+
+    it('respects the limit query param and returns a nextCursor', async () => {
+      const agent = await loggedInAgent('xena');
+      await agent.post('/tweets').send({ content: 'first' }).expect(201);
+      await agent.post('/tweets').send({ content: 'second' }).expect(201);
+
+      const response = await agent.get('/tweets/timeline?limit=1').expect(200);
+
+      expect(response.body.items).toHaveLength(1);
+      expect(response.body.hasMore).toBe(true);
+      expect(response.body.nextCursor).toEqual(expect.any(String));
+    });
+
+    it('rejects an out-of-range limit with 400', async () => {
+      const agent = await loggedInAgent('yuri');
+
+      await agent.get('/tweets/timeline?limit=0').expect(400);
+      await agent.get('/tweets/timeline?limit=51').expect(400);
+      await agent.get('/tweets/timeline?limit=abc').expect(400);
+    });
+
+    it('rejects an unknown cursor with 400', async () => {
+      const agent = await loggedInAgent('zack');
+
+      await agent.get('/tweets/timeline?cursor=not-a-real-id').expect(400);
+    });
+
+    it('returns 401 without a session cookie', async () => {
+      await request(app.getHttpServer()).get('/tweets/timeline').expect(401);
+    });
+  });
 });
