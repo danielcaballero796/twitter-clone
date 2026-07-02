@@ -3,6 +3,7 @@ import { Prisma, User } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
 import type { PublicUser } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
+import { avatarUrlFor } from './avatar';
 
 export interface CreateUserInput {
   email: string;
@@ -61,7 +62,7 @@ export class UsersService {
       username: user.username,
       displayName: user.displayName,
       bio: user.bio,
-      avatarUrl: `https://api.dicebear.com/9.x/identicon/svg?seed=${user.username}`,
+      avatarUrl: avatarUrlFor(user.username),
     };
   }
 }

@@ -34,3 +34,31 @@ export interface LoginRequest {
   email: string;
   password: string;
 }
+
+/** Author summary embedded in every tweet returned by the API. */
+export interface TweetAuthor {
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string;
+}
+
+/** Tweet shape returned by the API. */
+export interface PublicTweet {
+  id: string;
+  content: string;
+  createdAt: string;
+  author: TweetAuthor;
+}
+
+/** Body accepted by `POST /tweets`. */
+export interface CreateTweetRequest {
+  content: string;
+}
+
+/** Cursor-paginated page returned by list endpoints (e.g. `GET /tweets/timeline`). */
+export interface CursorPage<T> {
+  items: T[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
