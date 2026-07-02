@@ -23,3 +23,13 @@ export const searchUsersQueryKey = (q: string) => [...SEARCH_USERS_QUERY_PREFIX,
 export const PROFILE_QUERY_PREFIX = ['users', 'profile'] as const;
 
 export const profileQueryKey = (username: string) => [...PROFILE_QUERY_PREFIX, username] as const;
+
+/** Shared prefix for a single thread-root tweet cache (`GET /tweets/:id`). */
+export const TWEET_QUERY_PREFIX = ['tweet'] as const;
+
+export const tweetQueryKey = (id: string) => [...TWEET_QUERY_PREFIX, id] as const;
+
+/** Shared prefix so mutations can flip/invalidate every cached replies page at once. */
+export const REPLIES_QUERY_PREFIX = ['replies'] as const;
+
+export const repliesQueryKey = (id: string) => [...REPLIES_QUERY_PREFIX, id] as const;

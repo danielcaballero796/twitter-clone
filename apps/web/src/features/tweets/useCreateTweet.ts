@@ -28,6 +28,8 @@ export function useCreateTweet() {
           },
           likesCount: 0,
           likedByMe: false,
+          replyCount: 0,
+          inReplyTo: null,
         };
         queryClient.setQueryData<TimelineData>(TIMELINE_QUERY_KEY, {
           ...previous,

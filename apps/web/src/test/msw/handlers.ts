@@ -36,6 +36,8 @@ export function makeTweet(overrides: Partial<PublicTweet> = {}): PublicTweet {
     author: mockAuthor,
     likesCount: 0,
     likedByMe: false,
+    replyCount: 0,
+    inReplyTo: null,
     ...overrides,
   };
 }
@@ -79,6 +81,8 @@ interface FixtureTweet {
   authorUsername: string;
   /** Base like count, excludes the acting session user's own like state (see `likedTweetIds`). */
   likesCount: number;
+  /** Non-null when this tweet is a reply to another fixture tweet. */
+  parentId: string | null;
 }
 
 function initialUsers(): FixtureUser[] {
@@ -110,6 +114,7 @@ function initialTweets(): FixtureTweet[] {
       createdAt: new Date('2024-01-01T00:00:00.000Z').toISOString(),
       authorUsername: otherUser.username,
       likesCount: 0,
+      parentId: null,
     },
   ];
 }
@@ -134,6 +139,14 @@ export function resetStore(): void {
 
 function findUser(username: string): FixtureUser | undefined {
   return users.find((user) => user.username === username);
+}
+
+function findTweet(id: string): FixtureTweet | undefined {
+  return tweets.find((tweet) => tweet.id === id);
+}
+
+function replyCountOf(id: string): number {
+  return tweets.filter((tweet) => tweet.parentId === id).length;
 }
 
 function isFollowing(follower: string, followee: string): boolean {
@@ -195,6 +208,9 @@ function toPublicTweet(tweet: FixtureTweet): PublicTweet {
       }
     : mockAuthor;
 
+  const parent = tweet.parentId ? findTweet(tweet.parentId) : undefined;
+  const parentAuthor = parent ? findUser(parent.authorUsername) : undefined;
+
   return {
     id: tweet.id,
     content: tweet.content,
@@ -202,6 +218,8 @@ function toPublicTweet(tweet: FixtureTweet): PublicTweet {
     author: tweetAuthor,
     likesCount: tweet.likesCount + (likedTweetIds.has(tweet.id) ? 1 : 0),
     likedByMe: likedTweetIds.has(tweet.id),
+    replyCount: replyCountOf(tweet.id),
+    inReplyTo: parent && parentAuthor ? { id: parent.id, username: parentAuthor.username } : null,
   };
 }
 
@@ -216,6 +234,10 @@ function notFound() {
   return HttpResponse.json({ message: 'User not found' }, { status: 404 });
 }
 
+function tweetNotFound() {
+  return HttpResponse.json({ message: 'Tweet not found' }, { status: 404 });
+}
+
 /** Default handlers — read/mutate the fixture store above unless a test overrides them. */
 export const handlers = [
   http.get(`${API_URL}/auth/me`, () => new HttpResponse(null, { status: 401 })),
@@ -228,9 +250,42 @@ export const handlers = [
   }),
   http.post(`${API_URL}/tweets`, async ({ request }) => {
     const body = (await request.json()) as CreateTweetRequest;
-    return HttpResponse.json(makeTweet({ id: `tweet-${Date.now()}`, content: body.content }), {
-      status: 201,
-    });
+    if (body.parentId && !findTweet(body.parentId)) {
+      return tweetNotFound();
+    }
+    return HttpResponse.json(
+      makeTweet({
+        id: `tweet-${Date.now()}`,
+        content: body.content,
+        inReplyTo: body.parentId
+          ? { id: body.parentId, username: findTweet(body.parentId)?.authorUsername ?? '' }
+          : null,
+      }),
+      { status: 201 },
+    );
+  }),
+  http.get(`${API_URL}/tweets/:id/replies`, ({ params, request }) => {
+    const id = params.id as string;
+    if (!findTweet(id)) {
+      return tweetNotFound();
+    }
+    const cursor = new URL(request.url).searchParams.get('cursor');
+    const items = tweets
+      .filter((tweet) => tweet.parentId === id)
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
+      .map(toPublicTweet);
+    if (!cursor) {
+      return HttpResponse.json({ items, nextCursor: null, hasMore: false });
+    }
+    const index = items.findIndex((tweet) => tweet.id === cursor);
+    return HttpResponse.json({ items: items.slice(index + 1), nextCursor: null, hasMore: false });
+  }),
+  http.get(`${API_URL}/tweets/:id`, ({ params }) => {
+    const tweet = findTweet(params.id as string);
+    if (!tweet) {
+      return tweetNotFound();
+    }
+    return HttpResponse.json(toPublicTweet(tweet));
   }),
   http.delete(`${API_URL}/tweets/:id`, () => HttpResponse.json({ success: true })),
   http.post(`${API_URL}/tweets/:tweetId/like`, ({ params }) => {
