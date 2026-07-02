@@ -49,6 +49,10 @@ export interface PublicTweet {
   content: string;
   createdAt: string;
   author: TweetAuthor;
+  /** Total likes on the tweet. */
+  likesCount: number;
+  /** Session-relative: true only if the requesting session user has liked this tweet. */
+  likedByMe: boolean;
 }
 
 /** Body accepted by `POST /tweets`. */

@@ -31,6 +31,8 @@ export function makeTweet(overrides: Partial<PublicTweet> = {}): PublicTweet {
     content: 'A default tweet',
     createdAt: new Date().toISOString(),
     author: mockAuthor,
+    likesCount: 0,
+    likedByMe: false,
     ...overrides,
   };
 }
@@ -168,7 +170,14 @@ function toPublicTweet(tweet: FixtureTweet): PublicTweet {
       }
     : mockAuthor;
 
-  return { id: tweet.id, content: tweet.content, createdAt: tweet.createdAt, author: tweetAuthor };
+  return {
+    id: tweet.id,
+    content: tweet.content,
+    createdAt: tweet.createdAt,
+    author: tweetAuthor,
+    likesCount: 0,
+    likedByMe: false,
+  };
 }
 
 function tweetsByAuthor(username: string): PublicTweet[] {

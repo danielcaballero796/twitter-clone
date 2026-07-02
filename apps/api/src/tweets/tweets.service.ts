@@ -109,6 +109,9 @@ export class TweetsService {
         displayName: tweet.author.displayName,
         avatarUrl: avatarUrlFor(tweet.author.username),
       },
+      // TODO(block 2): compute real likesCount/likedByMe in paginateTweets/create.
+      likesCount: 0,
+      likedByMe: false,
     };
   }
 }

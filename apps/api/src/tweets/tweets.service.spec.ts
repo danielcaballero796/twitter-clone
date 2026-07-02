@@ -52,6 +52,8 @@ describe('TweetsService', () => {
           displayName: 'alice',
           avatarUrl: 'https://api.dicebear.com/9.x/identicon/svg?seed=alice',
         },
+        likesCount: 0,
+        likedByMe: false,
       });
       expect(new Date(tweet.createdAt).getTime()).not.toBeNaN();
 

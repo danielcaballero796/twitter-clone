@@ -27,6 +27,8 @@ export function useCreateTweet() {
             displayName: sessionUser.displayName,
             avatarUrl: sessionUser.avatarUrl,
           },
+          likesCount: 0,
+          likedByMe: false,
         };
         queryClient.setQueryData<TimelineData>(TIMELINE_QUERY_KEY, {
           ...previous,
