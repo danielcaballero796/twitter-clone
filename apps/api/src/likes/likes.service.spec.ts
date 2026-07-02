@@ -1,6 +1,7 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { Prisma } from '@prisma/client';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { LikesService } from './likes.service';
 
@@ -23,7 +24,7 @@ describe('LikesService', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [LikesService, PrismaService],
+      providers: [LikesService, NotificationsService, PrismaService],
     }).compile();
 
     service = moduleRef.get(LikesService);
@@ -32,6 +33,7 @@ describe('LikesService', () => {
   });
 
   afterEach(async () => {
+    await prisma.notification.deleteMany();
     await prisma.like.deleteMany();
     await prisma.tweet.deleteMany();
     await prisma.user.deleteMany();
@@ -125,6 +127,56 @@ describe('LikesService', () => {
       await expect(service.unlike(judy.id, 'missing-tweet-id')).rejects.toBeInstanceOf(
         NotFoundException,
       );
+    });
+  });
+
+  describe('notification fan-out', () => {
+    it('notifies the tweet author on like', async () => {
+      const mara = await createUser('mara');
+      const nico = await createUser('nico');
+      const tweet = await createTweet(nico.id, 'notify me');
+
+      await service.like(mara.id, tweet.id);
+
+      const rows = await prisma.notification.findMany();
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        type: 'LIKE',
+        actorId: mara.id,
+        recipientId: nico.id,
+        tweetId: tweet.id,
+      });
+    });
+
+    it('does not notify a self-like', async () => {
+      const olga = await createUser('olga');
+      const tweet = await createTweet(olga.id, 'my own tweet');
+
+      await service.like(olga.id, tweet.id);
+
+      expect(await prisma.notification.count()).toBe(0);
+    });
+
+    it('does not duplicate the notification on repeat like', async () => {
+      const pam = await createUser('pam');
+      const quinn = await createUser('quinn');
+      const tweet = await createTweet(quinn.id, 'liked twice');
+
+      await service.like(pam.id, tweet.id);
+      await service.like(pam.id, tweet.id);
+
+      expect(await prisma.notification.count()).toBe(1);
+    });
+
+    it('removes the notification on unlike', async () => {
+      const rita = await createUser('rita');
+      const sam = await createUser('sam');
+      const tweet = await createTweet(sam.id, 'like then unlike');
+      await service.like(rita.id, tweet.id);
+
+      await service.unlike(rita.id, tweet.id);
+
+      expect(await prisma.notification.count()).toBe(0);
     });
   });
 });

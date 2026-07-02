@@ -17,10 +17,12 @@ model User {
   avatarStyle  String   @default("identicon")
   createdAt    DateTime @default(now())
 
-  tweets    Tweet[]
-  following Follow[] @relation("follower")
-  followers Follow[] @relation("following")
-  likes     Like[]
+  tweets                Tweet[]
+  following             Follow[]       @relation("follower")
+  followers             Follow[]       @relation("following")
+  likes                 Like[]
+  notificationsReceived Notification[] @relation("notificationsReceived")
+  notificationsSent     Notification[] @relation("notificationsSent")
 }
 
 model Tweet {
@@ -30,9 +32,10 @@ model Tweet {
   content   String   @db.VarChar(280)
   parent    Tweet?   @relation("replies", fields: [parentId], references: [id], onDelete: Cascade)
   parentId  String?
-  replies   Tweet[]  @relation("replies")
-  likes     Like[]
-  createdAt DateTime @default(now())
+  replies       Tweet[]        @relation("replies")
+  likes         Like[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
 
   @@index([authorId, createdAt(sort: Desc)])
   @@index([parentId])
@@ -47,6 +50,29 @@ model Follow {
 
   @@id([followerId, followingId])
   @@index([followingId])
+}
+
+enum NotificationType {
+  LIKE
+  REPLY
+  FOLLOW
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  type        NotificationType
+  recipient   User             @relation("notificationsReceived", fields: [recipientId], references: [id], onDelete: Cascade)
+  recipientId String
+  actor       User             @relation("notificationsSent", fields: [actorId], references: [id], onDelete: Cascade)
+  actorId     String
+  tweet       Tweet?           @relation(fields: [tweetId], references: [id], onDelete: Cascade)
+  tweetId     String?
+  read        Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  @@index([recipientId, createdAt(sort: Desc)])
+  @@index([recipientId, read])
+  @@index([tweetId])
 }
 
 model Like {

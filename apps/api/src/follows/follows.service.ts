@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import type { UserListResponse } from '@twitterclone/shared';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { toUserSummary, USER_SUMMARY_SELECT, type UserSummaryRow } from '../users/user-summary';
 
@@ -12,7 +13,10 @@ interface ListOptions {
 
 @Injectable()
 export class FollowsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async follow(sessionUserId: string, targetUsername: string): Promise<void> {
     const target = await this.resolveUsername(targetUsername);
@@ -20,18 +24,30 @@ export class FollowsService {
       throw new BadRequestException('Cannot follow yourself');
     }
 
-    await this.prisma.follow.createMany({
+    // createMany's count is the fan-out guard: a repeat follow reports 0 created
+    // rows, so exactly one notification exists per follow edge.
+    const { count } = await this.prisma.follow.createMany({
       data: [{ followerId: sessionUserId, followingId: target.id }],
       skipDuplicates: true,
     });
+    if (count > 0) {
+      await this.notifications.create({
+        type: 'FOLLOW',
+        actorId: sessionUserId,
+        recipientId: target.id,
+      });
+    }
   }
 
   async unfollow(sessionUserId: string, targetUsername: string): Promise<void> {
     const target = await this.resolveUsername(targetUsername);
 
-    await this.prisma.follow.deleteMany({
+    const { count } = await this.prisma.follow.deleteMany({
       where: { followerId: sessionUserId, followingId: target.id },
     });
+    if (count > 0) {
+      await this.notifications.removeFollow(sessionUserId, target.id);
+    }
   }
 
   async followers(

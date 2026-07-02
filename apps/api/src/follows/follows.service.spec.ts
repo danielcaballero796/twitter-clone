@@ -1,5 +1,6 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { FollowsService } from './follows.service';
 
@@ -19,7 +20,7 @@ describe('FollowsService', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [FollowsService, PrismaService],
+      providers: [FollowsService, NotificationsService, PrismaService],
     }).compile();
 
     service = moduleRef.get(FollowsService);
@@ -28,6 +29,7 @@ describe('FollowsService', () => {
   });
 
   afterEach(async () => {
+    await prisma.notification.deleteMany();
     await prisma.follow.deleteMany();
     await prisma.user.deleteMany();
   });
@@ -223,6 +225,44 @@ describe('FollowsService', () => {
       await expect(service.following(tara.id, 'ghost', {})).rejects.toBeInstanceOf(
         NotFoundException,
       );
+    });
+  });
+
+  describe('notification fan-out', () => {
+    it('notifies the followed user on follow', async () => {
+      const uma = await createUser('uma');
+      const vic = await createUser('vic');
+
+      await service.follow(uma.id, 'vic');
+
+      const rows = await prisma.notification.findMany();
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        type: 'FOLLOW',
+        actorId: uma.id,
+        recipientId: vic.id,
+        tweetId: null,
+      });
+    });
+
+    it('does not duplicate the notification on repeat follow', async () => {
+      const wes = await createUser('wes');
+      await createUser('xena');
+
+      await service.follow(wes.id, 'xena');
+      await service.follow(wes.id, 'xena');
+
+      expect(await prisma.notification.count()).toBe(1);
+    });
+
+    it('removes the notification on unfollow', async () => {
+      const yara = await createUser('yara');
+      await createUser('zack');
+      await service.follow(yara.id, 'zack');
+
+      await service.unfollow(yara.id, 'zack');
+
+      expect(await prisma.notification.count()).toBe(0);
     });
   });
 });

@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import type { CursorPage, PublicTweet } from '@twitterclone/shared';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from '../users/avatar';
 import { USER_SUMMARY_SELECT } from '../users/user-summary';
@@ -36,13 +37,17 @@ interface TweetWithAuthor {
 
 @Injectable()
 export class TweetsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async create(authorId: string, content: string, parentId?: string): Promise<PublicTweet> {
+    let parent: { id: string; authorId: string } | null = null;
     if (parentId) {
-      const parent = await this.prisma.tweet.findUnique({
+      parent = await this.prisma.tweet.findUnique({
         where: { id: parentId },
-        select: { id: true },
+        select: { id: true, authorId: true },
       });
       if (!parent) {
         throw new NotFoundException('Parent tweet not found');
@@ -53,6 +58,16 @@ export class TweetsService {
       data: { authorId, content, parentId },
       include: TWEET_INCLUDE,
     });
+    if (parent) {
+      // tweetId points at the REPLY so the web link opens /t/:replyId with its
+      // "Replying to" context (design D4); reply deletion cascades the notification.
+      await this.notifications.create({
+        type: 'REPLY',
+        actorId: authorId,
+        recipientId: parent.authorId,
+        tweetId: tweet.id,
+      });
+    }
     return this.toPublicTweet(tweet, false);
   }
 

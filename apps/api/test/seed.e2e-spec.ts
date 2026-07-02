@@ -46,7 +46,7 @@ describe('Demo seed script (e2e)', () => {
   it('inserts the fixed demo dataset and returns matching counts', async () => {
     const summary = await seed(prisma);
 
-    expect(summary).toEqual({ users: 8, follows: 20, tweets: 49, likes: 60 });
+    expect(summary).toEqual({ users: 8, follows: 20, tweets: 49, likes: 60, notifications: 6 });
 
     await expect(prisma.user.count()).resolves.toBe(8);
     await expect(prisma.follow.count()).resolves.toBe(20);
@@ -176,7 +176,7 @@ describe('Demo seed script (e2e)', () => {
     const second = await seed(prisma);
 
     expect(second).toEqual(first);
-    expect(second).toEqual({ users: 8, follows: 20, tweets: 49, likes: 60 });
+    expect(second).toEqual({ users: 8, follows: 20, tweets: 49, likes: 60, notifications: 6 });
 
     await expect(prisma.user.count()).resolves.toBe(8);
     await expect(prisma.follow.count()).resolves.toBe(20);

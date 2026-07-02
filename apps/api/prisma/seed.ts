@@ -7,6 +7,7 @@ export interface SeedSummary {
   follows: number;
   tweets: number;
   likes: number;
+  notifications: number;
 }
 
 const DEMO_PASSWORD = 'Flock123!';
@@ -198,6 +199,7 @@ function likersFor(tweetIndex: number, authorUsername: string, count: number): s
 export async function seed(prisma: PrismaClient): Promise<SeedSummary> {
   // Wipe in FK-safe order (mirrors the reset order used in the e2e specs
   // under apps/api/test, e.g. likes.e2e-spec.ts's afterEach hook).
+  await prisma.notification.deleteMany();
   await prisma.like.deleteMany();
   await prisma.follow.deleteMany();
   await prisma.tweet.deleteMany();
@@ -281,11 +283,49 @@ export async function seed(prisma: PrismaClient): Promise<SeedSummary> {
   );
   const totalTweets = tweets.length + 1 + replies.length;
 
+  // Demo notifications for ada, derived from the rows seeded above so links
+  // resolve to real content: her thread's replies, one like, two followers.
+  // Raw rows (not service fan-out) because the seed writes prisma directly.
+  const adaId = userIdByUsername.get('ada')!;
+  const adaFirstTweet = tweets[TWEET_FIXTURES.findIndex((f) => f.authorUsername === 'ada')];
+  const adaFirstLiker = likeRows.find((row) => row.tweetId === adaFirstTweet.id);
+  const notificationRows = [
+    ...replies.map((reply, index) => ({
+      type: 'REPLY' as const,
+      actorId: reply.authorId,
+      recipientId: adaId,
+      tweetId: reply.id,
+      read: false,
+      createdAt: new Date(threadBase + (index + 1) * 60 * 1000),
+    })),
+    ...(adaFirstLiker
+      ? [
+          {
+            type: 'LIKE' as const,
+            actorId: adaFirstLiker.userId,
+            recipientId: adaId,
+            tweetId: adaFirstTweet.id,
+            read: true,
+            createdAt: new Date(base),
+          },
+        ]
+      : []),
+    ...['margaret', 'barbara'].map((follower, index) => ({
+      type: 'FOLLOW' as const,
+      actorId: userIdByUsername.get(follower)!,
+      recipientId: adaId,
+      read: true,
+      createdAt: new Date(base + index * 60 * 1000),
+    })),
+  ];
+  const notificationResult = await prisma.notification.createMany({ data: notificationRows });
+
   return {
     users: users.length,
     follows: followResult.count,
     tweets: totalTweets,
     likes: likeResult.count,
+    notifications: notificationResult.count,
   };
 }
 

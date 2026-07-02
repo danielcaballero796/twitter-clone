@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { TweetsService } from './tweets.service';
 
@@ -19,7 +20,7 @@ describe('TweetsService', () => {
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [TweetsService, PrismaService],
+      providers: [TweetsService, NotificationsService, PrismaService],
     }).compile();
 
     service = moduleRef.get(TweetsService);
@@ -28,6 +29,7 @@ describe('TweetsService', () => {
   });
 
   afterEach(async () => {
+    await prisma.notification.deleteMany();
     await prisma.like.deleteMany();
     await prisma.tweet.deleteMany();
     await prisma.user.deleteMany();
@@ -473,6 +475,53 @@ describe('TweetsService', () => {
       const page = await service.listByUsername(liker.id, 'wendy2', {});
 
       expect(page.items[0]).toMatchObject({ likesCount: 0, likedByMe: false });
+    });
+  });
+
+  describe('notification fan-out', () => {
+    it('notifies the parent author on reply, referencing the reply tweet', async () => {
+      const author = await createUser('yolanda');
+      const replier = await createUser('zeno');
+      const parent = await service.create(author.id, 'root tweet');
+
+      const reply = await service.create(replier.id, 'a reply', parent.id);
+
+      const rows = await prisma.notification.findMany();
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({
+        type: 'REPLY',
+        actorId: replier.id,
+        recipientId: author.id,
+        tweetId: reply.id,
+      });
+    });
+
+    it('does not notify a self-reply', async () => {
+      const author = await createUser('abel');
+      const parent = await service.create(author.id, 'talking to myself');
+
+      await service.create(author.id, 'still me', parent.id);
+
+      expect(await prisma.notification.count()).toBe(0);
+    });
+
+    it('does not notify a top-level tweet', async () => {
+      const author = await createUser('bruna');
+
+      await service.create(author.id, 'no parent here');
+
+      expect(await prisma.notification.count()).toBe(0);
+    });
+
+    it('deleting the reply cascades its notification away', async () => {
+      const author = await createUser('cesar');
+      const replier = await createUser('dora');
+      const parent = await service.create(author.id, 'root');
+      const reply = await service.create(replier.id, 'reply', parent.id);
+
+      await service.delete(replier.id, reply.id);
+
+      expect(await prisma.notification.count()).toBe(0);
     });
   });
 });
