@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { BellIcon } from '../../components/icons';
 import { navLinkClassName } from '../../components/nav-link';
 import { useSession } from '../auth/useSession';
 import { useUnreadCount } from './useUnreadCount';
@@ -32,8 +33,11 @@ export default function NotificationsNavLink() {
 
   return (
     <NavLink to="/notifications" className={navLinkClassName}>
-      Notifications
-      <UnreadBadge />
+      <span className="flex items-center">
+        <BellIcon />
+        <span className="sr-only">Notifications</span>
+        <UnreadBadge />
+      </span>
     </NavLink>
   );
 }
