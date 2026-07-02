@@ -1,7 +1,7 @@
 import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
-import { AVATAR_STYLES, type AvatarStyle } from '@twitterclone/shared';
+import { AVATAR_STYLES, type AvatarStyle, type UpdateProfileRequest } from '@twitterclone/shared';
 
-export class UpdateProfileDto {
+export class UpdateProfileDto implements UpdateProfileRequest {
   @IsOptional()
   @IsString()
   @MinLength(1)

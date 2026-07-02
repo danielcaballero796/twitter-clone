@@ -6,6 +6,9 @@
 /** Application display name — single source of truth for both apps. */
 export const APP_NAME = 'Twitter Clone';
 
+/** Maximum tweet content length — single source of truth for the API DTO and the web composer (DB column is @db.VarChar(280), keep in sync). */
+export const MAX_TWEET_LENGTH = 280;
+
 /** Payload returned by `GET /health`. */
 export interface HealthStatus {
   status: 'ok';

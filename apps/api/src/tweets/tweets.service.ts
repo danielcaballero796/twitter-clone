@@ -8,9 +8,12 @@ import { Prisma } from '@prisma/client';
 import type { CursorPage, PublicTweet } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from '../users/avatar';
+import { USER_SUMMARY_SELECT } from '../users/user-summary';
 
+// PublicTweet's author is a TweetAuthor (no isFollowing), unlike UserSummary, so this
+// reuses the shared column projection but keeps its own toPublicTweet mapper below.
 const AUTHOR_SELECT = {
-  select: { id: true, username: true, displayName: true, avatarStyle: true },
+  select: USER_SUMMARY_SELECT,
 } as const;
 
 interface TweetWithAuthor {

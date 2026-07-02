@@ -10,6 +10,7 @@ import type {
 } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from './avatar';
+import { toUserSummary, USER_SUMMARY_SELECT } from './user-summary';
 
 export interface CreateUserInput {
   email: string;
@@ -110,7 +111,7 @@ export class UsersService {
         ],
         NOT: { id: sessionUserId },
       },
-      select: { id: true, username: true, displayName: true, avatarStyle: true },
+      select: USER_SUMMARY_SELECT,
       take: SEARCH_RESULT_CAP,
     });
 
@@ -124,13 +125,7 @@ export class UsersService {
     const followingSet = new Set(followingRows.map((row) => row.followingId));
 
     return {
-      items: matches.map((user) => ({
-        id: user.id,
-        username: user.username,
-        displayName: user.displayName,
-        avatarUrl: avatarUrlFor(user.username, user.avatarStyle),
-        isFollowing: followingSet.has(user.id),
-      })),
+      items: matches.map((user) => toUserSummary(user, followingSet)),
     };
   }
 

@@ -35,10 +35,7 @@ export class UsersController {
   }
 
   @Patch('me')
-  updateMe(
-    @Req() req: AuthenticatedRequest,
-    @Body() dto: UpdateProfileDto,
-  ): Promise<PublicUser> {
+  updateMe(@Req() req: AuthenticatedRequest, @Body() dto: UpdateProfileDto): Promise<PublicUser> {
     return this.usersService.updateProfile(req.user.sub, dto);
   }
 

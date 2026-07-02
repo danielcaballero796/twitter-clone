@@ -1,20 +1,13 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import type { UserListResponse, UserSummary } from '@twitterclone/shared';
+import type { UserListResponse } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
-import { avatarUrlFor } from '../users/avatar';
+import { toUserSummary, USER_SUMMARY_SELECT, type UserSummaryRow } from '../users/user-summary';
 
 const MAX_LIST_LIMIT = 100;
 const DEFAULT_LIST_LIMIT = 50;
 
 interface ListOptions {
   limit?: number;
-}
-
-interface UserRow {
-  id: string;
-  username: string;
-  displayName: string;
-  avatarStyle: string;
 }
 
 @Injectable()
@@ -52,7 +45,7 @@ export class FollowsService {
     const rows = await this.prisma.follow.findMany({
       where: { followingId: target.id },
       select: {
-        follower: { select: { id: true, username: true, displayName: true, avatarStyle: true } },
+        follower: { select: USER_SUMMARY_SELECT },
       },
       take: limit,
     });
@@ -74,7 +67,7 @@ export class FollowsService {
     const rows = await this.prisma.follow.findMany({
       where: { followerId: target.id },
       select: {
-        following: { select: { id: true, username: true, displayName: true, avatarStyle: true } },
+        following: { select: USER_SUMMARY_SELECT },
       },
       take: limit,
     });
@@ -87,7 +80,7 @@ export class FollowsService {
 
   private async toUserListResponse(
     sessionUserId: string,
-    users: UserRow[],
+    users: UserSummaryRow[],
   ): Promise<UserListResponse> {
     const followingIds = await this.prisma.follow.findMany({
       where: { followerId: sessionUserId, followingId: { in: users.map((user) => user.id) } },
@@ -96,17 +89,7 @@ export class FollowsService {
     const followingSet = new Set(followingIds.map((row) => row.followingId));
 
     return {
-      items: users.map((user) => this.toUserSummary(user, followingSet)),
-    };
-  }
-
-  private toUserSummary(user: UserRow, followingSet: Set<string>): UserSummary {
-    return {
-      id: user.id,
-      username: user.username,
-      displayName: user.displayName,
-      avatarUrl: avatarUrlFor(user.username, user.avatarStyle),
-      isFollowing: followingSet.has(user.id),
+      items: users.map((user) => toUserSummary(user, followingSet)),
     };
   }
 
