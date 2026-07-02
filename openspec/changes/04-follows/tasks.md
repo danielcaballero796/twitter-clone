@@ -35,7 +35,7 @@
 
 ## 7. Final verification
 - [x] 7.1 `pnpm test` + `pnpm build` (all workspaces) green; api coverage ≥85% (dto/module excluded); `pnpm lint` clean; `pnpm format --check` clean (Prettier miss cost change 03 a red CI run — do not skip); `pnpm -r typecheck` clean
-- [ ] 7.2 Push; confirm CI green
+- [x] 7.2 Push; confirm CI green (run 28564897781)
 
 ## Scenario Coverage Checklist (34/34)
 - **Follows API — Follow (5)** [G1]: Successful follow; idempotent re-follow; self-follow rejected; unknown target rejected; unauthenticated rejected
