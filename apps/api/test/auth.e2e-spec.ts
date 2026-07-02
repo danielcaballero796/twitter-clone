@@ -54,4 +54,42 @@ describe('Auth flow (e2e)', () => {
 
     await agent.get('/auth/me').expect(401);
   });
+
+  it('rejects registration with an over-long password (argon2 cost DoS guard)', async () => {
+    const agent = request.agent(app.getHttpServer());
+
+    await agent
+      .post('/auth/register')
+      .send({
+        email: 'toolong@example.com',
+        username: 'toolong',
+        password: 'a'.repeat(73),
+        displayName: 'Too Long',
+      })
+      .expect(400);
+  });
+
+  it('rejects registration with an over-long displayName or email', async () => {
+    const agent = request.agent(app.getHttpServer());
+
+    await agent
+      .post('/auth/register')
+      .send({
+        email: 'displayname@example.com',
+        username: 'displayname',
+        password: 'correct-password',
+        displayName: 'a'.repeat(51),
+      })
+      .expect(400);
+
+    await agent
+      .post('/auth/register')
+      .send({
+        email: `${'a'.repeat(250)}@example.com`,
+        username: 'longemail',
+        password: 'correct-password',
+        displayName: 'Long Email',
+      })
+      .expect(400);
+  });
 });

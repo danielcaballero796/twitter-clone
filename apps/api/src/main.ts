@@ -5,6 +5,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap(): Promise<void> {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET environment variable is required but was not set.');
+  }
+
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
