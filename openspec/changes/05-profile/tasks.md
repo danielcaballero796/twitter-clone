@@ -37,7 +37,7 @@
 - [x] 6.3 REFACTOR: full web suite green, `pnpm -r typecheck` clean
 
 ## 7. Final verification
-- [ ] 7.1 `pnpm test` (all workspaces) green; `pnpm build` green; api coverage ≥85% (dto/module excluded); `pnpm lint` clean; `pnpm format --check` clean (Prettier miss = red CI in this repo — mandatory); `pnpm -r typecheck` clean
+- [x] 7.1 `pnpm test` (all workspaces) green; `pnpm build` green; api coverage ≥85% (dto/module excluded); `pnpm lint` clean; `pnpm format --check` clean (Prettier miss = red CI in this repo — mandatory); `pnpm -r typecheck` clean
 - [ ] 7.2 Push; confirm CI green
 
 ## Scenario Coverage Checklist (27/27)
