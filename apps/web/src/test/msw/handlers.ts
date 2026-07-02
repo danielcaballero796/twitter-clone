@@ -2,6 +2,7 @@ import { http, HttpResponse } from 'msw';
 import type {
   AvatarStyle,
   CreateTweetRequest,
+  PublicNotification,
   PublicTweet,
   PublicUser,
   TweetAuthor,
@@ -49,6 +50,18 @@ export function makeUserSummary(overrides: Partial<UserSummary> = {}): UserSumma
     displayName: otherUser.displayName,
     avatarUrl: otherUser.avatarUrl,
     isFollowing: false,
+    ...overrides,
+  };
+}
+
+export function makeNotification(overrides: Partial<PublicNotification> = {}): PublicNotification {
+  return {
+    id: 'notification-1',
+    type: 'LIKE',
+    read: false,
+    createdAt: new Date().toISOString(),
+    actor: makeUserSummary(),
+    tweetId: 'tweet-1',
     ...overrides,
   };
 }
@@ -241,6 +254,11 @@ function tweetNotFound() {
 /** Default handlers — read/mutate the fixture store above unless a test overrides them. */
 export const handlers = [
   http.get(`${API_URL}/auth/me`, () => new HttpResponse(null, { status: 401 })),
+  http.get(`${API_URL}/notifications/unread-count`, () => HttpResponse.json({ count: 0 })),
+  http.get(`${API_URL}/notifications`, () =>
+    HttpResponse.json({ items: [], nextCursor: null, hasMore: false }),
+  ),
+  http.patch(`${API_URL}/notifications/read`, () => HttpResponse.json({ success: true })),
   http.get(`${API_URL}/tweets/timeline`, () => {
     const items = tweets
       .filter((tweet) => isFollowing(ACTING_USERNAME, tweet.authorUsername))

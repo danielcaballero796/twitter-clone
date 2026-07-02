@@ -33,3 +33,9 @@ export const tweetQueryKey = (id: string) => [...TWEET_QUERY_PREFIX, id] as cons
 export const REPLIES_QUERY_PREFIX = ['replies'] as const;
 
 export const repliesQueryKey = (id: string) => [...REPLIES_QUERY_PREFIX, id] as const;
+
+/** Session user's notifications feed pages (`GET /notifications`). */
+export const NOTIFICATIONS_QUERY_KEY = ['notifications', 'list'] as const;
+
+/** Unread notifications counter backing the nav badge (`GET /notifications/unread-count`). */
+export const UNREAD_COUNT_QUERY_KEY = ['notifications', 'unread-count'] as const;
