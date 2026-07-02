@@ -1,5 +1,5 @@
 import type { PublicTweet } from '@twitterclone/shared';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useToggleLike } from './useToggleLike';
 
@@ -31,6 +31,12 @@ export default function TweetCard({ tweet, sessionUserId, onDelete }: TweetCardP
   const toggleLike = useToggleLike({ tweetId: tweet.id, likedByMe: tweet.likedByMe });
   const [likeOverride, setLikeOverride] = useState<LikeOverride | null>(null);
   const [likeErrored, setLikeErrored] = useState(false);
+
+  // The local override only bridges until fresh like data arrives via props (cache flip or
+  // refetch); once it does, server truth wins — otherwise concurrent likes would stay hidden.
+  useEffect(() => {
+    setLikeOverride(null);
+  }, [tweet.likedByMe, tweet.likesCount]);
 
   const displayedLikedByMe = likeOverride?.likedByMe ?? tweet.likedByMe;
   const displayedLikesCount = likeOverride?.likesCount ?? tweet.likesCount;
