@@ -1,8 +1,7 @@
 import { type InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CursorPage, PublicTweet, PublicUser } from '@twitterclone/shared';
-import { SESSION_QUERY_KEY } from '../auth/useSession';
+import { SESSION_QUERY_KEY, TIMELINE_QUERY_KEY } from '../../lib/queryKeys';
 import { createTweet } from './api';
-import { TIMELINE_QUERY_KEY } from './useTimeline';
 
 type TimelineData = InfiniteData<CursorPage<PublicTweet>, string | undefined>;
 

@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import type { PublicUser } from '@twitterclone/shared';
+import { SESSION_QUERY_KEY } from '../../lib/queryKeys';
 import { fetchMe } from './api';
 
-export const SESSION_QUERY_KEY = ['session'] as const;
+export { SESSION_QUERY_KEY };
 
 export interface SessionState {
   user: PublicUser | null;

@@ -1,8 +1,7 @@
 import { type InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CursorPage, PublicTweet } from '@twitterclone/shared';
-import { USER_TWEETS_QUERY_PREFIX } from '../users/useUserTweets';
+import { TIMELINE_QUERY_KEY, USER_TWEETS_QUERY_PREFIX } from '../../lib/queryKeys';
 import { likeTweet, unlikeTweet } from './api';
-import { TIMELINE_QUERY_KEY } from './useTimeline';
 
 type TweetsPageData = InfiniteData<CursorPage<PublicTweet>, string | undefined>;
 
@@ -33,8 +32,9 @@ function flipLike(tweetId: string, nextLikedByMe: boolean, delta: number) {
 /**
  * Single toggle mutation — captures the target tweet's current like state via closure so
  * callers only need `mutate()`. Flips `likedByMe`/`likesCount` across BOTH the timeline cache
- * and the user-tweets (profile) cache for the target tweet only, rolls back both on error, and
- * invalidates both prefixes on settle.
+ * and the user-tweets (profile) cache for the target tweet only, and rolls back both on error.
+ * The optimistic patch already reflects the real end state, so there's no onSettled
+ * invalidation; on error we invalidate as a safety net after the rollback.
  */
 export function useToggleLike({ tweetId, likedByMe }: ToggleLikeInput) {
   const queryClient = useQueryClient();
@@ -73,8 +73,6 @@ export function useToggleLike({ tweetId, likedByMe }: ToggleLikeInput) {
       context?.previousUserTweets.forEach(([queryKey, data]) => {
         queryClient.setQueryData(queryKey, data);
       });
-    },
-    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: TIMELINE_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: USER_TWEETS_QUERY_PREFIX });
     },

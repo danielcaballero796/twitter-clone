@@ -1,7 +1,8 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { TIMELINE_QUERY_KEY } from '../../lib/queryKeys';
 import { fetchTimeline } from './api';
 
-export const TIMELINE_QUERY_KEY = ['timeline'] as const;
+export { TIMELINE_QUERY_KEY };
 
 export function useTimeline() {
   return useInfiniteQuery({

@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { PublicUser, UpdateProfileRequest } from '@twitterclone/shared';
-import { SESSION_QUERY_KEY } from '../auth/useSession';
-import { TIMELINE_QUERY_KEY } from '../tweets/useTimeline';
+import {
+  PROFILE_QUERY_PREFIX,
+  SESSION_QUERY_KEY,
+  TIMELINE_QUERY_KEY,
+  USER_TWEETS_QUERY_PREFIX,
+} from '../../lib/queryKeys';
 import { updateProfile } from './api';
-import { PROFILE_QUERY_PREFIX } from './useProfile';
-import { USER_TWEETS_QUERY_PREFIX } from './useUserTweets';
 
 /**
  * Saves profile edits. The response is the fresh session shape, so it seeds the

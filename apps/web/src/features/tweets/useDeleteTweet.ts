@@ -1,8 +1,7 @@
 import { type InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { CursorPage, PublicTweet } from '@twitterclone/shared';
-import { USER_TWEETS_QUERY_PREFIX } from '../users/useUserTweets';
+import { TIMELINE_QUERY_KEY, USER_TWEETS_QUERY_PREFIX } from '../../lib/queryKeys';
 import { deleteTweet } from './api';
-import { TIMELINE_QUERY_KEY } from './useTimeline';
 
 type TweetsPageData = InfiniteData<CursorPage<PublicTweet>, string | undefined>;
 
@@ -23,8 +22,10 @@ function removeTweet(id: string) {
 
 /**
  * Optimistically removes the deleted tweet from BOTH the timeline cache and the user-tweets
- * (profile) cache, rolls back both on error, and invalidates both prefixes on settle — mirrors
- * useToggleLike's dual-cache handling so a delete from either surface stays consistent.
+ * (profile) cache, and rolls back both on error — mirrors useToggleLike's dual-cache handling
+ * so a delete from either surface stays consistent. The optimistic patch already reflects the
+ * real end state, so there's no onSettled invalidation; on error we invalidate as a safety net
+ * after the rollback in case the cache had drifted for another reason.
  */
 export function useDeleteTweet() {
   const queryClient = useQueryClient();
@@ -57,8 +58,6 @@ export function useDeleteTweet() {
       context?.previousUserTweets.forEach(([queryKey, data]) => {
         queryClient.setQueryData(queryKey, data);
       });
-    },
-    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: TIMELINE_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: USER_TWEETS_QUERY_PREFIX });
     },

@@ -1,10 +1,8 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { USER_TWEETS_QUERY_PREFIX, userTweetsQueryKey } from '../../lib/queryKeys';
 import { getUserTweets } from './api';
 
-export const USER_TWEETS_QUERY_PREFIX = ['users', 'tweets'] as const;
-
-export const userTweetsQueryKey = (username: string) =>
-  [...USER_TWEETS_QUERY_PREFIX, username] as const;
+export { USER_TWEETS_QUERY_PREFIX, userTweetsQueryKey };
 
 export function useUserTweets(username: string) {
   return useInfiniteQuery({
