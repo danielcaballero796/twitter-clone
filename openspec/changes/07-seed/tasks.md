@@ -26,8 +26,8 @@
 - [x] 1.3 REFACTOR: rerun `apps/api` full suite green; confirm no duplicated wipe logic between the seed script and e2e reset hooks (comment cross-reference is enough, no shared import required)
 
 ## 2. Docs (D-none, README only) — commit: `docs: add demo seed instructions to README`
-- [ ] 2.1 Add a "Demo data" section to root `README.md` (after "Testing", following existing table/code-block style) documenting: `pnpm --filter @twitterclone/api db:seed` command, the 8 seeded usernames, and the shared password `Flock123!`
-- [ ] 2.2 Add one line noting the production guard (script refuses to run when `NODE_ENV=production`)
+- [x] 2.1 Add a "Demo data" section to root `README.md` (after "Testing", following existing table/code-block style) documenting: `pnpm --filter @twitterclone/api db:seed` command, the 8 seeded usernames, and the shared password `Flock123!`
+- [x] 2.2 Add one line noting the production guard (script refuses to run when `NODE_ENV=production`)
 
 ## 3. Final verification
 - [ ] 3.1 `pnpm test` (all workspaces) green; api coverage >=85% (dto/module excluded, per existing jest config); `pnpm lint` clean; `pnpm format` clean (`pnpm format:write` then reverify if needed); `pnpm -r typecheck` clean; `pnpm build` green

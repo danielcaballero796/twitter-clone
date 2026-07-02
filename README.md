@@ -65,3 +65,28 @@ pnpm --filter web dev
 pnpm --filter api test   # requires docker compose up -d + migrated twitter_test
 pnpm --filter web test
 ```
+
+## Demo data
+
+Populate a fresh database with a fixed, deterministic demo dataset (8 users, 20 follows, 45 tweets, 60 likes) so you can log in and immediately exercise timeline pagination, follows, and likes:
+
+```bash
+pnpm --filter @twitterclone/api db:seed
+```
+
+Every seeded user shares the same demo password: `Flock123!`
+
+| Username    |
+| ----------- |
+| `ada`       |
+| `linus`     |
+| `grace`     |
+| `margaret`  |
+| `alan`      |
+| `barbara`   |
+| `dennis`    |
+| `katherine` |
+
+Log in as `ada@theflock.dev` / `Flock123!` to see a timeline that spans multiple pages (she follows 5 of the other seeded users).
+
+Re-running the seed wipes existing seed-owned data (likes, follows, tweets, users) before inserting again, so it always converges to the same dataset. The script refuses to run when `NODE_ENV=production`.
