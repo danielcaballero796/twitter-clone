@@ -73,6 +73,8 @@ interface FixtureTweet {
   content: string;
   createdAt: string;
   authorUsername: string;
+  /** Base like count, excludes the acting session user's own like state (see `likedTweetIds`). */
+  likesCount: number;
 }
 
 function initialUsers(): FixtureUser[] {
@@ -101,6 +103,7 @@ function initialTweets(): FixtureTweet[] {
       content: "bob's default tweet",
       createdAt: new Date('2024-01-01T00:00:00.000Z').toISOString(),
       authorUsername: otherUser.username,
+      likesCount: 0,
     },
   ];
 }
@@ -108,6 +111,8 @@ function initialTweets(): FixtureTweet[] {
 let users: FixtureUser[] = initialUsers();
 let follows: Set<string> = new Set();
 let tweets: FixtureTweet[] = initialTweets();
+/** Tweet ids liked by `ACTING_USERNAME` — the only session user the fixture store tracks. */
+let likedTweetIds: Set<string> = new Set();
 
 function edgeKey(follower: string, followee: string): string {
   return `${follower}->${followee}`;
@@ -118,6 +123,7 @@ export function resetStore(): void {
   users = initialUsers();
   follows = new Set();
   tweets = initialTweets();
+  likedTweetIds = new Set();
 }
 
 function findUser(username: string): FixtureUser | undefined {
@@ -175,8 +181,8 @@ function toPublicTweet(tweet: FixtureTweet): PublicTweet {
     content: tweet.content,
     createdAt: tweet.createdAt,
     author: tweetAuthor,
-    likesCount: 0,
-    likedByMe: false,
+    likesCount: tweet.likesCount + (likedTweetIds.has(tweet.id) ? 1 : 0),
+    likedByMe: likedTweetIds.has(tweet.id),
   };
 }
 
@@ -208,6 +214,14 @@ export const handlers = [
     });
   }),
   http.delete(`${API_URL}/tweets/:id`, () => HttpResponse.json({ success: true })),
+  http.post(`${API_URL}/tweets/:tweetId/like`, ({ params }) => {
+    likedTweetIds.add(params.tweetId as string);
+    return HttpResponse.json({ success: true });
+  }),
+  http.delete(`${API_URL}/tweets/:tweetId/like`, ({ params }) => {
+    likedTweetIds.delete(params.tweetId as string);
+    return HttpResponse.json({ success: true });
+  }),
   http.get(`${API_URL}/users`, ({ request }) => {
     const q = (new URL(request.url).searchParams.get('q') ?? '').toLowerCase();
     const items: UserListResponse['items'] = users

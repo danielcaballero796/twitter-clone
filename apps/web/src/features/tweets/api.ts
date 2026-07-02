@@ -17,3 +17,11 @@ export function createTweet(payload: CreateTweetRequest): Promise<PublicTweet> {
 export function deleteTweet(id: string): Promise<{ success: true }> {
   return request(`/tweets/${id}`, { method: 'DELETE' });
 }
+
+export function likeTweet(tweetId: string): Promise<{ success: true }> {
+  return request(`/tweets/${tweetId}/like`, { method: 'POST' });
+}
+
+export function unlikeTweet(tweetId: string): Promise<{ success: true }> {
+  return request(`/tweets/${tweetId}/like`, { method: 'DELETE' });
+}

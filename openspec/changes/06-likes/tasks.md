@@ -21,11 +21,11 @@
 - [x] 3.3 REFACTOR: all e2e suites green (auth + tweets + follows + profile + likes + health)
 
 ## 4. Web MSW + data layer (D4+D5) — commit: `feat(web): add like toggle hook and stateful like handlers`
-- [ ] 4.1 Extend `apps/web/src/test/msw/handlers.ts` in-memory store: tweets gain `likesCount`/`likedByMe` state; add default `POST /tweets/:tweetId/like` and `DELETE /tweets/:tweetId/like` handlers that idempotently mutate the store (mirroring the API's create-many/delete-many idempotency), so refetch-after-mutation reflects reality without per-test overrides; error cases remain per-test `server.use(...)`
-- [ ] 4.2 `apps/web/src/features/tweets/useToggleLike.ts` — `useToggleLike({ tweetId, likedByMe })` mutation mirroring `useToggleFollow`: POST when not liked, DELETE when liked, against `/tweets/:tweetId/like`
-- [ ] 4.3 `onMutate`: cancel + snapshot BOTH the timeline cache (`TIMELINE_QUERY_KEY` prefix) and the user-tweets cache (`USER_TWEETS_QUERY_PREFIX`); apply one shared flip helper across both, mapping over cached pages and flipping `likedByMe` + adjusting `likesCount` by ±1 for the target tweet id only
-- [ ] 4.4 `onError`: restore both snapshots. `onSettled`: invalidate both prefixes
-- [ ] 4.5 Run existing hook/handler tests — all stay green unchanged
+- [x] 4.1 Extend `apps/web/src/test/msw/handlers.ts` in-memory store: tweets gain `likesCount`/`likedByMe` state; add default `POST /tweets/:tweetId/like` and `DELETE /tweets/:tweetId/like` handlers that idempotently mutate the store (mirroring the API's create-many/delete-many idempotency), so refetch-after-mutation reflects reality without per-test overrides; error cases remain per-test `server.use(...)`
+- [x] 4.2 `apps/web/src/features/tweets/useToggleLike.ts` — `useToggleLike({ tweetId, likedByMe })` mutation mirroring `useToggleFollow`: POST when not liked, DELETE when liked, against `/tweets/:tweetId/like`
+- [x] 4.3 `onMutate`: cancel + snapshot BOTH the timeline cache (`TIMELINE_QUERY_KEY` prefix) and the user-tweets cache (`USER_TWEETS_QUERY_PREFIX`); apply one shared flip helper across both, mapping over cached pages and flipping `likedByMe` + adjusting `likesCount` by ±1 for the target tweet id only
+- [x] 4.4 `onError`: restore both snapshots. `onSettled`: invalidate both prefixes
+- [x] 4.5 Run existing hook/handler tests — all stay green unchanged
 
 ## 5. Web UI (D4) — commit: `feat(web): add like button with optimistic count + tests`
 - [ ] 5.1 RED: `apps/web/src/features/tweets/TweetCard.test.tsx` — like button renders with count including 0; clicking like on an unliked tweet flips to liked state and increments count by 1 optimistically; clicking unlike on a liked tweet flips to not-liked state and decrements count by 1 optimistically; mutation failure rolls back both button state and count and surfaces an error; existing delete behavior and all existing `data-testid`s unchanged. `apps/web/src/features/users/ProfilePage.test.tsx` (or a user-tweets-cache-focused test) — like toggle works on a `TweetCard` rendered from the user-tweets cache on the profile page, with the same rollback-on-failure behavior. Run → failing
