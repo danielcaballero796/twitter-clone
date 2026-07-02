@@ -24,3 +24,6 @@ pnpm-debug.log*
 
 # Challenge statement (not part of the deliverable)
 TwitterClone_Challenge_TheFlock.docx.pdf
+
+# Local AI tooling (Agent Teams Lite skill registry)
+.atl/

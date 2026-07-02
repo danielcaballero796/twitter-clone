@@ -90,3 +90,51 @@ Every seeded user shares the same demo password: `Flock123!`
 Log in as `ada@theflock.dev` / `Flock123!` to see a timeline that spans multiple pages (she follows 5 of the other seeded users).
 
 Re-running the seed wipes existing seed-owned data (likes, follows, tweets, users) before inserting again, so it always converges to the same dataset. The script refuses to run when `NODE_ENV=production`.
+
+## Architecture & key decisions
+
+### Stack rationale
+
+One language (TypeScript) across the whole stack: shared types between API and client (`packages/shared`, consumed as source), maximum iteration speed, and the stack where execution quality is easiest to prove.
+
+- **NestJS 11 + Node 22** — opinionated domain-module structure, native DI, first-class testing ecosystem (Jest + Supertest).
+- **Prisma + PostgreSQL 16** — declarative schema, versioned migrations (evolution visible in the commit history), end-to-end type safety. All data access goes through a single injected `PrismaService`; the only raw SQL in the codebase is the health check's `SELECT 1`.
+- **React 18 + Vite + TanStack Query + Tailwind CSS v4** — server-cache invalidation solved by the query layer, mobile-first styling, class-based dark mode.
+
+### Backend layout
+
+Domain modules (`auth`, `users`, `tweets`, `follows`, `likes`, `health`), each with controller → service → `PrismaService`. DTOs validated with `class-validator` (global `ValidationPipe` with `whitelist` + `transform`). A global JWT guard protects everything by default; public routes opt out with a `@Public()` decorator. There is deliberately no separate repository layer: Prisma Client is already a typed data-access abstraction, and services are the single point of contact with it — extracting repository interfaces later is a mechanical refactor.
+
+### Auth
+
+- Passwords hashed with **argon2id**; registration input length-capped (`@MaxLength`) so hashing cost can't be abused.
+- **JWT in an httpOnly, SameSite=Lax cookie** (never localStorage — XSS). 7-day expiry, no refresh rotation: a documented challenge-scope trade-off.
+- The API refuses to boot without `JWT_SECRET`.
+
+### Timeline
+
+- **Fan-out on read** (pull model): tweets are queried by the author set at read time, backed by a composite index `(authorId, createdAt DESC)`. At this scale pre-computed timelines (fan-out on write) would be premature complexity.
+- **Cursor pagination** (`createdAt` + `id` tiebreaker), not offset: stable under new inserts, no duplicated pages. The web app consumes it with `useInfiniteQuery` and optimistic updates for like/follow/delete.
+
+### Counters
+
+**Count on read** via Prisma `_count` — correct by construction, no drift. At real scale these would be denormalized with reconciliation jobs; not needed here.
+
+### Data model notes
+
+`Tweet.parentId` (nullable self-reference) shipped in the initial schema so a future replies/threads feature needs no disruptive migration. `Follow` and `Like` use composite primary keys with supporting indexes for the reverse lookups.
+
+### Theme system
+
+Class-based dark mode (Tailwind v4 `@custom-variant`), toggled by a `useTheme` hook: defaults to `prefers-color-scheme`, persists explicit choices to localStorage, reacts to OS changes while in system mode, and an inline pre-hydration script in `index.html` prevents any flash of the wrong theme.
+
+## Trade-offs consciously taken
+
+- Single-column, breakpoint-less layout (Twitter-like center feed) instead of a multi-column desktop shell.
+- CSRF relies on SameSite=Lax cookies + origin-restricted CORS; no double-submit token layer.
+- No rate limiting or security-header middleware (helmet/throttler) — first items on a production hardening list.
+- Registration errors are surfaced as coarse messages rather than per-field validation feedback.
+
+## AI tooling
+
+Built with **Claude Code** using a spec-driven workflow: each change was planned (proposal → specs → design → task breakdown, archived under `openspec/`), implemented with strict TDD by sub-agents, independently verified against its specs, and the final delivery passed a two-round adversarial review (two blind reviewers in parallel, confirmed findings fixed and re-judged). The human drove every scope, architecture and trade-off decision; the commit history reflects the feature-by-feature progression.
