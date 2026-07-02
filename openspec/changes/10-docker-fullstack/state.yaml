@@ -1,0 +1,26 @@
+change: 10-docker-fullstack
+phase: apply
+artifact_store: hybrid
+execution_mode: interactive
+strict_tdd: true          # repo-code changes gated by full test suite; images verified by booting the stack (spec scenarios)
+artifacts:
+  exploration: true       # prod-build bug found inline: broken start path + shared exporting raw .ts (irresoluble by plain node)
+  proposal: true
+  specs: true             # 9 scenarios (infra-docker)
+  design: true            # D1-D8 binding; D1 (single origin) chosen by user after trade-off discussion
+  tasks: true             # 5 blocks
+  apply: false
+  verify: false
+  archive: false
+approvals:
+  proposal: true          # user: "de una vamos con la opcion A" (2026-07-02)
+  specs: true
+  design: true
+  tasks: true
+  apply: false
+  verify: false
+  archive: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-02
