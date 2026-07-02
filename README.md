@@ -23,8 +23,8 @@ pnpm install
 # 2. Environment: copy the template
 #    - root .env        → variables for docker-compose (ports/credentials)
 #    - apps/api/.env    → variables for the API (DATABASE_URL, etc.)
-cp env.example .env
-cp env.example apps/api/.env
+cp .env.example .env
+cp .env.example apps/api/.env
 
 # 3. Start PostgreSQL (creates twitter_dev + twitter_test databases)
 docker compose up -d
