@@ -1,0 +1,26 @@
+change: 08-ui-theme
+phase: tasks
+artifact_store: hybrid
+execution_mode: auto
+strict_tdd: true          # scoped: TDD for theme behavior; class-level polish gated by existing suites staying green
+artifacts:
+  exploration: false      # design direction generated inline with ui-ux-pro-max skill (design-system + domain searches)
+  proposal: true
+  specs: true
+  design: true
+  tasks: true
+  apply: false
+  verify: false
+  archive: false
+approvals:
+  proposal: true          # user requested UI/UX polish + light/dark mode explicitly
+  specs: true
+  design: true            # authored by orchestrator (D1-D5 binding, ui-ux-pro-max informed)
+  tasks: true
+  apply: false
+  verify: false
+  archive: false
+tasks_progress:
+  completed: []
+  pending: []
+last_updated: 2026-07-02
