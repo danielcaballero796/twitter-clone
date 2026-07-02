@@ -33,6 +33,8 @@ COPY --from=build /app/apps/api/dist ./dist
 COPY --from=build /app/apps/api/prisma ./prisma
 COPY --from=build /app/apps/api/node_modules ./node_modules
 COPY --from=build /app/apps/api/package.json ./package.json
+COPY --from=build /app/tsconfig.base.json /app/tsconfig.base.json
+COPY --from=build /app/apps/api/tsconfig.json ./tsconfig.json
 
 EXPOSE 3000
 
