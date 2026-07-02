@@ -15,9 +15,9 @@ Commit: `fix(api): make the compiled build bootable with plain node`
 
 Commit: `feat(docker): containerize the api with migrate-on-boot`
 
-- [ ] 1.1 `.dockerignore` (node_modules, dist, .env*, coverage, .git)
-- [ ] 1.2 `apps/api/Dockerfile` multi-stage per D4
-- [ ] 1.3 Verify: `docker build -f apps/api/Dockerfile .` succeeds
+- [x] 1.1 `.dockerignore` (node_modules, dist, .env*, coverage, .git)
+- [x] 1.2 `apps/api/Dockerfile` multi-stage per D4
+- [x] 1.3 Verify: `docker build -f apps/api/Dockerfile .` succeeds
 
 ## Block 2 — Web image
 

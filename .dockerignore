@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+**/dist
+.env
+.env.*
+!.env.example
+**/coverage
+.git
+openspec
+.atl
+move-to-docker.md
+*.pdf
