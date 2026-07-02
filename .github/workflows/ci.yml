@@ -101,6 +101,15 @@ jobs:
           echo "$body"
           echo "$body" | grep -q '"username":"smoke"'
 
+      - name: Create a tweet through the proxy
+        run: |
+          curl -fsS -b cookies.txt -H 'Content-Type: application/json' \
+            -d '{"content":"smoke tweet"}' \
+            http://localhost:8080/tweets
+
+      - name: Tweet appears in the timeline
+        run: curl -fsS -b cookies.txt http://localhost:8080/tweets/timeline | grep -q '"content":"smoke tweet"'
+
       - name: SPA fallback serves index.html on client routes
         run: curl -fsS http://localhost:8080/u/smoke | grep -qi '<div id="root">'
 
