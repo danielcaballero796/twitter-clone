@@ -14,9 +14,9 @@
 - [x] 2.3 REFACTOR: rerun green, `pnpm --filter api test --coverage` ≥85% for `follows/**` (global suite coverage 90.74% — `follows.controller.ts` reaches full coverage once block 4 registers `FollowsModule` and the e2e suite exercises it)
 
 ## 3. User search API — commit: `feat(api): add user search endpoint with isFollowing + tests`
-- [ ] 3.1 RED: `users.service.spec.ts` + `users.controller.spec.ts` — match by username substring; match by displayName substring; case-insensitive match; session user excluded from results; capped at 10; `isFollowing` true for already-followed match; empty/missing `q` → 400 (ValidationPipe); unauthenticated → 401. Run → failing
-- [ ] 3.2 GREEN: `apps/api/src/users/dto/search-users.dto.ts` (`q` `@IsString @Length(1,50)`); `users.service.ts` `search(sub, q)` — `findMany({OR:[username contains, displayName contains], NOT:{id:sub}, take:10})` + batched `follow.findMany` → Set; `users.controller.ts` `GET /users?q=` (module's first controller); register in `users.module.ts`
-- [ ] 3.3 REFACTOR: rerun green
+- [x] 3.1 RED: `users.service.spec.ts` + `users.controller.spec.ts` — match by username substring; match by displayName substring; case-insensitive match; session user excluded from results; capped at 10; `isFollowing` true for already-followed match; empty/missing `q` → 400 (ValidationPipe); unauthenticated → 401. Run → failing
+- [x] 3.2 GREEN: `apps/api/src/users/dto/search-users.dto.ts` (`q` `@IsString @Length(1,50)`); `users.service.ts` `search(sub, q)` — `findMany({OR:[username contains, displayName contains], NOT:{id:sub}, take:10})` + batched `follow.findMany` → Set; `users.controller.ts` `GET /users?q=` (module's first controller); register in `users.module.ts`
+- [x] 3.3 REFACTOR: rerun green
 
 ## 4. E2E — real follow→timeline flow — commit: `test(api): add follows e2e flow with timeline integration`
 - [ ] 4.1 RED: `apps/api/test/follows.e2e-spec.ts` — register A+B → A calls `POST /users/B/follow` → `GET /tweets/timeline` includes B's tweets (mandatory, no seeding hack); `DELETE /users/B/follow` → B's tweets gone from timeline; idempotent double-follow (no duplicate); self-follow 400; unknown username 404; unauthenticated follow/unfollow/list/search → 401. Run → failing

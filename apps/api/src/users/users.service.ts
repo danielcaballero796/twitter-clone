@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
-import type { PublicUser } from '@twitterclone/shared';
+import type { PublicUser, UserListResponse } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from './avatar';
 
@@ -13,6 +13,7 @@ export interface CreateUserInput {
 }
 
 const PRISMA_UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
+const SEARCH_RESULT_CAP = 10;
 
 @Injectable()
 export class UsersService {
@@ -63,6 +64,39 @@ export class UsersService {
       displayName: user.displayName,
       bio: user.bio,
       avatarUrl: avatarUrlFor(user.username),
+    };
+  }
+
+  async search(sessionUserId: string, q: string): Promise<UserListResponse> {
+    const matches = await this.prisma.user.findMany({
+      where: {
+        OR: [
+          { username: { contains: q, mode: 'insensitive' } },
+          { displayName: { contains: q, mode: 'insensitive' } },
+        ],
+        NOT: { id: sessionUserId },
+      },
+      select: { id: true, username: true, displayName: true },
+      take: SEARCH_RESULT_CAP,
+    });
+
+    const followingRows = await this.prisma.follow.findMany({
+      where: {
+        followerId: sessionUserId,
+        followingId: { in: matches.map((user) => user.id) },
+      },
+      select: { followingId: true },
+    });
+    const followingSet = new Set(followingRows.map((row) => row.followingId));
+
+    return {
+      items: matches.map((user) => ({
+        id: user.id,
+        username: user.username,
+        displayName: user.displayName,
+        avatarUrl: avatarUrlFor(user.username),
+        isFollowing: followingSet.has(user.id),
+      })),
     };
   }
 }

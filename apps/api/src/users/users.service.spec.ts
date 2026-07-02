@@ -119,4 +119,76 @@ describe('UsersService', () => {
       expect(publicUser).not.toHaveProperty('passwordHash');
     });
   });
+
+  describe('search', () => {
+    const createUser = (username: string, displayName: string) =>
+      service.create({
+        email: `${username}@example.com`,
+        username,
+        password: 'supersecret',
+        displayName,
+      });
+
+    it('matches by username substring', async () => {
+      const self = await createUser('searcher', 'Searcher');
+      const target = await createUser('johndoe', 'Someone Else');
+
+      const result = await service.search(self.id, 'john');
+
+      expect(result.items).toEqual([
+        expect.objectContaining({ id: target.id, username: 'johndoe' }),
+      ]);
+    });
+
+    it('matches by displayName substring', async () => {
+      const self = await createUser('searcher2', 'Searcher Two');
+      const target = await createUser('unrelated', 'John Doe');
+
+      const result = await service.search(self.id, 'John Doe');
+
+      expect(result.items).toEqual([
+        expect.objectContaining({ id: target.id, username: 'unrelated' }),
+      ]);
+    });
+
+    it('matches case-insensitively', async () => {
+      const self = await createUser('searcher3', 'Searcher Three');
+      const target = await createUser('JohnDoe', 'John Doe');
+
+      const result = await service.search(self.id, 'johndoe');
+
+      expect(result.items).toEqual([expect.objectContaining({ id: target.id })]);
+    });
+
+    it('excludes the session user even when their own name matches', async () => {
+      const self = await createUser('selfmatch', 'Self Match');
+
+      const result = await service.search(self.id, 'self');
+
+      expect(result.items).toEqual([]);
+    });
+
+    it('caps results at 10', async () => {
+      const self = await createUser('capper', 'Capper');
+      for (let i = 0; i < 12; i += 1) {
+        await createUser(`match${i}`, `Match User ${i}`);
+      }
+
+      const result = await service.search(self.id, 'match');
+
+      expect(result.items).toHaveLength(10);
+    });
+
+    it('computes isFollowing true for an already-followed match', async () => {
+      const self = await createUser('follower1', 'Follower One');
+      const target = await createUser('followed1', 'Followed One');
+      await prisma.follow.create({ data: { followerId: self.id, followingId: target.id } });
+
+      const result = await service.search(self.id, 'followed1');
+
+      expect(result.items).toEqual([
+        expect.objectContaining({ id: target.id, isFollowing: true }),
+      ]);
+    });
+  });
 });
