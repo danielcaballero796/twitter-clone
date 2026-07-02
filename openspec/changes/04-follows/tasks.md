@@ -19,9 +19,9 @@
 - [x] 3.3 REFACTOR: rerun green
 
 ## 4. E2E — real follow→timeline flow — commit: `test(api): add follows e2e flow with timeline integration`
-- [ ] 4.1 RED: `apps/api/test/follows.e2e-spec.ts` — register A+B → A calls `POST /users/B/follow` → `GET /tweets/timeline` includes B's tweets (mandatory, no seeding hack); `DELETE /users/B/follow` → B's tweets gone from timeline; idempotent double-follow (no duplicate); self-follow 400; unknown username 404; unauthenticated follow/unfollow/list/search → 401. Run → failing
-- [ ] 4.2 GREEN: register `FollowsModule` in `apps/api/src/app.module.ts`; fix any gaps surfaced by e2e
-- [ ] 4.3 REFACTOR: all e2e suites green (auth + tweets + follows + health)
+- [x] 4.1 RED: `apps/api/test/follows.e2e-spec.ts` — register A+B → A calls `POST /users/B/follow` → `GET /tweets/timeline` includes B's tweets (mandatory, no seeding hack); `DELETE /users/B/follow` → B's tweets gone from timeline; idempotent double-follow (no duplicate); self-follow 400; unknown username 404; unauthenticated follow/unfollow/list/search → 401. Run → failing
+- [x] 4.2 GREEN: register `FollowsModule` in `apps/api/src/app.module.ts`; fix any gaps surfaced by e2e
+- [x] 4.3 REFACTOR: all e2e suites green (auth + tweets + follows + health) — full `pnpm test` 81/81 passing, 97.85% coverage
 
 ## 5. Web users API + hooks — commit: `feat(web): add users api client and search/follow hooks`
 - [ ] 5.1 Add stateful `apps/web/src/test/msw/handlers.ts` handlers for `GET /users?q=`, `POST/DELETE /users/:username/follow` (mutate in-memory fixture so refetches reflect the change)
