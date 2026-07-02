@@ -1,3 +1,4 @@
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { TweetsService } from './tweets.service';
@@ -66,6 +67,34 @@ describe('TweetsService', () => {
 
       expect(oneChar.content).toBe('x');
       expect(atLimit.content).toHaveLength(280);
+    });
+  });
+
+  describe('delete', () => {
+    it('deletes the tweet when the requester is the author', async () => {
+      const carol = await createUser('carol');
+      const tweet = await service.create(carol.id, 'delete me');
+
+      await service.delete(carol.id, tweet.id);
+
+      await expect(prisma.tweet.findUnique({ where: { id: tweet.id } })).resolves.toBeNull();
+    });
+
+    it("rejects deleting another user's tweet with ForbiddenException and keeps it", async () => {
+      const dave = await createUser('dave');
+      const eve = await createUser('eve');
+      const tweet = await service.create(dave.id, 'not yours');
+
+      await expect(service.delete(eve.id, tweet.id)).rejects.toBeInstanceOf(ForbiddenException);
+      await expect(prisma.tweet.findUnique({ where: { id: tweet.id } })).resolves.not.toBeNull();
+    });
+
+    it('rejects a nonexistent tweet id with NotFoundException', async () => {
+      const frank = await createUser('frank');
+
+      await expect(service.delete(frank.id, 'missing-tweet-id')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 });

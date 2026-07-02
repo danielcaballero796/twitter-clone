@@ -99,4 +99,29 @@ describe('TweetsController (integration)', () => {
       await expect(prisma.tweet.count()).resolves.toBe(0);
     });
   });
+
+  describe('DELETE /tweets/:id', () => {
+    it('returns 200 and removes the tweet when the session user owns it', async () => {
+      const agent = await loggedInAgent('tina');
+      const created = await agent.post('/tweets').send({ content: 'bye' }).expect(201);
+
+      await agent.delete(`/tweets/${created.body.id}`).expect(200);
+
+      await expect(prisma.tweet.count()).resolves.toBe(0);
+    });
+
+    it("returns 403 when deleting another user's tweet", async () => {
+      const author = await loggedInAgent('ursula');
+      const created = await author.post('/tweets').send({ content: 'mine' }).expect(201);
+
+      const intruder = await loggedInAgent('victor');
+      await intruder.delete(`/tweets/${created.body.id}`).expect(403);
+
+      await expect(prisma.tweet.count()).resolves.toBe(1);
+    });
+
+    it('returns 401 without a session cookie', async () => {
+      await request(app.getHttpServer()).delete('/tweets/whatever').expect(401);
+    });
+  });
 });

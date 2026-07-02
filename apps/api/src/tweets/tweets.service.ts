@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import type { PublicTweet } from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from '../users/avatar';
@@ -22,6 +22,17 @@ export class TweetsService {
       include: { author: AUTHOR_SELECT },
     });
     return this.toPublicTweet(tweet);
+  }
+
+  async delete(userId: string, tweetId: string): Promise<void> {
+    const tweet = await this.prisma.tweet.findUnique({ where: { id: tweetId } });
+    if (!tweet) {
+      throw new NotFoundException('Tweet not found');
+    }
+    if (tweet.authorId !== userId) {
+      throw new ForbiddenException('You can only delete your own tweets');
+    }
+    await this.prisma.tweet.delete({ where: { id: tweetId } });
   }
 
   toPublicTweet(tweet: TweetWithAuthor): PublicTweet {
