@@ -10,6 +10,7 @@ import {
   useLocation,
 } from 'react-router-dom';
 import { APP_NAME } from '@twitterclone/shared';
+import { HomeIcon, MagnifyingGlassIcon } from './components/icons';
 import { navLinkClassName } from './components/nav-link';
 import ThemeToggle from './features/theme/ThemeToggle';
 import HomePage from './features/auth/HomePage';
@@ -52,10 +53,12 @@ function AppShell() {
           </h1>
           <nav className="flex items-center gap-1">
             <NavLink to="/" end className={navLinkClassName}>
-              Home
+              <HomeIcon />
+              <span className="sr-only sm:not-sr-only">Home</span>
             </NavLink>
             <NavLink to="/explore" className={navLinkClassName}>
-              Explore
+              <MagnifyingGlassIcon />
+              <span className="sr-only sm:not-sr-only">Explore</span>
             </NavLink>
             <NotificationsNavLink />
             <ProfileNavLink />

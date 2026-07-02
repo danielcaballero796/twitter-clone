@@ -15,7 +15,7 @@ function UnreadBadge() {
   return (
     <span
       data-testid="unread-badge"
-      className="ml-1 inline-flex min-w-5 items-center justify-center rounded-full bg-indigo-600 px-1.5 text-xs font-semibold text-white dark:bg-indigo-500"
+      className="inline-flex min-w-5 items-center justify-center rounded-full bg-indigo-600 px-1.5 text-xs font-semibold text-white dark:bg-indigo-500"
     >
       {count}
       <span className="sr-only"> unread notifications</span>
@@ -33,11 +33,9 @@ export default function NotificationsNavLink() {
 
   return (
     <NavLink to="/notifications" className={navLinkClassName}>
-      <span className="flex items-center">
-        <BellIcon />
-        <span className="sr-only">Notifications</span>
-        <UnreadBadge />
-      </span>
+      <BellIcon />
+      <span className="sr-only sm:not-sr-only">Notifications</span>
+      <UnreadBadge />
     </NavLink>
   );
 }

@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { UserIcon } from '../../components/icons';
 import { navLinkClassName } from '../../components/nav-link';
 import { useSession } from '../auth/useSession';
 
@@ -12,7 +13,8 @@ export default function ProfileNavLink() {
 
   return (
     <NavLink to={`/u/${user.username}`} className={navLinkClassName}>
-      Profile
+      <UserIcon />
+      <span className="sr-only sm:not-sr-only">Profile</span>
     </NavLink>
   );
 }
