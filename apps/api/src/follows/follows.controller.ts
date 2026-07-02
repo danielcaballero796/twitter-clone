@@ -25,6 +25,7 @@ export class FollowsController {
   constructor(private readonly followsService: FollowsService) {}
 
   @Post('follow')
+  @HttpCode(HttpStatus.OK)
   async follow(
     @Req() req: AuthenticatedRequest,
     @Param('username') username: string,

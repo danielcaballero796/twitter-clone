@@ -6,8 +6,8 @@ import type TestAgent from 'supertest/lib/agent';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 
-/** Nest defaults an undecorated POST handler to 201; the spec permits 200/201 for follow. */
-const FOLLOW_SUCCESS_STATUS = 201;
+/** POST follow is idempotent edge-creation, so it returns 200 like POST like does. */
+const FOLLOW_SUCCESS_STATUS = 200;
 
 describe('Follows flow (e2e)', () => {
   let app: INestApplication;

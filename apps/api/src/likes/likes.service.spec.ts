@@ -1,5 +1,6 @@
 import { NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { LikesService } from './likes.service';
 
@@ -72,6 +73,26 @@ describe('LikesService', () => {
       await expect(service.like(eve.id, 'missing-tweet-id')).rejects.toBeInstanceOf(
         NotFoundException,
       );
+    });
+
+    it('translates a P2003 FK violation from a tweet deleted mid-request into NotFoundException', async () => {
+      const kim = await createUser('kim');
+      const leo = await createUser('leo');
+      const tweet = await createTweet(leo.id, 'about to be deleted');
+
+      // Simulates the tweet being deleted by another request between resolveTweet's
+      // existence check and the createMany call — Prisma surfaces this as a P2003
+      // foreign key violation, which must be translated to a 404 instead of a 500.
+      const createManySpy = jest.spyOn(prisma.like, 'createMany').mockRejectedValueOnce(
+        new Prisma.PrismaClientKnownRequestError('Foreign key constraint failed', {
+          code: 'P2003',
+          clientVersion: '6.0.0',
+        }),
+      );
+
+      await expect(service.like(kim.id, tweet.id)).rejects.toBeInstanceOf(NotFoundException);
+
+      createManySpy.mockRestore();
     });
   });
 

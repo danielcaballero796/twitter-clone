@@ -57,7 +57,7 @@ describe('Profile flow (e2e)', () => {
     await b.post('/tweets').send({ content: 'first tweet' }).expect(201);
     await b.post('/tweets').send({ content: 'second tweet' }).expect(201);
 
-    await a.post('/users/profileb/follow').expect(201);
+    await a.post('/users/profileb/follow').expect(200);
 
     const bProfile = await a.get('/users/profileb').expect(200);
     expect(bProfile.body).toMatchObject({
@@ -133,7 +133,7 @@ describe('Profile flow (e2e)', () => {
 
       await b.patch('/users/me').send({ avatarStyle: 'bottts' }).expect(200);
       await b.post('/tweets').send({ content: 'styled tweet' }).expect(201);
-      await a.post('/users/styleb/follow').expect(201);
+      await a.post('/users/styleb/follow').expect(200);
 
       const expectedUrl = 'https://api.dicebear.com/9.x/bottts/svg?seed=styleb';
       const profile = await a.get('/users/styleb').expect(200);
@@ -202,7 +202,7 @@ describe('Profile flow (e2e)', () => {
     const a = await signUpAndLogin('profiled');
     const b = await signUpAndLogin('profilesearchtarget');
     await b.post('/tweets').send({ content: 'coexistence tweet' }).expect(201);
-    await a.post('/users/profilesearchtarget/follow').expect(201);
+    await a.post('/users/profilesearchtarget/follow').expect(200);
 
     const search = await a.get('/users?q=profilesearchtarget').expect(200);
     expect(search.body.items).toEqual([

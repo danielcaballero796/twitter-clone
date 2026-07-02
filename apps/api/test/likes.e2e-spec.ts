@@ -56,7 +56,7 @@ describe('Likes flow (e2e)', () => {
     const b = await signUpAndLogin('likeb');
     const c = await signUpAndLogin('likec');
 
-    await a.post('/users/likeb/follow').expect(201);
+    await a.post('/users/likeb/follow').expect(200);
     const bTweet = await b.post('/tweets').send({ content: "b's tweet" }).expect(201);
     const tweetId = bTweet.body.id as string;
 
