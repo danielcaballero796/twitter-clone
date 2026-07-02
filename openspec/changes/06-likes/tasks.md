@@ -33,8 +33,8 @@
 - [x] 5.3 REFACTOR: full web suite green, `pnpm -r typecheck` clean
 
 ## 6. Final verification
-- [ ] 6.1 `pnpm test` (all workspaces) green; `pnpm build` green; api coverage ≥85% (dto/module excluded); `pnpm lint` clean; `pnpm format` (check-only at root; run `pnpm format:write` to fix, then reverify `pnpm format`) clean; `pnpm -r typecheck` clean
-- [ ] 6.2 Push; confirm CI green
+- [x] 6.1 `pnpm test` (all workspaces) green; `pnpm build` green; api coverage ≥85% (dto/module excluded); `pnpm lint` clean; `pnpm format` (check-only at root; run `pnpm format:write` to fix, then reverify `pnpm format`) clean; `pnpm -r typecheck` clean
+- [x] 6.2 Push; confirm CI green
 
 ## Scenario Coverage Checklist (20/20)
 - **Likes API — Like (4)** [G1]: Successful like; idempotent re-like; unknown tweet rejected (404); unauthenticated like rejected (401)
