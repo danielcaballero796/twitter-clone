@@ -1,7 +1,13 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import { hash } from '@node-rs/argon2';
-import type { AvatarStyle, PublicUser, UserListResponse, UserProfile } from '@twitterclone/shared';
+import type {
+  AvatarStyle,
+  PublicUser,
+  UpdateProfileRequest,
+  UserListResponse,
+  UserProfile,
+} from '@twitterclone/shared';
 import { PrismaService } from '../prisma/prisma.service';
 import { avatarUrlFor } from './avatar';
 
@@ -13,6 +19,7 @@ export interface CreateUserInput {
 }
 
 const PRISMA_UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
+const PRISMA_RECORD_NOT_FOUND = 'P2025';
 const SEARCH_RESULT_CAP = 10;
 
 @Injectable()
@@ -66,6 +73,32 @@ export class UsersService {
       avatarStyle: user.avatarStyle as AvatarStyle,
       avatarUrl: avatarUrlFor(user.username, user.avatarStyle),
     };
+  }
+
+  async updateProfile(userId: string, input: UpdateProfileRequest): Promise<PublicUser> {
+    const data: Prisma.UserUpdateInput = {};
+    if (input.displayName !== undefined) {
+      data.displayName = input.displayName;
+    }
+    if (input.bio !== undefined) {
+      data.bio = input.bio === '' ? null : input.bio;
+    }
+    if (input.avatarStyle !== undefined) {
+      data.avatarStyle = input.avatarStyle;
+    }
+
+    try {
+      const user = await this.prisma.user.update({ where: { id: userId }, data });
+      return this.toPublicUser(user);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === PRISMA_RECORD_NOT_FOUND
+      ) {
+        throw new NotFoundException('User not found');
+      }
+      throw error;
+    }
   }
 
   async search(sessionUserId: string, q: string): Promise<UserListResponse> {

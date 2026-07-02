@@ -139,6 +139,62 @@ describe('UsersService', () => {
     });
   });
 
+  describe('updateProfile', () => {
+    const createUser = (username: string, displayName: string) =>
+      service.create({
+        email: `${username}@example.com`,
+        username,
+        password: 'supersecret',
+        displayName,
+      });
+
+    it('updates only the provided fields and returns the public shape', async () => {
+      const created = await createUser('editone', 'Edit One');
+      await prisma.user.update({ where: { id: created.id }, data: { bio: 'original bio' } });
+
+      const updated = await service.updateProfile(created.id, { displayName: 'Edited Name' });
+
+      expect(updated.displayName).toBe('Edited Name');
+      expect(updated.bio).toBe('original bio');
+      expect(updated.avatarStyle).toBe('identicon');
+      expect(updated).not.toHaveProperty('passwordHash');
+    });
+
+    it('clears the bio when given an empty string', async () => {
+      const created = await createUser('edittwo', 'Edit Two');
+      await prisma.user.update({ where: { id: created.id }, data: { bio: 'about to vanish' } });
+
+      const updated = await service.updateProfile(created.id, { bio: '' });
+
+      expect(updated.bio).toBeNull();
+      const persisted = await prisma.user.findUnique({ where: { id: created.id } });
+      expect(persisted?.bio).toBeNull();
+    });
+
+    it('recomputes avatarUrl when the avatar style changes', async () => {
+      const created = await createUser('editthree', 'Edit Three');
+
+      const updated = await service.updateProfile(created.id, { avatarStyle: 'bottts' });
+
+      expect(updated.avatarStyle).toBe('bottts');
+      expect(updated.avatarUrl).toBe('https://api.dicebear.com/9.x/bottts/svg?seed=editthree');
+    });
+
+    it('treats an empty patch as a no-op', async () => {
+      const created = await createUser('editfour', 'Edit Four');
+
+      const updated = await service.updateProfile(created.id, {});
+
+      expect(updated).toEqual(service.toPublicUser(created));
+    });
+
+    it('rejects an unknown user id with NotFoundException', async () => {
+      await expect(
+        service.updateProfile('missing-user-id', { displayName: 'Ghost' }),
+      ).rejects.toBeInstanceOf(NotFoundException);
+    });
+  });
+
   describe('search', () => {
     const createUser = (username: string, displayName: string) =>
       service.create({
