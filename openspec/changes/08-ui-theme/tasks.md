@@ -12,9 +12,9 @@
 - [x] 0.9 REFACTOR: rerun theme tests + full web suite green
 
 ## 1. App shell (D3) — commit: `feat(web): rebuild app shell with nav, theme toggle, and icon system`
-- [ ] 1.1 `apps/web/src/components/icons.tsx` — Heart, HeartSolid, Trash, Sun, Moon, MagnifyingGlass, ArrowPath SVGs (24x24, `aria-hidden`, currentColor)
-- [ ] 1.2 `apps/web/src/App.tsx` — sticky translucent header (`bg-white/80 dark:bg-slate-950/80 backdrop-blur border-b`), brand link, `NavLink` Home/Explore with `aria-current="page"` active state, `<ThemeToggle />`; page container `max-w-2xl` per D2/D3
-- [ ] 1.3 Verify: web suite green (App-level tests unaffected — no testid/route changes)
+- [x] 1.1 `apps/web/src/components/icons.tsx` — Heart, HeartSolid, Trash, Sun, Moon, MagnifyingGlass, ArrowPath SVGs (24x24, `aria-hidden`, currentColor)
+- [x] 1.2 `apps/web/src/App.tsx` — sticky translucent header (`bg-white/80 dark:bg-slate-950/80 backdrop-blur border-b`), brand link, `NavLink` Home/Explore with `aria-current="page"` active state, `<ThemeToggle />`; page container `max-w-2xl` per D2/D3
+- [x] 1.3 Verify: web suite green (App-level tests unaffected — no testid/route changes)
 
 ## 2. Tweets feature polish (D4) — commit: `feat(web): polish tweet components with icons, skeletons, and empty states`
 - [ ] 2.1 `TweetCard.tsx` — replace glyphs with Heart/HeartSolid/Trash icons; preserve `data-testid="tweet-like-button"`, `aria-pressed`, `aria-label`, `data-testid="tweet-content"`; hover/ring/spacing per D4
