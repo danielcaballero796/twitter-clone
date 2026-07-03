@@ -17,15 +17,23 @@ Minimal Twitter-like app built as a hiring challenge. pnpm monorepo:
 
 One command boots the whole product: postgres, the API (migrated), and the web app, behind a single origin.
 
+**Step 0 — environment (optional, only for the AI assistant).** The core app needs NO `.env` file: every variable in `docker-compose.yml` has a working default on a clean checkout. The one feature that needs a real value is the AI tweet assistant — if you want to try it, create the root `.env` from the template **before** booting and set your key (free at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)):
+
+```bash
+cp .env.example .env    # then set GEMINI_API_KEY=<your key>
+```
+
+Skipping this is fine: everything else works and the AI endpoint just answers 503 with a friendly message.
+
+**Step 1 — boot the stack:**
+
 ```bash
 docker compose up -d --build
 ```
 
-Open **http://localhost:8080** (or `http://localhost:${WEB_PORT}` if overridden below). No `.env` file is required — every variable has a working default on a clean checkout, and migrations run automatically before the API starts listening.
+Open **http://localhost:8080** (or `http://localhost:${WEB_PORT}` if overridden below). Migrations run automatically before the API starts listening.
 
 nginx serves the built SPA and reverse-proxies `/auth`, `/users`, `/tweets`, `/notifications`, `/ai` and `/health` to the api container — one origin, no CORS, first-party session cookie. (`/notifications` doubles as a SPA route: nginx splits on the `Accept` header — browser navigations get the app shell, JSON fetches reach the API.)
-
-**Optional — AI tweet assistant**: set `GEMINI_API_KEY` in the root `.env` before booting (free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)) and the composer gains AI rewrite actions. Without a key everything else works untouched — the AI endpoint just answers 503.
 
 Seed the running stack with the same deterministic demo dataset described below:
 
@@ -56,7 +64,8 @@ pnpm install
 
 # 2. Environment: copy the template into the two places that read it
 #    - root .env        → read by docker-compose (POSTGRES_*, WEB_PORT)
-#    - apps/api/.env    → read by the API via dotenv (DATABASE_URL, JWT_SECRET, etc.)
+#    - apps/api/.env    → read by the API via dotenv (DATABASE_URL, JWT_SECRET, etc.;
+#      set GEMINI_API_KEY here if you want the AI tweet assistant in dev)
 #    The web app needs NO .env in dev: VITE_API_URL defaults to http://localhost:3000.
 cp .env.example .env
 cp .env.example apps/api/.env
