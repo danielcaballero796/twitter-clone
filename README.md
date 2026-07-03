@@ -23,7 +23,9 @@ docker compose up -d --build
 
 Open **http://localhost:8080** (or `http://localhost:${WEB_PORT}` if overridden below). No `.env` file is required — every variable has a working default on a clean checkout, and migrations run automatically before the API starts listening.
 
-nginx serves the built SPA and reverse-proxies `/auth`, `/users`, `/tweets`, `/notifications` and `/health` to the api container — one origin, no CORS, first-party session cookie. (`/notifications` doubles as a SPA route: nginx splits on the `Accept` header — browser navigations get the app shell, JSON fetches reach the API.)
+nginx serves the built SPA and reverse-proxies `/auth`, `/users`, `/tweets`, `/notifications`, `/ai` and `/health` to the api container — one origin, no CORS, first-party session cookie. (`/notifications` doubles as a SPA route: nginx splits on the `Accept` header — browser navigations get the app shell, JSON fetches reach the API.)
+
+**Optional — AI tweet assistant**: set `GEMINI_API_KEY` in the root `.env` before booting (free key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)) and the composer gains AI rewrite actions. Without a key everything else works untouched — the AI endpoint just answers 503.
 
 Seed the running stack with the same deterministic demo dataset described below:
 
@@ -158,6 +160,17 @@ Domain modules (`auth`, `users`, `tweets`, `follows`, `likes`, `notifications`, 
 ### Data model notes
 
 `Tweet.parentId` (nullable self-reference) shipped in the initial schema, so the reply-threads feature landed without a disruptive migration — replies are ordinary tweets that also appear in the timeline, with thread pages at `/t/:id`. `Follow` and `Like` use composite primary keys with supporting indexes for the reverse lookups.
+
+### AI tweet assistant
+
+The composer offers four on-demand rewrite actions — **Improve**, **Shorten**, **Fix grammar**, **More engaging** — that send the draft to `POST /ai/tweet-assist` and return a suggestion the user can apply (**Use**), append (**Insert**), **Regenerate**, or **Dismiss**. Design decisions:
+
+- **The API key never reaches the browser.** The web app only talks to our own endpoint; the NestJS `ai` module holds `GEMINI_API_KEY` server-side and calls Gemini (`gemini-2.5-flash-lite` by default, thinking disabled, capped output tokens — free-tier friendly).
+- **Provider seam**: `AiService` depends on a `TEXT_GENERATOR` injection token, not on Gemini. Swapping providers is a one-file change (`gemini.client.ts`), and every test overrides the token with a fake — **CI never calls a real AI provider**.
+- **On-demand only**: nothing fires while typing; actions are disabled under 20 characters (`MIN_ASSIST_LENGTH`, shared constant — the web button and the API DTO validate against the same value). The JWT guard already protects the endpoint, so only authenticated users can spend quota.
+- **Degradable**: without `GEMINI_API_KEY` the endpoint answers 503 with a clear message and the rest of the product is unaffected; provider failures map to 502 with a retry affordance in the UI.
+
+Env vars: `GEMINI_API_KEY` (root `.env` for Docker, `apps/api/.env` for native dev) and optional `GEMINI_MODEL` override.
 
 ### Notifications
 
