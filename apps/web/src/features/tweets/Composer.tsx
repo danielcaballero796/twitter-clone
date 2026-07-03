@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from 'react';
 import { MAX_TWEET_LENGTH } from '@twitterclone/shared';
 import { ArrowPathIcon } from '../../components/icons';
+import TweetAssistPanel from '../ai/TweetAssistPanel';
 import { useCreateTweet } from './useCreateTweet';
 
 export default function Composer() {
@@ -43,6 +44,11 @@ export default function Composer() {
           Tweet is too long — max {MAX_TWEET_LENGTH} characters
         </p>
       )}
+      <TweetAssistPanel
+        draft={content}
+        onReplace={setContent}
+        onInsert={(suggestion) => setContent((current) => `${current.trimEnd()} ${suggestion}`)}
+      />
       <div className="flex items-center justify-between">
         <span
           data-testid="composer-counter"

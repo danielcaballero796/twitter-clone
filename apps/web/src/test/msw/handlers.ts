@@ -259,6 +259,9 @@ export const handlers = [
     HttpResponse.json({ items: [], nextCursor: null, hasMore: false }),
   ),
   http.patch(`${API_URL}/notifications/read`, () => HttpResponse.json({ success: true })),
+  http.post(`${API_URL}/ai/tweet-assist`, () =>
+    HttpResponse.json({ suggestion: 'A default AI suggestion' }),
+  ),
   http.get(`${API_URL}/tweets/timeline`, () => {
     const items = tweets
       .filter((tweet) => isFollowing(ACTING_USERNAME, tweet.authorUsername))
