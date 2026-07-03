@@ -110,6 +110,25 @@ export interface UserListResponse {
   items: UserSummary[];
 }
 
+/** Rewrite actions the AI tweet assistant supports. */
+export const TWEET_ASSIST_ACTIONS = ['improve', 'shorten', 'fix-grammar', 'more-engaging'] as const;
+
+export type TweetAssistAction = (typeof TWEET_ASSIST_ACTIONS)[number];
+
+/** Drafts shorter than this don't carry enough signal to rewrite — button disabled + DTO floor. */
+export const MIN_ASSIST_LENGTH = 20;
+
+/** Request shape for `POST /ai/tweet-assist`. */
+export interface TweetAssistRequest {
+  text: string;
+  action: TweetAssistAction;
+}
+
+/** Response shape for `POST /ai/tweet-assist`. */
+export interface TweetAssistResponse {
+  suggestion: string;
+}
+
 /** Interaction kinds that fan out to a persistent notification. */
 export type NotificationType = 'LIKE' | 'REPLY' | 'FOLLOW';
 
