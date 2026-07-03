@@ -24,6 +24,10 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/twitter_dev
       JWT_SECRET: ${JWT_SECRET:-twitterclone-demo-secret-do-not-use-in-production}
+      # Optional: AI tweet assistant. Without a key the endpoint degrades to 503;
+      # everything else works untouched.
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-2.5-flash-lite}
       # NODE_ENV stays unset on purpose: the seed's production guard keeps
       # protecting real deployments while demo seeding stays possible.
     depends_on:
